@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta charset="utf-8"> <!-- Codificación de caracteres -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Compatibilidad con IE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Vista en Dispositivos Móviles -->
 
-    <title>SB Admin 2 - Login</title>
+    <meta name="descripcion" content="">
+    <meta name="autor" content="">
+
+    <title>Sistema de Gestión - UEBF</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -35,47 +36,38 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6 d-none d-lg-block" style="background-image: url('imagenes/foto_inicio.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                        <h1 class="h1 text-gray-900 mb-4">Iniciar Sesión</h1>
+                                        <h6 class="text-gray-900 mb-4">¡Bienvenido! Por favor ingrese sus datos</h6>
                                     </div>
                                     <form class="user">
                                         <div class="form-group">
-                                            <input type="email" class="form-control form-control-user"
-                                                id="exampleInputEmail" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address...">
+                                            <label for="identificationNumber">Número de identificación</label>
+                                            <input type="text" class="form-control form-control-user"
+                                                id="identificationNumber" aria-describedby="emailHelp"
+                                                placeholder="Ingrese su número de identificación...">
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password">
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
-                                                <label class="custom-control-label" for="customCheck">Remember
-                                                    Me</label>
+                                            <label for="exampleInputPassword">Contraseña</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control form-control-user" id="exampleInputPassword" placeholder="Ingrese su contraseña">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary btn-toggle-password" type="button">Mostrar</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </div>                                                                                                                                                 
                                         <a href="index.html" class="btn btn-primary btn-user btn-block">
-                                            Login
-                                        </a>
-                                        <hr>
-                                        <a href="index.html" class="btn btn-google btn-user btn-block">
-                                            <i class="fab fa-google fa-fw"></i> Login with Google
-                                        </a>
-                                        <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                                            <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                                            Iniciar Sesión
                                         </a>
                                     </form>
                                     <hr>
                                     <div class="text-center">
-                                        <a class="small" href="forgot-password.html">Forgot Password?</a>
-                                    </div>
-                                    <div class="text-center">
-                                        <a class="small" href="register.html">Create an Account!</a>
-                                    </div>
+                                        <span class="small">¿No tiene cuenta? </span>
+                                        <a class="small" href="register.html">Solicite al Administrador crear una</a>
+                                    </div>                                    
                                 </div>
                             </div>
                         </div>
@@ -99,5 +91,6 @@
     <script src="js/sb-admin-2.min.js"></script>
 
 </body>
+
 
 </html>
