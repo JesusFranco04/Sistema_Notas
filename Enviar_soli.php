@@ -26,7 +26,9 @@
             <div class="card-body p-0">
                 <!-- Nested Row within Card Body -->
                 <div class="row">
-                    <div class="col-lg-6 d-none d-lg-block" style="background-image: url('imagenes/foto_inicio.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
+                    <div class="col-lg-6 d-none d-lg-block"
+                        style="background-image: url('imagenes/foto_inicio.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;">
+                    </div>
                     <div class="col-lg-6">
                         <div class="p-5">
                             <div class="text-center">
@@ -35,27 +37,27 @@
                             <form class="user" action="../Sistema_Notas/Crud/solicitud.php" method="POST">
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="text" class="form-control form-control-user" id="cedula" name="cedula"
-                                            placeholder="Digite su Cédula" required>
+                                        <input type="text" class="form-control form-control-user" id="cedula"
+                                            name="cedula" placeholder="Digite su Cédula" required>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="tel" class="form-control form-control-user" id="telefono" name="telefono" 
-                                            placeholder="Digite su Teléfono" required>
+                                        <input type="tel" class="form-control form-control-user" id="telefono"
+                                            name="telefono" placeholder="Digite su Teléfono" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                        <input type="text" class="form-control form-control-user" id="nombres" name="nombres"
-                                            placeholder="Digite sus Nombres" required>
+                                        <input type="text" class="form-control form-control-user" id="nombres"
+                                            name="nombres" placeholder="Digite sus Nombres" required>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control form-control-user" id="apellidos" name="apellidos"
-                                            placeholder="Digite sus Apellidos" required>
+                                        <input type="text" class="form-control form-control-user" id="apellidos"
+                                            name="apellidos" placeholder="Digite sus Apellidos" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="email" class="form-control form-control-user" id="correo_electronico" name="correo_electronico"
-                                        placeholder="Digite su Correo Electrónico" required>
+                                    <input type="email" class="form-control form-control-user" id="correo_electronico"
+                                        name="correo_electronico" placeholder="Digite su Correo Electrónico" required>
                                 </div>
                                 <div class="form-group">
                                     <select class="form-control" id="rol" name="rol" required>
@@ -70,7 +72,7 @@
                                 </button>
                                 <a href="login_family.html" class="btn btn-secondary btn-user btn-block">Cancelar</a>
                             </form>
-                            
+
                             <hr>
                             <div class="text-center">
                                 <a class="small" href="login_family.html">Ya tienes cuenta? Inicia Sesion</a>
@@ -81,31 +83,36 @@
             </div>
         </div>
     </div>
-    
-    <script>
-    function validarFormulario() {
-        var cedula = document.getElementById("cedula").value;
-        var telefono = document.getElementById("telefono").value;
-        var nombres = document.getElementById("nombres").value;
-        var apellidos = document.getElementById("apellidos").value;
-        var correo_electronico = document.getElementById("correo_electronico").value;
-        var rol = document.getElementById("rol").value;
 
-        if (cedula == "" || telefono == "" || nombres == "" || apellidos == "" || correo_electronico == "" || rol == "") {
-            alert("Por favor, complete todos los campos.");
-            return false;
+    <script>
+        function validarFormulario() {
+            var cedula = document.getElementById("cedula").value;
+            var telefono = document.getElementById("telefono").value;
+            var nombres = document.getElementById("nombres").value;
+            var apellidos = document.getElementById("apellidos").value;
+            var correo_electronico = document.getElementById("correo_electronico").value;
+            var rol = document.getElementById("rol").value;
+
+            if (cedula == "" || telefono == "" || nombres == "" || apellidos == "" || correo_electronico == "" || rol ==
+                "") {
+                alert("Por favor, complete todos los campos.");
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
     </script>
 
-    <script src="../Sistema_Notas/vendor/jquery/jquery.min.js"></script>
-    <script src="../Sistema_Notas//vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../Sistema_Notas/vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script src="../Sistema_Notas/js/sb-admin-2.min.js"></script>
-    <script src="../Sistema_Notas//vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../Sistema_Notas/vendor/jquery-easing/jquery.easing.min.js"></script>
-    
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="vendor/chart.js/Chart.min.js"></script>
+    <script src="js/demo/chart-area-demo.js"></script>
+    <script src="js/demo/chart-pie-demo.js"></script>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
 </body>
 
 </html>

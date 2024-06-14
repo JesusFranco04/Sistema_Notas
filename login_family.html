@@ -1,84 +1,116 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<head>
-    <meta charset="utf-8"> <!-- Codificación de caracteres -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Compatibilidad con IE -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Vista en Dispositivos Móviles -->
-    <meta name="descripcion" content="">
-    <meta name="autor" content="">
-    <title>Sistema de Gestión - UEBF</title>
-    <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
-    <!-- Custom fonts for this template-->
-    <!-- ejemplo-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <!-- Custom styles for this template-->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <head>
+        <meta charset="utf-8"> <!-- Codificación de caracteres -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- Compatibilidad con IE -->
+        <meta name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Vista en Dispositivos Móviles -->
+        <meta name="descripcion" content>
+        <meta name="autor" content>
+        <title>Sistema de Gestión - UEBF</title>
+        <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
+        <!-- Custom fonts for this template-->
+        <!-- ejemplo-->
+        <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
+            type="text/css">
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        <!-- Custom styles for this template-->
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
-</head>
+    </head>
 
-<body class="bg-gradient-primary">
+    <body class="bg-gradient-primary">
 
-    <div class="container">
+        <div class="container">
 
-        <!-- Outer Row -->
-        <div class="row justify-content-center">
+            <!-- Outer Row -->
+            <div class="row justify-content-center">
 
-            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="col-xl-10 col-lg-12 col-md-9">
 
-                <div class="card o-hidden border-0 shadow-lg my-5">
-                    <div class="card-body p-0">
-                        <!-- Nested Row within Card Body -->
-                        <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block" style="background-image: url('imagenes/padre.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
-                            <div class="col-lg-6">
-                                <div class="p-5">
-                                    <div class="text-center">
-                                        <h1 class="h1 text-gray-900 mb-3">Padre de Familia</h1>
-                                        <h6 class="text-gray-900 mb-3">Introduzca sus credenciales</h6>
-                                        <div class="btn-group">
-                                            <a href="login_admin.html" class="btn btn-sm btn-primary mr-1">Administrador</a>
-                                            <a href="login_profe.html" class="btn btn-sm btn-primary mr-1">Profesor</a>
-                                            <a href="login_family.html" class="btn btn-sm btn-primary ">Padre de Familia</a>
-                                        </div>
-                                    </div><br>
-                                    <form class="user">
-                                        <div class="form-group">
-                                            <label for="identificationNumber">Número de identificación</label>
-                                            <input type="text" class="form-control form-control-user" id="identificationNumber"
-                                                aria-describedby="emailHelp" placeholder="Ingrese su número de identificación..."
-                                                oninput="javascript: if (this.value.length > 15) this.value = this.value.slice(0, 15).replace(/[^0-9]/g, '');">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="exampleInputPassword">Contraseña</label>
-                                            <div class="input-group">
-                                                <input type="password" class="form-control form-control-user" id="exampleInputPassword" placeholder="Ingrese su contraseña">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-secondary btn-toggle-password" type="button" onclick="MostrarClave()">Mostrar</button>
+                    <div class="card o-hidden border-0 shadow-lg my-5">
+                        <div class="card-body p-0">
+                            <!-- Nested Row within Card Body -->
+                            <div class="row">
+                                <div class="col-lg-6 d-none d-lg-block"
+                                    style="background-image: url('imagenes/padre.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
+                                <div class="col-lg-6">
+                                    <div class="p-5">
+                                        <div class="text-center">
+                                            <h1
+                                                class="h1 text-gray-900 mb-3">Padre
+                                                de Familia</h1>
+                                            <h6
+                                                class="text-gray-900 mb-3">Introduzca
+                                                sus credenciales</h6>
+                                            <div class="btn-group">
+                                                <a href="login_admin.html"
+                                                    class="btn btn-sm btn-primary mr-1">Administrador</a>
+                                                <a href="login_profe.html"
+                                                    class="btn btn-sm btn-primary mr-1">Profesor</a>
+                                                <a href="login_family.html"
+                                                    class="btn btn-sm btn-primary ">Padre
+                                                    de Familia</a>
+                                            </div>
+                                        </div><br>
+                                        <form class="user">
+                                            <div class="form-group">
+                                                <label
+                                                    for="identificationNumber">Número
+                                                    de identificación</label>
+                                                <input type="text"
+                                                    class="form-control form-control-user"
+                                                    id="identificationNumber"
+                                                    aria-describedby="emailHelp"
+                                                    placeholder="Ingrese su número de identificación..."
+                                                    oninput="javascript: if (this.value.length > 15) this.value = this.value.slice(0, 15).replace(/[^0-9]/g, '');">
+                                            </div>
+                                            <div class="form-group">
+                                                <label
+                                                    for="exampleInputPassword">Contraseña</label>
+                                                <div class="input-group">
+                                                    <input type="password"
+                                                        class="form-control form-control-user"
+                                                        id="exampleInputPassword"
+                                                        placeholder="Ingrese su contraseña">
+                                                    <div
+                                                        class="input-group-append">
+                                                        <button
+                                                            class="btn btn-outline-secondary btn-toggle-password"
+                                                            type="button"
+                                                            onclick="MostrarClave()">Mostrar</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>                                                                                                                                                                                   
-                                        <a href="index.html" class="btn btn-primary btn-user btn-block">
-                                            Iniciar Sesión
-                                        </a>
-                                    </form>
-                                    <hr>
-                                    <div class="text-center">
-                                        <span class="small">¿No tiene cuenta? </span>
-                                        <a class="small" href="Enviar_soli.html">Solicite al Administrador crear una</a>
-                                    </div>                                    
+                                            <a href="index.html"
+                                                class="btn btn-primary btn-user btn-block">
+                                                Iniciar Sesión
+                                            </a>
+                                        </form>
+                                        <hr>
+                                        <div class="text-center">
+                                            <span class="small">¿No tiene
+                                                cuenta? </span>
+                                            <a class="small"
+                                                href="enviar_soli.php">Solicite
+                                                al Administrador crear una</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
         </div>
-
-    </div>
-    <script>
+        <script>
         function MostrarClave() {
             var passwordField = document.getElementById('exampleInputPassword');
             var toggleButton = document.querySelector('.btn-toggle-password');
@@ -97,17 +129,17 @@
         });
     </script>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="js/sb-admin-2.min.js"></script>
+        <script src="vendor/chart.js/Chart.min.js"></script>
+        <script src="js/demo/chart-area-demo.js"></script>
+        <script src="js/demo/chart-pie-demo.js"></script>
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+        <script src="js/sb-admin-2.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-</body>
-
+    </body>
 
 </html>
