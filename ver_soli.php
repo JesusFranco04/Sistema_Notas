@@ -253,37 +253,87 @@
 
                                 <div class="modal-body bg-success text-center">
                                     <form action="#" method="post" id="formActualizar">
-                                        <div class="mb-3">
-                                            <label for="cedula" class="form-label">Cédula</label>
-                                            <input type="text" class="form-control" id="cedula" name="cedula" />
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="cedula" class="form-label">Cédula</label>
+                                                <input type="text" class="form-control" id="cedula" name="cedula" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="telefono" class="form-label">Teléfono</label>
+                                                <input type="text" class="form-control" id="telefono" name="telefono"
+                                                    oninput="validarTelefono(this)" />
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="telefono" class="form-label">Teléfono</label>
-                                            <input type="text" class="form-control" id="telefono" name="telefono"
-                                                oninput="validarTelefono(this)" />
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="nombres" class="form-label">Nombres</label>
+                                                <input type="text" class="form-control" id="nombres" name="nombres" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="apellidos" class="form-label">Apellidos</label>
+                                                <input type="text" class="form-control" id="apellidos"
+                                                    name="apellidos" />
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="nombres" class="form-label">Nombres</label>
-                                            <input type="text" class="form-control" id="nombres" name="nombres" />
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="correo_electronico" class="form-label">Correo
+                                                    Electrónico</label>
+                                                <input type="email" class="form-control" id="correo_electronico"
+                                                    name="correo_electronico" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="edad" class="form-label">Edad</label>
+                                                <input type="number" class="form-control" id="edad" name="edad" />
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="apellidos" class="form-label">Apellidos</label>
-                                            <input type="text" class="form-control" id="apellidos" name="apellidos" />
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="fecha_nacimiento" class="form-label">Fecha de
+                                                    Nacimiento</label>
+                                                <input type="date" class="form-control" id="fecha_nacimiento"
+                                                    name="fecha_nacimiento" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="genero" class="form-label">Género</label>
+                                                <select class="form-control" id="genero" name="genero" required>
+                                                    <option value="">Selecciona Género</option>
+                                                    <option value="mamá">Hombre</option>
+                                                    <option value="papá">Mujer</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="correo_electronico" class="form-label">Correo
-                                                Electrónico</label>
-                                            <input type="email" class="form-control" id="correo_electronico"
-                                                name="correo_electronico" />
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="rol" class="form-label">Rol</label>
+                                                <select class="form-control" id="rol" name="rol" required>
+                                                    <option value="">Selecciona Rol</option>
+                                                    <option value="administrador">Administrador</option>
+                                                    <option value="profesor">Profesor</option>
+                                                    <option value="padre_familia">Padre de Familia</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="foto" class="form-label">Foto</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="foto" name="foto">
+                                                    <label class="input-group-btn">
+                                                        <span class="btn btn-secondary">Subir Foto</span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="rol" class="form-label">Rol</label>
-                                            <select class="form-control" id="rol" name="rol" required>
-                                                <option value="">Selecciona Rol</option>
-                                                <option value="administrador">Administrador</option>
-                                                <option value="profesor">Profesor</option>
-                                                <option value="padre_familia">Padre de Familia</option>
-                                            </select>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="generar_contrasena" class="form-label">Generar
+                                                    Contraseña</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="generar_contrasena"
+                                                        name="generar_contrasena" readonly />
+                                                    <button type="button" class="btn btn-secondary" id="generarBtn"
+                                                        onclick="generarContrasena()">Generar</button>
+                                                </div>
+                                            </div>
                                         </div>
                                         <input type="hidden" id="id" name="id" value="">
                                         <div class="modal-footer justify-content-center">
@@ -293,15 +343,20 @@
                                         </div>
                                     </form>
                                 </div>
+                                <style>
+                                .input-group-btn {
+                                    display: flex;
+                                    align-items: center;
+                                }
+
+                                .input-group-btn .btn {
+                                    margin-left: 10px;
+                                }
+                                </style>
+
                             </div>
                         </div>
                     </div>
-
-
-
-
-
-
                     <a class="scroll-to-top rounded" href="#page-top">
                         <i class="fas fa-angle-up"></i>
                     </a>
@@ -328,112 +383,127 @@
                     </div>
 
                     <script>
-                        function filtrarSolicitudes() {
-                            var input = document.getElementById("filtroSolicitud");
-                            var filter = input.value.toUpperCase();
-                            var table = document.getElementsByTagName("table")[0];
-                            var rows = table.getElementsByTagName("tr");
+                    function filtrarSolicitudes() {
+                        var input = document.getElementById("filtroSolicitud");
+                        var filter = input.value.toUpperCase();
+                        var table = document.getElementsByTagName("table")[0];
+                        var rows = table.getElementsByTagName("tr");
 
-                            for (var i = 1; i < rows.length; i++) {
-                                var cells = rows[i].getElementsByTagName("td");
-                                var cedulaCell = cells[1];
+                        for (var i = 1; i < rows.length; i++) {
+                            var cells = rows[i].getElementsByTagName("td");
+                            var cedulaCell = cells[1];
 
-                                if (cedulaCell) {
-                                    var value = cedulaCell.textContent || cedulaCell.innerText;
-                                    if (value.toUpperCase().indexOf(filter) > -1) {
-                                        rows[i].style.display = "";
-                                    } else {
-                                        rows[i].style.display = "none";
-                                    }
+                            if (cedulaCell) {
+                                var value = cedulaCell.textContent || cedulaCell.innerText;
+                                if (value.toUpperCase().indexOf(filter) > -1) {
+                                    rows[i].style.display = "";
+                                } else {
+                                    rows[i].style.display = "none";
                                 }
                             }
                         }
+                    }
                     </script>
                     <script>
-                        $(document).ready(function () {
-                            $('#modalActualizar').on('show.bs.modal', function (event) {
-                                var button = $(event.relatedTarget);
-                                var cedula = button.data('cedula');
-                                var telefono = button.data('telefono');
-                                var nombres = button.data('nombres');
-                                var apellidos = button.data('apellidos');
-                                var correo = button.data('correo');
-                                var rol = button.data('rol');
+                    $(document).ready(function() {
+                        $('#modalActualizar').on('show.bs.modal', function(event) {
+                            var button = $(event.relatedTarget);
+                            var cedula = button.data('cedula');
+                            var telefono = button.data('telefono');
+                            var nombres = button.data('nombres');
+                            var apellidos = button.data('apellidos');
+                            var correo = button.data('correo');
+                            var rol = button.data('rol');
 
-                                var modal = $(this);
-                                modal.find('#cedula').val(cedula);
-                                modal.find('#telefono').val(telefono);
-                                modal.find('#nombres').val(nombres);
-                                modal.find('#apellidos').val(apellidos);
-                                modal.find('#correo_electronico').val(correo);
-                                modal.find('#rol').val(rol);
-                            });
+                            var modal = $(this);
+                            modal.find('#cedula').val(cedula);
+                            modal.find('#telefono').val(telefono);
+                            modal.find('#nombres').val(nombres);
+                            modal.find('#apellidos').val(apellidos);
+                            modal.find('#correo_electronico').val(correo);
+                            modal.find('#rol').val(rol);
                         });
+                    });
                     </script>
                     <script>
-                        $(document).ready(function () {
-                            $('#modalActualizar').on('show.bs.modal', function (event) {
-                                var button = $(event.relatedTarget);
-                                var id = button.data('id');
-                                var cedula = button.data('cedula');
-                                var telefono = button.data('telefono');
-                                var nombres = button.data('nombres');
-                                var apellidos = button.data('apellidos');
-                                var correo = button.data('correo');
-                                var rol = button.data('rol');
+                    $(document).ready(function() {
+                        $('#modalActualizar').on('show.bs.modal', function(event) {
+                            var button = $(event.relatedTarget);
+                            var id = button.data('id');
+                            var cedula = button.data('cedula');
+                            var telefono = button.data('telefono');
+                            var nombres = button.data('nombres');
+                            var apellidos = button.data('apellidos');
+                            var correo = button.data('correo');
+                            var rol = button.data('rol');
 
-                                var modal = $(this);
-                                modal.find('#cedula').val(cedula);
-                                modal.find('#telefono').val(telefono);
-                                modal.find('#nombres').val(nombres);
-                                modal.find('#apellidos').val(apellidos);
-                                modal.find('#correo_electronico').val(correo);
-                                modal.find('#rol').val(rol);
-                                modal.find('#id').val(id);
-                            });
+                            var modal = $(this);
+                            modal.find('#cedula').val(cedula);
+                            modal.find('#telefono').val(telefono);
+                            modal.find('#nombres').val(nombres);
+                            modal.find('#apellidos').val(apellidos);
+                            modal.find('#correo_electronico').val(correo);
+                            modal.find('#rol').val(rol);
+                            modal.find('#id').val(id);
                         });
+                    });
 
-                        function cargarDatos(id) {
-                            var cedula = document.getElementById('cedula');
-                            var telefono = document.getElementById('telefono');
-                            var nombres = document.getElementById('nombres');
-                            var apellidos = document.getElementById('apellidos');
-                            var correo = document.getElementById('correo_electronico');
-                            var rol = document.getElementById('rol');
+                    function cargarDatos(id) {
+                        var cedula = document.getElementById('cedula');
+                        var telefono = document.getElementById('telefono');
+                        var nombres = document.getElementById('nombres');
+                        var apellidos = document.getElementById('apellidos');
+                        var correo = document.getElementById('correo_electronico');
+                        var rol = document.getElementById('rol');
 
-                            var form = document.getElementById('formActualizar');
+                        var form = document.getElementById('formActualizar');
 
-                            // Asignar el valor del ID al campo oculto
-                            form.id.value = id;
 
-                            // Asignar los demás valores a los campos del formulario
-                            var botonEditar = document.querySelector('button[data-id="' + id + '"]');
-                            cedula.value = botonEditar.getAttribute('data-cedula');
-                            telefono.value = botonEditar.getAttribute('data-telefono');
-                            nombres.value = botonEditar.getAttribute('data-nombres');
-                            apellidos.value = botonEditar.getAttribute('data-apellidos');
-                            correo.value = botonEditar.getAttribute('data-correo');
-                            rol.value = botonEditar.getAttribute('data-rol');
-                        }
+                        // Asignar el valor del ID al campo oculto
+                        form.id.value = id;
 
-                        function validarTelefono(input) {
-                            // Obtener el valor ingresado en el campo de entrada
-                            var telefono = input.value;
+                        // Asignar los demás valores a los campos del formulario
+                        var botonEditar = document.querySelector('button[data-id="' + id + '"]');
+                        cedula.value = botonEditar.getAttribute('data-cedula');
+                        telefono.value = botonEditar.getAttribute('data-telefono');
+                        nombres.value = botonEditar.getAttribute('data-nombres');
+                        apellidos.value = botonEditar.getAttribute('data-apellidos');
+                        correo.value = botonEditar.getAttribute('data-correo');
+                        rol.value = botonEditar.getAttribute('data-rol');
+                    }
 
-                            // Eliminar cualquier carácter que no sea un número
-                            telefono = telefono.replace(/\D/g, '');
+                    function validarTelefono(input) {
+                        // Obtener el valor ingresado en el campo de entrada
+                        var telefono = input.value;
 
-                            // Limitar el número de dígitos a 10
-                            telefono = telefono.slice(0, 10);
+                        // Eliminar cualquier carácter que no sea un número
+                        telefono = telefono.replace(/\D/g, '');
 
-                            // Actualizar el valor del campo de entrada con los dígitos válidos
-                            input.value = telefono;
-                        }
+                        // Limitar el número de dígitos a 10
+                        telefono = telefono.slice(0, 10);
+
+                        // Actualizar el valor del campo de entrada con los dígitos válidos
+                        input.value = telefono;
+                    }
+                    function generarContrasena() {
+                        var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        var passwordLength = 8;
+                        var password = "";
+
+                        do {
+                            password = "";
+                            for (var i = 0; i < passwordLength; i++) {
+                                var randomNumber = Math.floor(Math.random() * chars.length);
+                                password += chars.substring(randomNumber, randomNumber + 1);
+                            }
+                        } while (generatedPasswords.has(password));
+
+                        generatedPasswords.add(password);
+
+                        document.getElementById("generar_contrasena").value = password;
+                        document.getElementById("generarBtn").disabled = true;
+                    }
                     </script>
-
-
-
-
                     <script src="js/sb-admin-2.min.js"></script>
                     <script src="vendor/chart.js/Chart.min.js"></script>
                     <script src="js/demo/chart-area-demo.js"></script>
