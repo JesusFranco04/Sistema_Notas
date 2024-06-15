@@ -64,14 +64,9 @@ if ($result->num_rows > 0) {
         echo '<td>' . $row['rol'] . '</td>';
         echo '<td>' . $row['date_creation'] . '</td>';
         echo '<td>';
-        echo '<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalActualizar" data-id="' . $row['id'] . '"
-        data-cedula="' . $row['cedula'] . '"
-        data-telefono="' . $row['telefono'] . '"
-        data-nombres="' . $row['nombres'] . '"
-        data-apellidos="' . $row['apellidos'] . '"
-        data-correo="' . $row['correo_electronico'] . '"
-        data-rol="' . $row['rol'] . '"
-        onclick="cargarDatos(' . $row['id'] . ')"><i class="bx bxs-user-pin"></i></button>';
+        echo '<form id="formEliminar_' . $row['cedula'] . '" method="POST" action="../Sistema_Notas/Crud/delete_solicitud.php">';
+        echo '<input type="hidden" name="cedula" value="' . $row['cedula'] . '">';
+        echo '<button type="button" class="btn btn-danger" onclick="eliminarSolicitud(' . $row['cedula'] . ')"><i class="bx bxs-user-pin"></i></button>';
         echo '</form>';                                                                                        
         echo '</td>';
         echo '</tr>';

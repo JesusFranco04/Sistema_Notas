@@ -27,7 +27,7 @@
                 <!-- Nested Row within Card Body -->
                 <div class="row">
                     <div class="col-lg-6 d-none d-lg-block"
-                        style="background-image: url('imagenes/foto_inicio.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;">
+                        style="background-image: url('imagenes/versolit.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;">
                     </div>
                     <div class="col-lg-6">
                         <div class="p-5">

@@ -224,7 +224,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="container">
-                            <h1 class="mt-5 text-center">Tabla Solicitudes</h1>
+                            <h1 class="mt-5 text-center">Tabla Solicitudes Profesores</h1>
                             <div class="mb-5 mt-5">
                                 <input type="text" class="form-control" id="filtroSolicitud"
                                     placeholder="Filtrar Solicitudes a traves de su Cedula"
@@ -232,11 +232,158 @@
                             </div>
                             
                             <?php
-                            include '../Sistema_Notas/Crud/tabla_solicitud.php';
+                            include '../Sistema_Notas/Crud/solicitud.php';
                             ?>
                         </div>
                     </div>
-                    
+                    <!-- Modal Actualizar -->
+
+                    <div class="modal fade" id="modalActualizar" tabindex="-1" aria-labelledby="modalActualizarLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog" style="max-width: 80%;">
+                            <!-- Ajuste del ancho de la modal -->
+                            <div class="modal-content bg-success">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalActualizarLabel">
+                                        Actualizar Solicitud
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body bg-info text-center">
+                                    <form action="#" method="post" id="formActualizar">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="cedula" class="form-label">Cédula</label>
+                                                <input type="text" class="form-control" id="cedula" name="cedula" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="telefono" class="form-label">Teléfono</label>
+                                                <input type="text" class="form-control" id="telefono" name="telefono"
+                                                    oninput="validarTelefono(this)" />
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="nombres" class="form-label">Nombres</label>
+                                                <input type="text" class="form-control" id="nombres" name="nombres" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="apellidos" class="form-label">Apellidos</label>
+                                                <input type="text" class="form-control" id="apellidos"
+                                                    name="apellidos" />
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="correo_electronico" class="form-label">Correo
+                                                    Electrónico</label>
+                                                <input type="email" class="form-control" id="correo_electronico"
+                                                    name="correo_electronico" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="edad" class="form-label">Edad</label>
+                                                <input type="number" class="form-control" id="edad" name="edad" />
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="fecha_nacimiento" class="form-label">Fecha de
+                                                    Nacimiento</label>
+                                                <input type="date" class="form-control" id="fecha_nacimiento"
+                                                    name="fecha_nacimiento" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="genero" class="form-label">Género</label>
+                                                <select class="form-control" id="genero" name="genero" required>
+                                                    <option value="">Selecciona Género</option>
+                                                    <option value="hombre">Hombre</option>
+                                                    <option value="mujer">Mujer</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="direccion" class="form-label">Dirección</label>
+                                                <input type="text" class="form-control" id="direccion"
+                                                    name="direccion" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="sexo" class="form-label ">Sexo</label>
+                                                <div>
+                                                    <input type="radio" id="sexo_m" name="sexo" value="masculino"
+                                                        required>
+                                                    <label for="sexo_m">Masculino</label>
+                                                    <input type="radio" id="sexo_f" name="sexo" value="femenino"
+                                                        required>
+                                                    <label for="sexo_f">Femenino</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="ciudad" class="form-label">Ciudad</label>
+                                                <select class="form-control" id="ciudad" name="ciudad" required>
+                                                    <option value="">Selecciona Ciudad</option>
+                                                    <option value="ciudad1">Ciudad 1</option>
+                                                    <option value="ciudad2">Ciudad 2</option>
+                                                    <option value="ciudad3">Ciudad 3</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="rol" class="form-label">Rol</label>
+                                                <select class="form-control" id="rol" name="rol" required>
+                                                    <option value="">Selecciona Rol</option>
+                                                    <option value="administrador">Administrador</option>
+                                                    <option value="profesor">Profesor</option>
+                                                    <option value="padre_familia">Padre de Familia</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="foto" class="form-label">Foto</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="foto" name="foto">
+                                                    <label class="input-group-btn">
+                                                        <span class="btn btn-secondary">Subir Foto</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4">
+                                                <label for="generar_contrasena" class="form-label">Generar
+                                                    Contraseña</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="generar_contrasena"
+                                                        name="generar_contrasena" readonly />
+                                                    <button type="button" class="btn btn-secondary" id="generarBtn"
+                                                        onclick="generarContrasena()">Generar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="id" name="id" value="">
+                                        <div class="modal-footer justify-content-center">
+                                            <button type="button" class="btn btn-danger"
+                                                data-dismiss="modal">Cerrar</button>
+                                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <style>
+                                .input-group-btn {
+                                    display: flex;
+                                    align-items: center;
+                                }
+
+                                .input-group-btn .btn {
+                                    margin-left: 10px;
+                                }
+                                </style>
 
                                 <a class="scroll-to-top rounded" href="#page-top">
                                     <i class="fas fa-angle-up"></i>
