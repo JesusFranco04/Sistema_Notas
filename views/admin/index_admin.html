@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Administrador - Inicio</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
+    <!-- Custom fonts for this template-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <!-- Envoltorio de la Página -->
+    <div id="wrapper" class="d-flex">
+
+        <!-- Barra Lateral -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="http://localhost/sistema_notas/views/admin/index_admin.html">
+                <div class="sidebar-brand-icon rotate-n-25">
+                    <i class='bx bx-book-reader' style="font-size: 36px;"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3" style="font-size: 14px;">SISTEMA DE GESTIÓN<span class="acronym">-UEBF</span></div>
+            </a>
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    <i class='bx bxs-home' style="font-size: 14px;"></i>
+                    <span class="nav-text">Inicio</span>
+                </a>
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/estadistica_admin.htm">Estadísticas</a>
+                    </div>
+                </div>
+            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            <!-- Encabezado - Usuarios -->
+            <div class="sidebar-heading">
+                Usuarios
+            </div>
+            <!-- Elemento de Navegación - Gestión Usuarios -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class='bx bxs-user' style="font-size: 14px;"></i>
+                    <span class="nav-text">Gestión Usuarios</span>
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaprofe_admin.html">Profesores</a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaestudiante_admin.html">Estudiantes</a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaspadres_admin.html">Padres</a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarprofe_admin.html">Agregar Profesor</a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarestudiante_admin.html">Agregar Estudiante</a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarpadres_admin.html">Agregar Padre</a>
+                    </div>
+                </div>
+            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            <!-- Encabezado - Académico -->
+            <div class="sidebar-heading">
+                Académico
+            </div>
+            <!-- Elemento de Navegación - Gestión Académica -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree"
+                    aria-expanded="true" aria-controls="collapseThree">
+                    <i class='bx bxs-book' style="font-size: 14px;"></i>
+                    <span class="nav-text">Gestión Académica</span>
+                </a>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <!-- Subenlaces -->
+                        <a class="collapse-item" href="calificacion_admin">Calificaciones</a>
+                        <a class="collapse-item" href="curso_admin">Cursos</a>
+                        <a class="collapse-item" href="materia_admin">Materias</a>
+                        <a class="collapse-item" href="jornada_admin">Jornadas</a>
+                        <a class="collapse-item" href="periodo_admin">Período Lectivo</a>
+                    </div>
+                </div>
+            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            <!-- Encabezado - Informes -->
+            <div class="sidebar-heading">
+                Informes
+            </div>
+            <!-- Elemento de Navegación - Reportes -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFour"
+                    aria-expanded="true" aria-controls="collapseFour">
+                    <i class='bx bxs-report' style="font-size: 14px;"></i>
+                    <span class="nav-text">Reportes</span>
+                </a>
+                <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <!-- Subenlaces -->
+                        <a class="collapse-item" href="reportescalifi_admin">Calificaciones</a>
+                    </div>
+                </div>
+            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            <!-- Encabezado - Actividades -->
+            <div class="sidebar-heading">
+                Actividades
+            </div>
+            <!-- Elemento de Navegación - Solicitudes -->
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost/sistema_notas/views/admin/solicitud_admin.html">
+                    <i class='bx bxs-comment-detail' style="font-size: 13px;"></i>
+                    <span class="nav-text">Solicitudes</span></a>
+            </li>
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0 sidebar-toggler" id="sidebarToggle"></button>
+            </div>
+        </ul>
+
+        <!-- Contenido Principal -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Barra de navegación superior -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Contenido de la barra de navegación superior -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                                aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Search for..." aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            <!-- Contenido principal de la página -->
+            <!-- Puedes agregar aquí el contenido principal de tu página -->
+            </div>
+        </div>
+    <!-- Fin del Contenido Principal -->
+    </div>
+<!-- Fin del Envoltorio de la Página -->
+
+<!-- Bootstrap core JavaScript-->
+<script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
+<script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Custom scripts for all pages-->
+<script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+<!-- Otros scripts -->
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('accordionSidebar').classList.toggle('collapsed');
+    });
+</script>
+</body>
+
+</html>
