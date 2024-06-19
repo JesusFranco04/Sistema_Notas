@@ -15,6 +15,17 @@
     <!-- Custom styles for this template-->
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Estilos personalizados -->
+    <style>
+        .sidebar-heading .collapse-header .bx {
+            color: #ff8b97; /* Color rosa claro para los iconos en los encabezados de sección */
+        }
+
+        .bg-gradient-primary {
+            background-color: #a2000e; /* Color rojo oscuro para el fondo de la barra lateral */
+            background-image: none; /* Asegurar que no haya imagen de fondo (gradiente) */
+        }
+    </style>
 </head>
 
 <body>
@@ -41,7 +52,18 @@
                 </a>
                 <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/estadistica_admin.htm">Estadísticas</a>
+                        <div class="submenu-section">
+                            <h6 class="collapse-header">Dashboard</h6>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/index_admin.html">
+                                <i class='bx bx-file'></i> Página de Inicio
+                            </a>
+                        </div>
+                        <div class="submenu-section">
+                            <h6 class="collapse-header">Análisis numérico</h6>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/estadistica_admin.htm">
+                                <i class='bx bx-stats'></i> Estadísticas
+                            </a>
+                        </div>
                     </div>
                 </div>
             </li>
@@ -60,14 +82,41 @@
                 </a>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaprofe_admin.html">Profesores</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaestudiante_admin.html">Estudiantes</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaspadres_admin.html">Padres</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarprofe_admin.html">Agregar Profesor</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarestudiante_admin.html">Agregar Estudiante</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarpadres_admin.html">Agregar Padre</a>
+                        <!-- Sección de Usuarios Registrados -->
+                        <div class="submenu-section">
+                            <h6 class="collapse-header">Usuarios Registrados</h6>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaprofe_admin.html">
+                                <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
+                                Profesores
+                            </a>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaestudiante_admin.html">
+                                <i class='bx bx-user-pin' style="font-size: 18px; margin-right: 10px;"></i>
+                                Estudiantes
+                            </a>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaspadres_admin.html">
+                                <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
+                                Padres
+                            </a>
+                        </div>
+                
+                        <!-- Sección de Usuarios por Agregar -->
+                        <div class="submenu-section">
+                            <h6 class="collapse-header">Agregar Usuarios</h6>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarprofe_admin.html">
+                                <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                                Agregar Profesor
+                            </a>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarestudiante_admin.html">
+                                <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                                Agregar Estudiante
+                            </a>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/agregarpadres_admin.html">
+                                <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                                Agregar Padre
+                            </a>
+                        </div>
                     </div>
-                </div>
+                </div>  
             </li>
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -80,16 +129,41 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree"
                     aria-expanded="true" aria-controls="collapseThree">
                     <i class='bx bxs-book' style="font-size: 14px;"></i>
-                    <span class="nav-text">Gestión Académica</span>
+                    <span class="nav-text">Gestión Educativa</span>
                 </a>
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <!-- Subenlaces -->
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/calificacion_admin.html">Calificaciones</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.html">Cursos</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/materia_admin.html">Materias</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/jornada_admin.html">Jornadas</a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/periodo_admin.html">Período Lectivo</a>
+                        <!-- Subsección de Calificaciones -->
+                        <div class="submenu-section">
+                            <h6 class="collapse-header">Coordinación Académica</h6>
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/calificacion_admin.html">
+                                <i class='bx bx-file'></i> Calificaciones
+                            </a>
+                        </div>
+                        <!-- Subsección de Cursos -->
+                        <div class="submenu-section">
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.html">
+                                <i class='bx bx-book-alt'></i> Cursos
+                            </a>
+                        </div>
+                        <!-- Subsección de Materias -->
+                        <div class="submenu-section">
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/materia_admin.html">
+                                <i class='bx bx-book-content'></i> Materias
+                            </a>
+                        </div>
+                        <!-- Subsección de Jornadas -->
+                        <div class="submenu-section">
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/jornada_admin.html">
+                                <i class='bx bx-time'></i> Jornadas
+                            </a>
+                        </div>
+                        <!-- Subsección de Período Lectivo -->
+                        <div class="submenu-section">
+                            <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/periodo_admin.html">
+                                <i class='bx bx-calendar'></i> Período Lectivo
+                            </a>
+                        </div>
                     </div>
                 </div>
             </li>
@@ -107,9 +181,11 @@
                     <span class="nav-text">Reportes</span>
                 </a>
                 <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <!-- Subenlaces -->
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/reportesnotas_admin.html">Notas</a>
+                    <div class="bg-white py-2 collapse-inner rounded submenu-section">
+                        <h6 class="collapse-header">Documentos</h6>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/reportesnotas_admin.html">
+                            <i class='bx bx-file' style="font-size: 14px;"></i> Notas
+                        </a>
                     </div>
                 </div>
             </li>
@@ -123,11 +199,14 @@
             <li class="nav-item">
                 <a class="nav-link" href="http://localhost/sistema_notas/views/admin/solicitud_admin.html">
                     <i class='bx bxs-comment-detail' style="font-size: 13px;"></i>
-                    <span class="nav-text">Solicitudes</span></a>
+                    <span class="nav-text">Solicitudes</span>
+                </a>
             </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0 sidebar-toggler" id="sidebarToggle"></button>
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
 

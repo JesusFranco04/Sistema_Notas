@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú Horizontal - Diseño Moderno</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa; /* Fondo gris claro */
+    }
+
+    nav {
+      background-color: #a2000e; /* Rojo bonito */
+      padding: 10px 20px; /* Añadido de margen para el perfil */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: #fff; /* Color del texto del logo */
+      font-weight: bold; /* Negrita */
+      font-size: 20px; /* Tamaño del texto del logo */
+      text-transform: uppercase; /* Mayúsculas */
+      margin-right: 20px; /* Margen derecho */
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+    }
+
+    .profile img {
+      width: 40px; /* Tamaño de la foto de perfil */
+      height: 40px; /* Tamaño de la foto de perfil */
+      border-radius: 50%; /* Redondear la foto de perfil */
+      margin-right: 10px; /* Margen entre la foto de perfil y el nombre */
+    }
+
+    .username {
+      color: #fff; /* Color del texto del nombre de usuario */
+      font-size: 16px; /* Tamaño del texto del nombre de usuario */
+    }
+
+    .menu {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+      text-align: center;
+    }
+
+    .menu li {
+      display: inline-block;
+      position: relative;
+    }
+
+    .menu li a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 18px;
+      padding: 10px 20px; /* Espaciado del texto */
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .menu li a:hover {
+      background-color: #be0010; /* Gris más oscuro */
+    }
+
+    .submenu {
+      display: none;
+      position: absolute;
+      background-color: #a2000e; /* Gris oscuro */
+      padding: 20px; /* Espaciado del contenido */
+      border-radius: 5px;
+      z-index: 1001;
+      left: 0;
+      top: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .menu li:hover .submenu {
+      display: block;
+    }
+
+    .submenu a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      padding: 10px 0;
+    }
+
+    .submenu a:hover {
+      background-color: #495057; /* Gris más oscuro */
+    }
+
+    .submenu li:last-child a {
+      padding-bottom: 0;
+    }
+
+    .menu li .icon {
+      margin-left: 10px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">
+        SISTEMA DE GESTIÓN - UEBF <!-- Texto del logo -->
+    </div>
+    <ul class="menu">
+        <li><a href="http://localhost/sistema_notas/views/profe/index_profe.html">Inicio<i class='bx bx-home-alt icon'></i></a></li>
+        <li><a href="http://localhost/sistema_notas/views/profe/registronota_profe.html">Registro de Calificaciones<i class='bx bx-pencil icon'></i></a></li>
+        <li>
+          <a href="#">Consulta de Calificaciones<i class='bx bx-search-alt icon'></i></a>
+          <ul class="submenu">
+            <li><a href="http://localhost/sistema_notas/views/profe/notasclase_profe.html">Consulta por Clase</a></li>
+            <li><a href="http://localhost/sistema_notas/views/profe/notasestudiante_profe.html">Consulta por Estudiante</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">Reportes<i class='bx bx-file icon'></i></a>
+          <ul class="submenu">
+            <li><a href="http://localhost/sistema_notas/views/profe/reporteclase_profe.html">Reporte por Clase</a></li>
+            <li><a href="http://localhost/sistema_notas/views/profe/reporteestudiante_profe.html">Reporte por Estudiante</a></li>
+          </ul>
+        </li>        
+    </ul>
+    <div class="profile">
+      <img src="http://localhost/sistema_notas/imagenes/agenda.png" alt="Foto de perfil"> <!-- Ruta de la foto de perfil -->
+      <div class="username">
+        Nombre de Usuario   <!-- Nombre de usuario -->
+      </div>
+    </div>
+  </nav>
+  <!-- Aquí va el contenido de tu aplicación web -->
+</body>
+</html>
