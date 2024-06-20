@@ -70,12 +70,12 @@
                                 <button type="submit" class="btn btn-primary btn-user btn-block">
                                     Enviar Solicitud
                                 </button>
-                                <a href="login_family.html" class="btn btn-secondary btn-user btn-block">Cancelar</a>
+                                <a href="login_family.php" class="btn btn-secondary btn-user btn-block">Cancelar</a>
                             </form>
 
                             <hr>
                             <div class="text-center">
-                                <a class="small" href="login_family.html">Ya tienes cuenta? Inicia Sesion</a>
+                                <a class="small" href="login_family.php">Ya tienes cuenta? Inicia Sesion</a>
                             </div>
                         </div>
                     </div>

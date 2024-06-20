@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rol = $_POST['rol'];
 
     include 'config.php';
-    
+
     $sql = "INSERT INTO solicitudes (cedula, telefono, nombres, apellidos, correo_electronico, rol, date_creation)
             VALUES ('$cedula', '$telefono', '$nombres', '$apellidos', '$correo_electronico', '$rol', NOW())";
 
@@ -35,8 +35,8 @@ $sql = "SELECT * FROM solicitudes";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
-    // Crear la estructura de la tabla
-    echo '<table class="table">';
+    echo '<div style="overflow-x: auto; overflow-y: auto; max-height: 400px;">'; // Ajusta la altura máxima según tus necesidades
+    echo '<table class="table" style="width: 1070px;">'; // Ajusta el ancho de la tabla según tus necesidades
     echo '<thead>';
     echo '<tr>';
     echo '<th>Id</th>';
@@ -64,16 +64,18 @@ if ($result->num_rows > 0) {
         echo '<td>' . $row['rol'] . '</td>';
         echo '<td>' . $row['date_creation'] . '</td>';
         echo '<td>';
-        echo '<form id="formEliminar_' . $row['cedula'] . '" method="POST" action="../Sistema_Notas/Crud/delete_solicitud.php">';
+        echo '<form id="formEliminar_' . $row['cedula'] . '" method="POST" action="http://localhost/sistema_notas/Crud/delete_solicitud.php">';
         echo '<input type="hidden" name="cedula" value="' . $row['cedula'] . '">';
         echo '<button type="button" class="btn btn-danger" onclick="eliminarSolicitud(' . $row['cedula'] . ')"><i class="bx bxs-user-pin"></i></button>';
-        echo '</form>';                                                                                        
+        echo '</form>';
         echo '</td>';
         echo '</tr>';
     }
 
     echo '</tbody>';
     echo '</table>';
+    echo '</div>';
+
 } else {
     echo 'No se encontraron registros.';
 }
@@ -83,38 +85,38 @@ $conn->close();
 ?>
 
 <script>
-function eliminarSolicitud(cedula) {
-    if (confirm("¿Estás seguro de que deseas eliminar esta solicitud?")) {
-        var formId = 'formEliminar_' + cedula;
-        var form = document.getElementById(formId);
+    function eliminarSolicitud(cedula) {
+        if (confirm("¿Estás seguro de que deseas eliminar esta solicitud?")) {
+            var formId = 'formEliminar_' + cedula;
+            var form = document.getElementById(formId);
 
-        // Crear una nueva solicitud AJAX
-        var xhr = new XMLHttpRequest();
+            // Crear una nueva solicitud AJAX
+            var xhr = new XMLHttpRequest();
 
-        // URL del archivo PHP que procesará el formulario
-        var url = form.getAttribute('action');
+            // URL del archivo PHP que procesará el formulario
+            var url = form.getAttribute('action');
 
-        // Datos a enviar en la solicitud POST (la cédula de la solicitud)
-        var params = 'cedula=' + cedula;
+            // Datos a enviar en la solicitud POST (la cédula de la solicitud)
+            var params = 'cedula=' + cedula;
 
 
-        // Configurar la solicitud
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            // Configurar la solicitud
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-        // Manejar la respuesta de la solicitud
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                // Mostrar la respuesta en la consola
-                console.log(xhr.responseText);
+            // Manejar la respuesta de la solicitud
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Mostrar la respuesta en la consola
+                    console.log(xhr.responseText);
 
-                // Actualizar la página o realizar otras acciones necesarias
-                location.reload();
-            }
-        };
+                    // Actualizar la página o realizar otras acciones necesarias
+                    location.reload();
+                }
+            };
 
-        // Enviar la solicitud
-        xhr.send(params);
+            // Enviar la solicitud
+            xhr.send(params);
+        }
     }
-}
 </script>

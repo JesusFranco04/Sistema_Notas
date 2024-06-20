@@ -10,7 +10,7 @@ if (isset($_POST['cedula'])) {
     
     if ($conn->query($sql) === TRUE) {
         echo '<script>alert("Eliminar Solicitud exitosamente.");</script>';
-        echo '<script>window.location.replace("http://localhost/Sistema_Notas/ver_soli.php");</script>';
+        echo '<script>window.location.replace("http://localhost/sistema_notas/views/admin/ver_soli.php");</script>';
         exit;
     } else {
         echo "Error al eliminar la solicitud: " . $conn->error;

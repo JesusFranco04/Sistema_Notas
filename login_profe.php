@@ -11,7 +11,7 @@
         <meta name="descripcion" content>
         <meta name="autor" content>
         <title>Sistema de Gestión - UEBF</title>
-        <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
+        <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
         <!-- Custom fonts for this template-->
         <!-- ejemplo-->
         <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
@@ -38,22 +38,21 @@
                             <!-- Nested Row within Card Body -->
                             <div class="row">
                                 <div class="col-lg-6 d-none d-lg-block"
-                                    style="background-image: url('imagenes/admin.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
+                                    style="background-image: url('imagenes/profesor.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
                                 <div class="col-lg-6">
                                     <div class="p-5">
                                         <div class="text-center">
                                             <h1
-                                                class="h1 text-gray-900 mb-3">Iniciar
-                                                Sesión</h1>
+                                                class="h1 text-gray-900 mb-3">Profesor</h1>
                                             <h6
                                                 class="text-gray-900 mb-3">Introduzca
                                                 sus credenciales</h6>
                                             <div class="btn-group">
-                                                <a href="login_admin.html"
+                                                <a href="login_admin.php"
                                                     class="btn btn-sm btn-primary mr-1">Administrador</a>
-                                                <a href="login_profe.html"
+                                                <a href="login_profe.php"
                                                     class="btn btn-sm btn-primary mr-1">Profesor</a>
-                                                <a href="login_family.html"
+                                                <a href="login_family.php"
                                                     class="btn btn-sm btn-primary ">Padre
                                                     de Familia</a>
                                             </div>

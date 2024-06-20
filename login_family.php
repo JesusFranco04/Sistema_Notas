@@ -38,21 +38,22 @@
                             <!-- Nested Row within Card Body -->
                             <div class="row">
                                 <div class="col-lg-6 d-none d-lg-block"
-                                    style="background-image: url('imagenes/profesor.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
+                                    style="background-image: url('imagenes/padre.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;"></div>
                                 <div class="col-lg-6">
                                     <div class="p-5">
                                         <div class="text-center">
                                             <h1
-                                                class="h1 text-gray-900 mb-3">Profesor</h1>
+                                                class="h1 text-gray-900 mb-3">Padre
+                                                de Familia</h1>
                                             <h6
                                                 class="text-gray-900 mb-3">Introduzca
                                                 sus credenciales</h6>
                                             <div class="btn-group">
-                                                <a href="login_admin.html"
+                                                <a href="login_admin.php"
                                                     class="btn btn-sm btn-primary mr-1">Administrador</a>
-                                                <a href="login_profe.html"
+                                                <a href="login_profe.php"
                                                     class="btn btn-sm btn-primary mr-1">Profesor</a>
-                                                <a href="login_family.html"
+                                                <a href="login_family.php"
                                                     class="btn btn-sm btn-primary ">Padre
                                                     de Familia</a>
                                             </div>
@@ -96,7 +97,7 @@
                                             <span class="small">¿No tiene
                                                 cuenta? </span>
                                             <a class="small"
-                                                href="enviar_soli.html">Solicite
+                                                href="enviar_soli.php">Solicite
                                                 al Administrador crear una</a>
                                         </div>
                                     </div>
