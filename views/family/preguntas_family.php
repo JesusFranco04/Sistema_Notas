@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FAQ | Sistema de Gestión UEBF</title>
 <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <style>
     /* Estilos generales */
     body {
@@ -39,6 +40,9 @@
       font-size: 18px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     nav a:hover {
       color: #e70014;
@@ -57,6 +61,10 @@
     nav a:hover::after,
     nav a.active::after {
       width: 100%;
+    }
+    nav i {
+      margin-right: 8px;
+      font-size: 20px;
     }
     /* Estilos para el contenido */
     section {
@@ -121,9 +129,15 @@
 </header>
 <nav style="padding: 10px;">
     <div style="display: flex; align-items: center;">
-      <a href="http://localhost/sistema_notas/views/family/index_family.php">Inicio</a>
-      <a href="http://localhost/sistema_notas/views/family/consultacalificacion_family.php">Consulta de Calificaciones</a>
-      <a href="http://localhost/sistema_notas/views/family/preguntas_family.php">FAQ</a>
+      <a href="http://localhost/sistema_notas/views/family/index_family.php">
+        <i class='bx bx-home'></i>Inicio
+      </a>
+      <a href="http://localhost/sistema_notas/views/family/consultacalificacion_family.php">
+        <i class='bx bx-book'></i>Consulta de Calificaciones
+      </a>
+      <a href="http://localhost/sistema_notas/views/family/preguntas_family.php">
+        <i class='bx bx-help-circle'></i>FAQ
+      </a>
       <div style="margin-left: auto; margin-right: 20px;">
         <span style="font-size: 14px; color: #888;">Nombre Completo del Usuario</span>
         <span style="margin-left: 20px;"></span> <!-- Espacio adicional -->
