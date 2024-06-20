@@ -10,6 +10,7 @@
     <meta name="descripcion" content>
     <meta name="autor" content>
     <title>Sistema de Gestión - UEBF</title>
+    <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
     <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <!-- ejemplo-->
