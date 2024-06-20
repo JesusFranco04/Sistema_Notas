@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,9 +121,9 @@
 </header>
 <nav style="padding: 10px;">
     <div style="display: flex; align-items: center;">
-      <a href="http://localhost/sistema_notas/views/family/index_family.html">Inicio</a>
-      <a href="http://localhost/sistema_notas/views/family/consultacalificacion_family.html">Consulta de Calificaciones</a>
-      <a href="http://localhost/sistema_notas/views/family/preguntas_family.html">FAQ</a>
+      <a href="http://localhost/sistema_notas/views/family/index_family.php">Inicio</a>
+      <a href="http://localhost/sistema_notas/views/family/consultacalificacion_family.php">Consulta de Calificaciones</a>
+      <a href="http://localhost/sistema_notas/views/family/preguntas_family.php">FAQ</a>
       <div style="margin-left: auto; margin-right: 20px;">
         <span style="font-size: 14px; color: #888;">Nombre Completo del Usuario</span>
         <span style="margin-left: 20px;"></span> <!-- Espacio adicional -->

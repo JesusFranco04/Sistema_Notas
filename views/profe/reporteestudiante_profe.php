@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Configura la vista para que sea compatible con dispositivos móviles -->
 
-    <title>Consulta por Estudiante | Sistema de Gestión UEBF</title>
+    <title>Reporte por Estudiante | Sistema de Gestión UEBF</title>
     <!-- Título de la página que aparece en la pestaña del navegador -->
 
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
