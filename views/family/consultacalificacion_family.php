@@ -17,7 +17,7 @@
     }
     /* Estilos para el encabezado */
     header {
-      background-color: #a2000e;
+      background-color: #be0010;
       color: #fff;
       padding: 20px;
       text-align: center;
