@@ -40,13 +40,12 @@
     include_once 'navbar_admin.php';
     ?>
 
-
     <div class="container-fluid">
         <div class="row">
             <div class="container">
-                <h1 class="mt-5 text-center">Tabla
+                <h1 class="mt-1 text-center text-dark fw-bold">Tabla de
                     Solicitudes</h1>
-                <div class="mb-5 mt-5">
+                <div class="mb-4 mt-3">
                     <input type="text" class="form-control" id="filtroSolicitud"
                         placeholder="Filtrar Solicitudes a traves de su Cedula" onkeyup="filtrarSolicitudes()" />
                 </div>

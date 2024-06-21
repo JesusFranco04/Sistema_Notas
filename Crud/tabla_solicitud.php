@@ -35,8 +35,8 @@ $sql = "SELECT * FROM solicitudes";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
-    echo '<div style="overflow-x: auto; overflow-y: auto; max-height: 400px;">'; // Ajusta la altura máxima según tus necesidades
-    echo '<table class="table" style="width: 1070px;">'; // Ajusta el ancho de la tabla según tus necesidades
+    echo '<div style="overflow-x: auto; overflow-y: auto; max-height: 370px;">'; // Ajusta la altura máxima según tus necesidades
+    echo '<table class="table" style="width: 1047px;">'; // Ajusta el ancho de la tabla según tus necesidades
     echo '<thead>';
     echo '<tr>';
     echo '<th>Id</th>';
@@ -66,7 +66,7 @@ if ($result->num_rows > 0) {
         echo '<td>';
         echo '<form id="formEliminar_' . $row['cedula'] . '" method="POST" action="http://localhost/sistema_notas/Crud/delete_solicitud.php">';
         echo '<input type="hidden" name="cedula" value="' . $row['cedula'] . '">';
-        echo '<button type="button" class="btn btn-danger" onclick="eliminarSolicitud(' . $row['cedula'] . ')"><i class="bx bxs-user-pin"></i></button>';
+        echo '<button type="button" class="btn btn-danger" onclick="eliminarSolicitud(' . $row['cedula'] . ')"><i class="bx bxs-trash"></i></button>';
         echo '</form>';
         echo '</td>';
         echo '</tr>';
