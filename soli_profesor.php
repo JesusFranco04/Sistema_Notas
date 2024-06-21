@@ -230,7 +230,7 @@
                                     placeholder="Filtrar Solicitudes a traves de su Cedula"
                                     onkeyup="filtrarSolicitudes()" />
                             </div>
-                            
+
                             <?php
                             include '../Sistema_Notas/Crud/solicitud.php';
                             ?>
@@ -375,14 +375,14 @@
                                 </div>
 
                                 <style>
-                                .input-group-btn {
-                                    display: flex;
-                                    align-items: center;
-                                }
+                                    .input-group-btn {
+                                        display: flex;
+                                        align-items: center;
+                                    }
 
-                                .input-group-btn .btn {
-                                    margin-left: 10px;
-                                }
+                                    .input-group-btn .btn {
+                                        margin-left: 10px;
+                                    }
                                 </style>
 
                                 <a class="scroll-to-top rounded" href="#page-top">
@@ -413,127 +413,127 @@
                                 </div>
 
                                 <script>
-                                function filtrarSolicitudes() {
-                                    var input = document.getElementById("filtroSolicitud");
-                                    var filter = input.value.toUpperCase();
-                                    var table = document.getElementsByTagName("table")[0];
-                                    var rows = table.getElementsByTagName("tr");
+                                    function filtrarSolicitudes() {
+                                        var input = document.getElementById("filtroSolicitud");
+                                        var filter = input.value.toUpperCase();
+                                        var table = document.getElementsByTagName("table")[0];
+                                        var rows = table.getElementsByTagName("tr");
 
-                                    for (var i = 1; i < rows.length; i++) {
-                                        var cells = rows[i].getElementsByTagName("td");
-                                        var cedulaCell = cells[1];
+                                        for (var i = 1; i < rows.length; i++) {
+                                            var cells = rows[i].getElementsByTagName("td");
+                                            var cedulaCell = cells[1];
 
-                                        if (cedulaCell) {
-                                            var value = cedulaCell.textContent || cedulaCell.innerText;
-                                            if (value.toUpperCase().indexOf(filter) > -1) {
-                                                rows[i].style.display = "";
-                                            } else {
-                                                rows[i].style.display = "none";
+                                            if (cedulaCell) {
+                                                var value = cedulaCell.textContent || cedulaCell.innerText;
+                                                if (value.toUpperCase().indexOf(filter) > -1) {
+                                                    rows[i].style.display = "";
+                                                } else {
+                                                    rows[i].style.display = "none";
+                                                }
                                             }
                                         }
                                     }
-                                }
                                 </script>
                                 <script>
-                                $(document).ready(function() {
-                                    $('#modalActualizar').on('show.bs.modal', function(event) {
-                                        var button = $(event.relatedTarget);
-                                        var cedula = button.data('cedula');
-                                        var telefono = button.data('telefono');
-                                        var nombres = button.data('nombres');
-                                        var apellidos = button.data('apellidos');
-                                        var correo = button.data('correo');
-                                        var rol = button.data('rol');
+                                    $(document).ready(function () {
+                                        $('#modalActualizar').on('show.bs.modal', function (event) {
+                                            var button = $(event.relatedTarget);
+                                            var cedula = button.data('cedula');
+                                            var telefono = button.data('telefono');
+                                            var nombres = button.data('nombres');
+                                            var apellidos = button.data('apellidos');
+                                            var correo = button.data('correo');
+                                            var rol = button.data('rol');
 
-                                        var modal = $(this);
-                                        modal.find('#cedula').val(cedula);
-                                        modal.find('#telefono').val(telefono);
-                                        modal.find('#nombres').val(nombres);
-                                        modal.find('#apellidos').val(apellidos);
-                                        modal.find('#correo_electronico').val(correo);
-                                        modal.find('#rol').val(rol);
+                                            var modal = $(this);
+                                            modal.find('#cedula').val(cedula);
+                                            modal.find('#telefono').val(telefono);
+                                            modal.find('#nombres').val(nombres);
+                                            modal.find('#apellidos').val(apellidos);
+                                            modal.find('#correo_electronico').val(correo);
+                                            modal.find('#rol').val(rol);
+                                        });
                                     });
-                                });
                                 </script>
                                 <script>
-                                $(document).ready(function() {
-                                    $('#modalActualizar').on('show.bs.modal', function(event) {
-                                        var button = $(event.relatedTarget);
-                                        var id = button.data('id');
-                                        var cedula = button.data('cedula');
-                                        var telefono = button.data('telefono');
-                                        var nombres = button.data('nombres');
-                                        var apellidos = button.data('apellidos');
-                                        var correo = button.data('correo');
-                                        var rol = button.data('rol');
+                                    $(document).ready(function () {
+                                        $('#modalActualizar').on('show.bs.modal', function (event) {
+                                            var button = $(event.relatedTarget);
+                                            var id = button.data('id');
+                                            var cedula = button.data('cedula');
+                                            var telefono = button.data('telefono');
+                                            var nombres = button.data('nombres');
+                                            var apellidos = button.data('apellidos');
+                                            var correo = button.data('correo');
+                                            var rol = button.data('rol');
 
-                                        var modal = $(this);
-                                        modal.find('#cedula').val(cedula);
-                                        modal.find('#telefono').val(telefono);
-                                        modal.find('#nombres').val(nombres);
-                                        modal.find('#apellidos').val(apellidos);
-                                        modal.find('#correo_electronico').val(correo);
-                                        modal.find('#rol').val(rol);
-                                        modal.find('#id').val(id);
+                                            var modal = $(this);
+                                            modal.find('#cedula').val(cedula);
+                                            modal.find('#telefono').val(telefono);
+                                            modal.find('#nombres').val(nombres);
+                                            modal.find('#apellidos').val(apellidos);
+                                            modal.find('#correo_electronico').val(correo);
+                                            modal.find('#rol').val(rol);
+                                            modal.find('#id').val(id);
+                                        });
                                     });
-                                });
 
-                                function cargarDatos(id) {
-                                    var cedula = document.getElementById('cedula');
-                                    var telefono = document.getElementById('telefono');
-                                    var nombres = document.getElementById('nombres');
-                                    var apellidos = document.getElementById('apellidos');
-                                    var correo = document.getElementById('correo_electronico');
-                                    var rol = document.getElementById('rol');
+                                    function cargarDatos(id) {
+                                        var cedula = document.getElementById('cedula');
+                                        var telefono = document.getElementById('telefono');
+                                        var nombres = document.getElementById('nombres');
+                                        var apellidos = document.getElementById('apellidos');
+                                        var correo = document.getElementById('correo_electronico');
+                                        var rol = document.getElementById('rol');
 
-                                    var form = document.getElementById('formActualizar');
+                                        var form = document.getElementById('formActualizar');
 
 
-                                    // Asignar el valor del ID al campo oculto
-                                    form.id.value = id;
+                                        // Asignar el valor del ID al campo oculto
+                                        form.id.value = id;
 
-                                    // Asignar los demás valores a los campos del formulario
-                                    var botonEditar = document.querySelector('button[data-id="' + id + '"]');
-                                    cedula.value = botonEditar.getAttribute('data-cedula');
-                                    telefono.value = botonEditar.getAttribute('data-telefono');
-                                    nombres.value = botonEditar.getAttribute('data-nombres');
-                                    apellidos.value = botonEditar.getAttribute('data-apellidos');
-                                    correo.value = botonEditar.getAttribute('data-correo');
-                                    rol.value = botonEditar.getAttribute('data-rol');
-                                }
+                                        // Asignar los demás valores a los campos del formulario
+                                        var botonEditar = document.querySelector('button[data-id="' + id + '"]');
+                                        cedula.value = botonEditar.getAttribute('data-cedula');
+                                        telefono.value = botonEditar.getAttribute('data-telefono');
+                                        nombres.value = botonEditar.getAttribute('data-nombres');
+                                        apellidos.value = botonEditar.getAttribute('data-apellidos');
+                                        correo.value = botonEditar.getAttribute('data-correo');
+                                        rol.value = botonEditar.getAttribute('data-rol');
+                                    }
 
-                                function validarTelefono(input) {
-                                    // Obtener el valor ingresado en el campo de entrada
-                                    var telefono = input.value;
+                                    function validarTelefono(input) {
+                                        // Obtener el valor ingresado en el campo de entrada
+                                        var telefono = input.value;
 
-                                    // Eliminar cualquier carácter que no sea un número
-                                    telefono = telefono.replace(/\D/g, '');
+                                        // Eliminar cualquier carácter que no sea un número
+                                        telefono = telefono.replace(/\D/g, '');
 
-                                    // Limitar el número de dígitos a 10
-                                    telefono = telefono.slice(0, 10);
+                                        // Limitar el número de dígitos a 10
+                                        telefono = telefono.slice(0, 10);
 
-                                    // Actualizar el valor del campo de entrada con los dígitos válidos
-                                    input.value = telefono;
-                                }
+                                        // Actualizar el valor del campo de entrada con los dígitos válidos
+                                        input.value = telefono;
+                                    }
 
-                                function generarContrasena() {
-                                    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                                    var passwordLength = 8;
-                                    var password = "";
+                                    function generarContrasena() {
+                                        var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                                        var passwordLength = 8;
+                                        var password = "";
 
-                                    do {
-                                        password = "";
-                                        for (var i = 0; i < passwordLength; i++) {
-                                            var randomNumber = Math.floor(Math.random() * chars.length);
-                                            password += chars.substring(randomNumber, randomNumber + 1);
-                                        }
-                                    } while (generatedPasswords.has(password));
+                                        do {
+                                            password = "";
+                                            for (var i = 0; i < passwordLength; i++) {
+                                                var randomNumber = Math.floor(Math.random() * chars.length);
+                                                password += chars.substring(randomNumber, randomNumber + 1);
+                                            }
+                                        } while (generatedPasswords.has(password));
 
-                                    generatedPasswords.add(password);
+                                        generatedPasswords.add(password);
 
-                                    document.getElementById("generar_contrasena").value = password;
-                                    document.getElementById("generarBtn").disabled = true;
-                                }
+                                        document.getElementById("generar_contrasena").value = password;
+                                        document.getElementById("generarBtn").disabled = true;
+                                    }
                                 </script>
                                 <script src="js/sb-admin-2.min.js"></script>
                                 <script src="vendor/chart.js/Chart.min.js"></script>
