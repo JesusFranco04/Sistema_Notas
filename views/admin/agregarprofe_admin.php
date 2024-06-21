@@ -47,8 +47,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="container">
-                <h1 class="mt-5 text-center">Tabla Solicitudes Profesores</h1>
-                <div class="mb-5 mt-5">
+                <h1 class="mt-1 text-center">Tabla Solicitudes Profesores</h1>
+                <div class="mb-4 mt-3">
                     <input type="text" class="form-control" id="filtroSolicitud"
                         placeholder="Filtrar Solicitudes a traves de su Cedula" onkeyup="filtrarSolicitudes()" />
                 </div>
@@ -72,7 +72,8 @@
 
                     <div class="modal-body">
 
-                        <form action="#" method="post" id="formActualizar">
+                        <form action="../../Crud/solicitud_profe.php" method="post" id="formActualizar"
+                            enctype="multipart/form-data" onsubmit="habilitarCampo()">
 
 
                             <!-- Nombre Completo -->
@@ -105,12 +106,13 @@
                             <div class="form-group">
                                 <label>Genero:</label><br>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="hombre" name="sexo" value="hombre"
-                                        required>
+                                    <input class="form-check-input" type="radio" id="genero" name="genero"
+                                        value="hombre" required>
                                     <label class="form-check-label" for="hombre">Masculino</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="mujer" name="sexo" value="mujer">
+                                    <input class="form-check-input" type="radio" id="genero" name="genero"
+                                        value="mujer">
                                     <label class="form-check-label" for="mujer">Femenino</label>
                                 </div>
                             </div>
@@ -125,7 +127,7 @@
                             <div class="form-group">
                                 <label for="celular">Telefono:</label>
                                 <input type="text" class="form-control" id="telefono" name="telefono"
-                                    oninput="validarTelefono(this)" />
+                                    oninput="validarTelefono(this)" required />
                             </div>
 
                             <!-- Correo Electrónico -->
@@ -161,28 +163,29 @@
                             <div class="form-group">
                                 <label for="generar_contrasena">Generar Contraseña:</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="input-caja" placeholder="Ingrese texto"
-                                        aria-label="Caja de texto" aria-describedby="button-generate" disabled>
+                                    <input type="text" class="form-control" id="contrasena" name="contrasena"
+                                        placeholder="Ingrese texto" aria-label="Caja de texto"
+                                        aria-describedby="button-generate" disabled>
                                     <div class="input-group-append">
                                         <button class="btn btn-primary" type="button" id="button-generate"
-                                            onclick="generarClave()">Generar Clave</button>
+                                            onclick="generarClave()" required>Generar Clave</button>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Seleccionar Archivo -->
                             <div class="form-group">
                                 <label for="archivo">Selecciona un archivo:</label>
                                 <input type="file" class="form-control-file" id="archivo" name="archivo"
-                                    onchange="mostrarInfoArchivo()">
+                                    onchange="mostrarInfoArchivo()" required>
                                 <div id="info-archivo"></div>
                             </div>
 
                             <div class="modal-footer justify-content-center">
+                                <button type="submit" class="btn btn-primary" id="submit-button"
+                                    disabled>Guardar</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            </div>
 
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -207,12 +210,23 @@
                     const randomIndex = Math.floor(Math.random() * caracteres.length);
                     clave += caracteres[randomIndex];
                 }
-                const inputCaja = document.getElementById('input-caja');
-                inputCaja.value = clave;
-                inputCaja.disabled = true;
+                const input_contrasena = document.getElementById('contrasena');
+                input_contrasena.value = clave;
+                input_contrasena.disabled = false; // Habilitar el campo
 
-                document.getElementById('button-generate').disabled = true;
+                document.getElementById('button-generate').disabled = true; // Deshabilitar el botón de generar
+                document.getElementById('submit-button').disabled = false; // Habilitar el botón de guardar
             }
+
+            function validarFormulario() {
+                const input_contrasena = document.getElementById('contrasena');
+                if (input_contrasena.value === '') {
+                    alert('Por favor, genere una contraseña.');
+                    return false;
+                }
+                return true;
+            }
+
         </script>
         <script>
             function mostrarInfoArchivo() {

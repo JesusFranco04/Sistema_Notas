@@ -53,30 +53,31 @@
                                                 de Familia</a>
                                         </div>
                                     </div><br>
-                                    <form class="user">
+                                    <form class="user" action="../Sistema_Notas/Crud/lg_admin.php" method="post">
                                         <div class="form-group">
                                             <label for="identificationNumber">Número
                                                 de identificación</label>
-                                            <input type="text" class="form-control form-control-user"
-                                                id="identificationNumber" aria-describedby="emailHelp"
+                                            <input type="text" class="form-control form-control-user" id="cedula"
+                                                name="cedula" aria-describedby="emailHelp"
                                                 placeholder="Ingrese su número de identificación..."
-                                                oninput="javascript: if (this.value.length > 15) this.value = this.value.slice(0, 15).replace(/[^0-9]/g, '');">
+                                                oninput="javascript: if (this.value.length > 15) this.value = this.value.slice(0, 15).replace(/[^0-9]/g, '');"
+                                                required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="exampleInputPassword">Contraseña</label>
+                                            <label for="contrasena">Contraseña</label>
                                             <div class="input-group">
                                                 <input type="password" class="form-control form-control-user"
-                                                    id="exampleInputPassword" placeholder="Ingrese su contraseña">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-secondary btn-toggle-password"
-                                                        type="button" onclick="MostrarClave()">Mostrar</button>
-                                                </div>
+                                                    id="contrasena" name="contrasena"
+                                                    placeholder="Ingrese su contraseña" required >
+
+                                                <button class="btn btn-outline-secondary btn-toggle-password"
+                                                    type="button" onclick="MostrarClave()">Mostrar</button>
+
                                             </div>
                                         </div>
-                                        <a href="http://localhost/sistema_notas/views/profe/index_profe.php"
-                                            class="btn btn-primary btn-user btn-block">
-                                            Iniciar Sesión
-                                        </a>
+
+                                        <button type="submit" class="btn btn-primary btn-user btn-block"
+                                            id="submit-button">Iniciar Sesion</button>
 
                                     </form>
                                     <hr>
@@ -97,22 +98,22 @@
 
     </div>
     <script>
-    function MostrarClave() {
-        var passwordField = document.getElementById('exampleInputPassword');
-        var toggleButton = document.querySelector('.btn-toggle-password');
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';
-            toggleButton.textContent = 'Ocultar';
-        } else {
-            passwordField.type = 'password';
-            toggleButton.textContent = 'Mostrar';
+                function MostrarClave() {
+            var passwordField = document.getElementById('contrasena');
+            var toggleButton = document.querySelector('.btn-toggle-password');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleButton.textContent = 'Ocultar';
+            } else {
+                passwordField.type = 'password';
+                toggleButton.textContent = 'Mostrar';
+            }
         }
-    }
 
+        document.getElementById('identificationNumber').addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
 
-    document.getElementById('identificationNumber').addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
     </script>
 
     <script src="js/sb-admin-2.min.js"></script>

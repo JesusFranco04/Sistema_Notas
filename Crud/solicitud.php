@@ -36,7 +36,8 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
     // Crear la estructura de la tabla
-    echo '<table class="table">';
+    echo '<div style="overflow-x: auto; overflow-y: auto; max-height: 370px;">'; // Ajusta la altura máxima según tus necesidades
+    echo '<table class="table" style="width: 1047px;">';
     echo '<thead>';
     echo '<tr>';
     echo '<th>Id</th>';
