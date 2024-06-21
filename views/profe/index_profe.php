@@ -180,8 +180,8 @@
             <!-- Imagen del usuario -->
             <span>Nombre Completo del Usuario</span>
             <!-- Nombre del usuario -->
-            <button>Cerrar Sesión</button>
-            <!-- Botón para cerrar sesión -->
+            <button onclick="window.location.href='http://localhost/Sistema_Notas/login_profe.php'">Cerrar Sesión</button>
+            
         </div>
     </nav>
     <section style="padding: 40px; text-align: center;">
