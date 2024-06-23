@@ -34,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $apellidos = $_POST['apellidos'] ?? '';
     $correo_electronico = $_POST['correo_electronico'] ?? '';
     $rol = $_POST['rol'] ?? '';
+    $codigo_de_perfil = $_POST["codigo_de_perfil"]??'';
     $genero = $_POST['genero'] ?? '';
     $direccion = $_POST['direccion'] ?? '';
     $discapacidad = $_POST['discapacidad'] ?? '';
@@ -80,14 +81,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Para este ejemplo, asumiremos que existe. Si no, necesitarás modificar la base de datos o el código según corresponda.
 
     // Preparar la consulta SQL utilizando una consulta preparada
-    $sql = "INSERT INTO soli_profe (cedula, telefono, nombres, apellidos, correo_electronico, rol, genero, direccion, discapacidad, contrasena, archivo, fecha_nacimiento, date_creation)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    $sql = "INSERT INTO soli_profe (cedula, telefono, nombres, apellidos, correo_electronico, rol, codigo_de_perfil, genero, direccion, discapacidad, contrasena, archivo, fecha_nacimiento, date_creation)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
     // Preparar la declaración
     $stmt = $conn->prepare($sql);
 
     // Vincular parámetros y ejecutar la consulta
-    $stmt->bind_param("ssssssssssss", $cedula, $telefono, $nombres, $apellidos, $correo_electronico, $rol, $genero, $direccion, $discapacidad, $contrasena, $archivo, $fecha_nacimiento);
+    $stmt->bind_param("sssssssssssss", $cedula, $telefono, $nombres, $apellidos, $correo_electronico, $rol, $codigo_de_perfil, $genero, $direccion, $discapacidad, $contrasena, $archivo, $fecha_nacimiento);
 
     // Ejecutar la consulta
     if ($stmt->execute()) {

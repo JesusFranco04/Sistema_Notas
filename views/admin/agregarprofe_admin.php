@@ -75,7 +75,6 @@
                         <form action="../../Crud/solicitud_profe.php" method="post" id="formActualizar"
                             enctype="multipart/form-data" onsubmit="habilitarCampo()">
 
-
                             <!-- Nombre Completo -->
                             <div class="form-group">
                                 <label for="nombre_completo">Nombre Completo:</label>
@@ -90,8 +89,7 @@
 
                             <!-- Número de Identificación -->
                             <div class="form-group">
-                                <label for="numero_identificacion">Número de
-                                    identificacion:</label>
+                                <label for="numero_identificacion">Número de identificación:</label>
                                 <input type="text" class="form-control" id="cedula" name="cedula" />
                             </div>
 
@@ -150,8 +148,10 @@
                                     <label class="form-check-label" for="no">No</label>
                                 </div>
                             </div>
+
+                            <!-- Rol -->
                             <div class="col-md-15">
-                                <label for="rol" class="form-label">Rol</label>
+                                <label for="rol" class="form-label">Rol solicitado</label>
                                 <select class="form-control" id="rol" name="rol" required>
                                     <option value="">Selecciona Rol</option>
                                     <option value="administrador">Administrador</option>
@@ -160,6 +160,16 @@
                                 </select>
                             </div>
 
+                            <!-- Código de Perfil -->
+                            <div class="form-group">
+                                <label for="codigo_de_perfil">Código de Perfil:</label>
+                                <select class="form-control" id="codigo_de_perfil" name="codigo_de_perfil" required>
+                                    <option value="">Selecciona Código de Perfil</option>
+                                    <option value="1">Administrador</option>
+                                    <option value="2">Profesor</option>
+                                    <option value="3">Padre de Familia</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="generar_contrasena">Generar Contraseña:</label>
                                 <div class="input-group">
@@ -184,163 +194,169 @@
                                 <button type="submit" class="btn btn-primary" id="submit-button"
                                     disabled>Guardar</button>
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
 
 
-        <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-        <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-        <script>
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.getElementById('accordionSidebar').classList.toggle('collapsed');
-        });
-        </script>
-        <script>
-        function generarClave() {
-            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let clave = '';
-            for (let i = 0; i < 12; i++) {
-                const randomIndex = Math.floor(Math.random() * caracteres.length);
-                clave += caracteres[randomIndex];
-            }
-            const input_contrasena = document.getElementById('contrasena');
-            input_contrasena.value = clave;
-            input_contrasena.disabled = false; // Habilitar el campo
-
-            document.getElementById('button-generate').disabled = true; // Deshabilitar el botón de generar
-            document.getElementById('submit-button').disabled = false; // Habilitar el botón de guardar
+    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
+    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <script>
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.getElementById('accordionSidebar').classList.toggle('collapsed');
+    });
+    </script>
+    <script>
+    function generarClave() {
+        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let clave = '';
+        for (let i = 0; i < 12; i++) {
+            const randomIndex = Math.floor(Math.random() * caracteres.length);
+            clave += caracteres[randomIndex];
         }
+        const input_contrasena = document.getElementById('contrasena');
+        input_contrasena.value = clave;
+        input_contrasena.disabled = false; // Habilitar el campo
 
-        function validarFormulario() {
-            const input_contrasena = document.getElementById('contrasena');
-            if (input_contrasena.value === '') {
-                alert('Por favor, genere una contraseña.');
-                return false;
-            }
-            return true;
+        document.getElementById('button-generate').disabled = true; // Deshabilitar el botón de generar
+        document.getElementById('submit-button').disabled = false; // Habilitar el botón de guardar
+    }
+
+    function validarFormulario() {
+        const input_contrasena = document.getElementById('contrasena');
+        if (input_contrasena.value === '') {
+            alert('Por favor, genere una contraseña.');
+            return false;
         }
-        </script>
-        <script>
-        function mostrarInfoArchivo() {
-            const input = document.getElementById('archivo');
-            const infoArchivo = document.getElementById('info-archivo');
+        return true;
+    }
+    </script>
+    <script>
+    function mostrarInfoArchivo() {
+        const input = document.getElementById('archivo');
+        const infoArchivo = document.getElementById('info-archivo');
 
 
-            if (input.files.length > 0) {
-                const archivo = input.files[0];
-                const tamaño = archivo.size / 1024;
-                const tipo = archivo.type || 'Tipo desconocido';
+        if (input.files.length > 0) {
+            const archivo = input.files[0];
+            const tamaño = archivo.size / 1024;
+            const tipo = archivo.type || 'Tipo desconocido';
 
 
-                infoArchivo.innerHTML = `
+            infoArchivo.innerHTML = `
                     <p><strong>Nombre:</strong> ${archivo.name}</p>
                     <p><strong>Tipo:</strong> ${tipo}</p>
                     <p><strong>Tamaño:</strong> ${tamaño.toFixed(2)} KB</p>
                 `;
-            } else {
+        } else {
 
-                infoArchivo.innerHTML = '';
-            }
+            infoArchivo.innerHTML = '';
         }
-        </script>
-        <script>
-        function filtrarSolicitudes() {
-            var input = document.getElementById("filtroSolicitud");
-            var filter = input.value.toUpperCase();
-            var table = document.getElementsByTagName("table")[0];
-            var rows = table.getElementsByTagName("tr");
+    }
+    </script>
+    <script>
+    function filtrarSolicitudes() {
+        var input = document.getElementById("filtroSolicitud");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementsByTagName("table")[0];
+        var rows = table.getElementsByTagName("tr");
 
-            for (var i = 1; i < rows.length; i++) {
-                var cells = rows[i].getElementsByTagName("td");
-                var cedulaCell = cells[1];
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+            var cedulaCell = cells[1];
 
-                if (cedulaCell) {
-                    var value = cedulaCell.textContent || cedulaCell.innerText;
-                    if (value.toUpperCase().indexOf(filter) > -1) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
+            if (cedulaCell) {
+                var value = cedulaCell.textContent || cedulaCell.innerText;
+                if (value.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
                 }
             }
         }
-        </script>
-        <script>
-        $(document).ready(function() {
-            $('#modalActualizar').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget);
-                var cedula = button.data('cedula');
-                var telefono = button.data('telefono');
-                var nombres = button.data('nombres');
-                var apellidos = button.data('apellidos');
-                var correo = button.data('correo');
-                var rol = button.data('rol');
+    }
+    </script>
+    <script>
+    $(document).ready(function() {
+        $('#modalActualizar').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var cedula = button.data('cedula');
+            var telefono = button.data('telefono');
+            var nombres = button.data('nombres');
+            var apellidos = button.data('apellidos');
+            var correo = button.data('correo');
+            var rol = button.data('rol');
+            var codigo_de_perfil=button.data('codigo_de_perfil');
 
-                var modal = $(this);
-                modal.find('#cedula').val(cedula);
-                modal.find('#telefono').val(telefono);
-                modal.find('#nombres').val(nombres);
-                modal.find('#apellidos').val(apellidos);
-                modal.find('#correo_electronico').val(correo);
-                modal.find('#rol').val(rol);
-            });
+            var modal = $(this);
+            modal.find('#cedula').val(cedula);
+            modal.find('#telefono').val(telefono);
+            modal.find('#nombres').val(nombres);
+            modal.find('#apellidos').val(apellidos);
+            modal.find('#correo_electronico').val(correo);
+            modal.find('#rol').val(rol);
+            modal.find('#codigo_de_perfil');
         });
-        </script>
-        <script>
-        $(document).ready(function() {
-            $('#modalActualizar').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget);
-                var id = button.data('id');
-                var cedula = button.data('cedula');
-                var telefono = button.data('telefono');
-                var nombres = button.data('nombres');
-                var apellidos = button.data('apellidos');
-                var correo = button.data('correo');
-                var rol = button.data('rol');
+    });
+    </script>
+    <script>
+    $(document).ready(function() {
+        $('#modalActualizar').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var id = button.data('id');
+            var cedula = button.data('cedula');
+            var telefono = button.data('telefono');
+            var nombres = button.data('nombres');
+            var apellidos = button.data('apellidos');
+            var correo = button.data('correo');
+            var rol = button.data('rol');
+            var codigo_de_perfil = button.data('codigo_de_perfil');
 
-                var modal = $(this);
-                modal.find('#cedula').val(cedula);
-                modal.find('#telefono').val(telefono);
-                modal.find('#nombres').val(nombres);
-                modal.find('#apellidos').val(apellidos);
-                modal.find('#correo_electronico').val(correo);
-                modal.find('#rol').val(rol);
-                modal.find('#id').val(id);
-            });
+            var modal = $(this);
+            modal.find('#cedula').val(cedula);
+            modal.find('#telefono').val(telefono);
+            modal.find('#nombres').val(nombres);
+            modal.find('#apellidos').val(apellidos);
+            modal.find('#correo_electronico').val(correo);
+            modal.find('#rol').val(rol);
+            modal.find('#id').val(id);
+            modal.find('#codigo_de_perfil');
         });
-        </script>
-        <script>
-        function cargarDatos(id) {
-            var cedula = document.getElementById('cedula');
-            var telefono = document.getElementById('telefono');
-            var nombres = document.getElementById('nombres');
-            var apellidos = document.getElementById('apellidos');
-            var correo = document.getElementById('correo_electronico');
-            var rol = document.getElementById('rol');
+    });
+    </script>
+    <script>
+    function cargarDatos(id) {
+        var cedula = document.getElementById('cedula');
+        var telefono = document.getElementById('telefono');
+        var nombres = document.getElementById('nombres');
+        var apellidos = document.getElementById('apellidos');
+        var correo = document.getElementById('correo_electronico');
+        var rol = document.getElementById('rol');
+        var codigo_de_perfil = document.getElementById('codigo_de_perfil');
 
-            var form = document.getElementById('formActualizar');
+        var form = document.getElementById('formActualizar');
 
 
-            // Asignar el valor del ID al campo oculto
-            form.id.value = id;
+        // Asignar el valor del ID al campo oculto
+        form.id.value = id;
 
-            // Asignar los demás valores a los campos del formulario
-            var botonEditar = document.querySelector('button[data-id="' + id + '"]');
-            cedula.value = botonEditar.getAttribute('data-cedula');
-            telefono.value = botonEditar.getAttribute('data-telefono');
-            nombres.value = botonEditar.getAttribute('data-nombres');
-            apellidos.value = botonEditar.getAttribute('data-apellidos');
-            correo.value = botonEditar.getAttribute('data-correo');
-            rol.value = botonEditar.getAttribute('data-rol');
-        }
-        </script>
+        // Asignar los demás valores a los campos del formulario
+        var botonEditar = document.querySelector('button[data-id="' + id + '"]');
+        cedula.value = botonEditar.getAttribute('data-cedula');
+        telefono.value = botonEditar.getAttribute('data-telefono');
+        nombres.value = botonEditar.getAttribute('data-nombres');
+        apellidos.value = botonEditar.getAttribute('data-apellidos');
+        correo.value = botonEditar.getAttribute('data-correo');
+        rol.value = botonEditar.getAttribute('data-rol');
+        codigo_de_perfil.value = botonEditar.getAttribute('codigo_de_perfil');
+    }
+    </script>
 </body>
 
 </html>

@@ -23,15 +23,17 @@ CREATE TABLE soli_profe (
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(20) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero VARCHAR(20)NOT NULL,
+    genero VARCHAR(20) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     telefono VARCHAR(10),
     correo_electronico VARCHAR(100),
     discapacidad VARCHAR(10) NOT NULL,
     rol VARCHAR(20) NOT NULL,
+    codigo_de_perfil VARCHAR(1) NOT NULL,
     contrasena VARCHAR(50) NOT NULL,
     archivo VARCHAR(500),
     date_creation VARCHAR(45) NOT NULL,
     PRIMARY KEY (cedula),
     UNIQUE KEY (id)
 );
+
