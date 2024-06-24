@@ -9,7 +9,7 @@
     <!-- Vista en Dispositivos Móviles -->
     <meta name="descripcion" content>
     <meta name="autor" content>
-    <title>Sistema de Gestión - UEBF</title>
+    <title>INICIAR SESIÓN | SISTEMA DE GESTIÓN UEBF</title>
     <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
     <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
@@ -42,16 +42,8 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h1 text-gray-900 mb-3">Profesor</h1>
-                                        <h6 class="text-gray-900 mb-3">Introduzca
-                                            sus credenciales</h6>
-                                        <div class="btn-group">
-                                            <a href="login_admin.php"
-                                                class="btn btn-sm btn-primary mr-1">Administrador</a>
-                                            <a href="login_profe.php" class="btn btn-sm btn-primary mr-1">Profesor</a>
-                                            <a href="login_family.php" class="btn btn-sm btn-primary ">Padre
-                                                de Familia</a>
-                                        </div>
+                                        <h1 class="h1 text-gray-900 mb-3">Inicio de Sesión</h1>
+                                        <p class="text-gray-900 mb-3">Por favor, introduzca sus credenciales para acceder al sistema</p>
                                     </div><br>
                                     <form class="user" action="../Sistema_Notas/Crud/lg_admin.php" method="post">
                                         <div class="form-group">
@@ -82,10 +74,8 @@
                                     </form>
                                     <hr>
                                     <div class="text-center">
-                                        <span class="small">¿No tiene
-                                            cuenta? </span>
-                                        <a class="small" href="enviar_soli.php">Solicite
-                                            al Administrador crear una</a>
+                                        <span class="small">¿No tiene una cuenta? </span>
+                                        <a class="small" href="enviar_soli.php">Solicite una al administrador</a>
                                     </div>
                                 </div>
                             </div>
