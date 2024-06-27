@@ -160,9 +160,7 @@
             <div style="margin-left: auto; margin-right: 20px;">
                 <span style="font-size: 14px; color: #888;">Nombre Completo del Usuario</span>
                 <span style="margin-left: 20px;"></span> <!-- Espacio adicional -->
-                <button
-                    style="background-color: #e70014; color: #fff; border: none; padding: 10px 20px; border-radius: 50px;">Cerrar
-                    Sesión</button>
+                <button onclick="window.location.href='http://localhost/Sistema_Notas/login.php'">Cerrar Sesión</button>
             </div>
         </div>
     </nav>
@@ -172,7 +170,7 @@
         <p>Esta es el sistema de gestion para Calificaciones.</p>
     </section>
     <footer>
-        <p> &copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
     </footer>
 </body>

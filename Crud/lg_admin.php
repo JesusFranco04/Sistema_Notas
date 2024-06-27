@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Datos del formulario
@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     include 'config.php';
 
     // Consulta SQL para verificar las credenciales del usuario
-    $sql = "SELECT codigo_de_perfil FROM soli_profe WHERE cedula = '$cedula' AND contrasena = '$contrasena'";
+    $sql = "SELECT codigo_de_perfil, nombres, apellidos, rol, archivo FROM soli_profe WHERE cedula = '$cedula' AND contrasena = '$contrasena'";
     // Ejecutar la consulta
     $result = $conn->query($sql);
 
@@ -17,6 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Obtener el código del perfil del usuario
         $row = $result->fetch_assoc();
         $codigo_de_perfil = $row['codigo_de_perfil'];
+        $_SESSION["nombres"]=$row['nombres'];
+        $_SESSION["apellidos"]=$row['apellidos'];
+        $_SESSION["rol"]=$row['rol'];
+        $_SESSION["archivo"]=$row['archivo'];
+
+
 
         // Redireccionar según el código del perfil
         if ($codigo_de_perfil == 1) {

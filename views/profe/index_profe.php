@@ -180,7 +180,7 @@
             <!-- Imagen del usuario -->
             <span>Nombre Completo del Usuario</span>
             <!-- Nombre del usuario -->
-            <button onclick="window.location.href='http://localhost/Sistema_Notas/login_profe.php'">Cerrar Sesión</button>
+            <button onclick="window.location.href='http://localhost/Sistema_Notas/login.php'">Cerrar Sesión</button>
             
         </div>
     </nav>
@@ -193,7 +193,8 @@
     </section>
     <footer style="background-color: #8b0000; color: #fff; padding: 20px; text-align: center;">
         <!-- Pie de página -->
-        <p>Derechos Reservados &copy; 2024</p>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+        Todos los derechos reservados.</p>
         <!-- Información de derechos de autor -->
     </footer>
 </body>

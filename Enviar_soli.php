@@ -16,6 +16,7 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
+    <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="css/sb-admin-2.min.css">
 </head>
 
@@ -27,7 +28,7 @@
                 <!-- Nested Row within Card Body -->
                 <div class="row">
                     <div class="col-lg-6 d-none d-lg-block"
-                        style="background-image: url('imagenes/versolit.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;">
+                        style="background-image: url('imagenes/versolit1.png'); background-size: 90% auto; background-position: center; background-repeat: no-repeat;">
                     </div>
                     <div class="col-lg-6">
                         <div class="p-5">
@@ -70,12 +71,12 @@
                                 <button type="submit" class="btn btn-primary btn-user btn-block">
                                     Enviar Solicitud
                                 </button>
-                                <a href="login_family.php" class="btn btn-secondary btn-user btn-block">Cancelar</a>
+                                <a href="login.php" class="btn btn-secondary btn-user btn-block">Cancelar</a>
                             </form>
 
                             <hr>
                             <div class="text-center">
-                                <a class="small" href="login_family.php">Ya tienes cuenta? Inicia Sesion</a>
+                                <a class="small" href="login.php">Ya tienes cuenta? Inicia Sesion</a>
                             </div>
                         </div>
                     </div>

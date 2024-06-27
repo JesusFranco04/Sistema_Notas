@@ -3,37 +3,34 @@ CREATE DATABASE Sistema_Gestion;
 
 USE Sistema_Gestion;
 
-CREATE TABLE solicitudes (
-    id INT AUTO_INCREMENT,
-    cedula VARCHAR(20) NOT NULL,
-    telefono VARCHAR(10),
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    correo_electronico VARCHAR(100),
-    rol VARCHAR(20) NOT NULL,
-    date_creation VARCHAR(45) NOT NULL,
-    PRIMARY KEY (cedula),
-    UNIQUE KEY (id)
-);
+-- Tabla `perfiles`
+CREATE TABLE IF NOT EXISTS `perfiles` (
+  `id_perfil` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(50) NOT NULL,
+  `estado` CHAR(1) NOT NULL,
+  `usuario_ingreso` VARCHAR(50) NOT NULL,
+  `fecha_ingreso` DATE NOT NULL,
+  PRIMARY KEY (`id_perfil`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+-- Tabla `usuarios`
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
+  `usuario` VARCHAR(20) NOT NULL,
+  `numero_identificacion` VARCHAR(15) NOT NULL,
+  `contrasena` VARCHAR(10) NOT NULL,
+  `id_perfil` INT NOT NULL,
+  `codigo` VARCHAR(5) NOT NULL,
+  `estado` CHAR(1) NOT NULL,
+  `usuario_ingreso` VARCHAR(50) NOT NULL,
+  `fecha_ingreso` DATE NOT NULL,
+  PRIMARY KEY (`id_usuario`),
+  FOREIGN KEY (`id_perfil`) REFERENCES `perfiles`(`id_perfil`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
 
-CREATE TABLE soli_profe (
-    id INT AUTO_INCREMENT,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    cedula VARCHAR(20) NOT NULL,
-    fecha_nacimiento DATE NOT NULL,
-    genero VARCHAR(20) NOT NULL,
-    direccion VARCHAR(255) NOT NULL,
-    telefono VARCHAR(10),
-    correo_electronico VARCHAR(100),
-    discapacidad VARCHAR(10) NOT NULL,
-    rol VARCHAR(20) NOT NULL,
-    codigo_de_perfil VARCHAR(1) NOT NULL,
-    contrasena VARCHAR(50) NOT NULL,
-    archivo VARCHAR(500),
-    date_creation VARCHAR(45) NOT NULL,
-    PRIMARY KEY (cedula),
-    UNIQUE KEY (id)
-);
 
