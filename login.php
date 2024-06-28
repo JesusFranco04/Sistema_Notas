@@ -11,6 +11,7 @@
     <meta name="autor" content>
     <title>INICIAR SESIÓN | SISTEMA DE GESTIÓN UEBF</title>
     <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="agenda.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <!-- ejemplo-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -46,7 +47,8 @@
                                     </div><br>
                                     <form class="user" action="../Sistema_Notas/Crud/lg_admin.php" method="post">
                                         <div class="form-group">
-                                            <label for="identificationNumber">Número de identificación</label>
+                                            <label for="identificationNumber">Número
+                                                de identificación</label>
                                             <input type="text" class="form-control form-control-user" id="cedula"
                                                 name="cedula" aria-describedby="emailHelp"
                                                 placeholder="Ingrese su número de identificación..."
@@ -57,7 +59,7 @@
                                             <label for="contrasena">Contraseña</label>
                                             <div class="input-group">
                                                 <input type="password" class="form-control form-control-user"
-                                                    id="contrasena" name="contrasena"
+                                                    id="contraseña" name="contraseña"
                                                     placeholder="Ingrese su contraseña" required >
 
                                                 <button class="btn btn-outline-secondary btn-toggle-password"
@@ -87,7 +89,7 @@
     </div>
     <script>
                 function MostrarClave() {
-            var passwordField = document.getElementById('contrasena');
+            var passwordField = document.getElementById('contraseña');
             var toggleButton = document.querySelector('.btn-toggle-password');
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';

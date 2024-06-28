@@ -4,40 +4,53 @@ session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Datos del formulario
     $cedula = $_POST["cedula"];
-    $contrasena = $_POST["contrasena"];
- 
+    $contraseña = $_POST["contraseña"];
+    
     include 'config.php';
 
-    // Consulta SQL para verificar las credenciales del usuario
-    $sql = "SELECT codigo_de_perfil, nombres, apellidos, rol, archivo FROM soli_profe WHERE cedula = '$cedula' AND contrasena = '$contrasena'";
-    // Ejecutar la consulta
-    $result = $conn->query($sql);
+    // Preparar la declaración SQL
+    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contraseña = ?");
+    if ($stmt) {
+        // Vincular los parámetros
+        $stmt->bind_param("ss", $cedula, $contraseña);
+        
+        // Ejecutar la consulta
+        $stmt->execute();
+        
+        // Obtener el resultado
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows == 1) {
+            // Obtener el código del perfil del usuario
+            $row = $result->fetch_assoc();
+            $rol = $row['rol'];
 
-    if ($result->num_rows == 1) {
-        // Obtener el código del perfil del usuario
-        $row = $result->fetch_assoc();
-        $codigo_de_perfil = $row['codigo_de_perfil'];
-        $_SESSION["nombres"]=$row['nombres'];
-        $_SESSION["apellidos"]=$row['apellidos'];
-        $_SESSION["rol"]=$row['rol'];
-        $_SESSION["archivo"]=$row['archivo'];
-
-
-
-        // Redireccionar según el código del perfil
-        if ($codigo_de_perfil == 1) {
-            header("Location: http://localhost/Sistema_Notas/views/admin/index_admin.php"); // Panel de administrador
-        } elseif ($codigo_de_perfil == 2) {
-            header("Location: http://localhost/Sistema_Notas/views/profe/index_profe.php"); // Panel de profesor
-        } elseif ($codigo_de_perfil == 3) {
-            header("Location: http://localhost/Sistema_Notas/views/family/index_family.php"); // Panel de padres de familia
+        // Almacenar datos en variables de sesión
+        $_SESSION["cedula"] = $cedula;
+        $_SESSION["rol"] = $rol;
+            
+            // Redireccionar según el código del perfil
+            if ($rol == 1) {
+                header("Location: http://localhost/Sistema_Notas/views/admin/index_admin.php"); // Panel de administrador
+            } elseif ($rol == 2) {
+                header("Location: http://localhost/Sistema_Notas/views/profe/index_profe.php"); // Panel de profesor
+            } elseif ($rol == 3) {
+                header("Location: http://localhost/Sistema_Notas/views/family/index_family.php"); // Panel de padres de familia
+            }
+            exit;
+        } else {
+            echo '<script>alert("Usuario o Contraseña incorrectas!"); window.location.href = "http://localhost/Sistema_Notas/login_profe.php";</script>';
         }
-        exit;
+        
+        // Cerrar la declaración
+        $stmt->close();
     } else {
-        echo '<script>alert("Usuario o Contraseña incorrectas!"); window.location.href = "http://localhost/Sistema_Notas/login_profe.php";</script>';
+        // Manejar error de SQL
+        echo '<script>alert("Error al preparar la consulta SQL: ' . $conn->error . '"); window.location.href = "http://localhost/Sistema_Notas/login_profe.php";</script>';
     }
 
-    // Cerrar la conexión (opcional, ya que se cerrará automáticamente al final del script)
+    // Cerrar la conexión
+    $stmt->close();
     $conn->close();
 }
 ?>
