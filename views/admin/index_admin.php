@@ -3,31 +3,13 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_SESSION["nombres"]) || !isset($_SESSION["apellidos"])) {
+if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
     header("Location: ../login.php");
     exit;
 }
 
-$nombres = $_SESSION["nombres"];
-$apellidos = $_SESSION["apellidos"];
+$cedula = $_SESSION["cedula"];
 $rol = $_SESSION["rol"];
-$archivo = $_SESSION["archivo"];
-?>
-
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION["nombres"]) || !isset($_SESSION["apellidos"])) {
-    echo "La sesión ha caducado o no se ha iniciado correctamente.";
-    exit;
-}
-
-$nombres = $_SESSION["nombres"];
-$apellidos = $_SESSION["apellidos"];
-$rol = $_SESSION["rol"];
-$archivo = $_SESSION["archivo"];
 ?>
 
 <!DOCTYPE html>

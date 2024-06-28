@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Verificar si las variables de sesión están definidas
-if (!isset($_SESSION["nombres"]) || !isset($_SESSION["apellidos"])) {
+if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
     echo "La sesión ha caducado o no se ha iniciado correctamente.";
     exit;
 }
@@ -187,7 +187,7 @@ if (!isset($_SESSION["fecha_ingreso"])) {
                 <div class="form-group">
                     <label for="usuario_ingreso1">Usuario que ingresa el registro:</label>
                     <input type="text" class="form-control" id="usuario_ingreso1" name="usuario_ingreso1"
-                        value="<?php echo $_SESSION['nombres'] . ' ' . $_SESSION['apellidos']; ?>" readonly>
+                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
@@ -237,7 +237,7 @@ if (!isset($_SESSION["fecha_ingreso"])) {
                 <div class="form-group">
                     <label for="usuario_ingreso1">Usuario que ingresa el registro:</label>
                     <input type="text" class="form-control" id="usuario_ingreso1" name="usuario_ingreso1"
-                        value="<?php echo $_SESSION['nombres'] . ' ' . $_SESSION['apellidos']; ?>" readonly>
+                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
@@ -291,7 +291,7 @@ if (!isset($_SESSION["fecha_ingreso"])) {
                 <div class="form-group">
                     <label for="usuario_ingreso1">Usuario que ingresa el registro:</label>
                     <input type="text" class="form-control" id="usuario_ingreso1" name="usuario_ingreso1"
-                        value="<?php echo $_SESSION['nombres'] . ' ' . $_SESSION['apellidos']; ?>" readonly>
+                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
@@ -340,7 +340,7 @@ if (!isset($_SESSION["fecha_ingreso"])) {
                 <div class="form-group">
                     <label for="usuario_ingreso1">Usuario que ingresa el registro:</label>
                     <input type="text" class="form-control" id="usuario_ingreso1" name="usuario_ingreso1"
-                        value="<?php echo $_SESSION['nombres'] . ' ' . $_SESSION['apellidos']; ?>" readonly>
+                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
@@ -367,7 +367,7 @@ if (!isset($_SESSION["fecha_ingreso"])) {
             </div>
 
 
-            
+
             <!-- Paso 5: Curso -->
             <div class="form-section" id="step5">
                 <h3 class="mb-4">Paso 5: Curso</h3>
