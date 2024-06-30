@@ -7,9 +7,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contraseña = $_POST["contraseña"];
     
     include 'config.php';
+    
 
     // Preparar la declaración SQL
-    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contraseña = ?");
+    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contrasena =?");
     if ($stmt) {
         // Vincular los parámetros
         $stmt->bind_param("ss", $cedula, $contraseña);
@@ -24,14 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Obtener el código del perfil del usuario
             $row = $result->fetch_assoc();
             $rol = $row['rol'];
-
-        // Almacenar datos en variables de sesión
-        $_SESSION["cedula"] = $cedula;
-        $_SESSION["rol"] = $rol;
-            
-            // Redireccionar según el código del perfil
+        // Redireccionar según el código del perfil !!!! ya con esto - deveria entrar!!!!!!
             if ($rol == 1) {
-                header("Location: http://localhost/Sistema_Notas/views/admin/index_admin.php"); // Panel de administrador
+                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php"); // Panel de administrador
             } elseif ($rol == 2) {
                 header("Location: http://localhost/Sistema_Notas/views/profe/index_profe.php"); // Panel de profesor
             } elseif ($rol == 3) {
@@ -39,18 +35,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             exit;
         } else {
-            echo '<script>alert("Usuario o Contraseña incorrectas!"); window.location.href = "http://localhost/Sistema_Notas/login_profe.php";</script>';
+            echo '<script>alert("Usuario o Contraseña incorrectas!"); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
         }
         
         // Cerrar la declaración
         $stmt->close();
     } else {
         // Manejar error de SQL
-        echo '<script>alert("Error al preparar la consulta SQL: ' . $conn->error . '"); window.location.href = "http://localhost/Sistema_Notas/login_profe.php";</script>';
+        echo '<script>alert("Error al preparar la consulta SQL: ' . $conn->error . '"); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
     }
-
     // Cerrar la conexión
-    $stmt->close();
     $conn->close();
 }
 ?>

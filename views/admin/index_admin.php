@@ -1,17 +1,3 @@
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
-    header("Location: ../login.php");
-    exit;
-}
-
-$cedula = $_SESSION["cedula"];
-$rol = $_SESSION["rol"];
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -32,272 +18,251 @@ $rol = $_SESSION["rol"];
     <!-- Custom styles for this template-->
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <!DOCTYPE html>
-    <html lang="es">
+    <!-- Estilos personalizados -->
+    <style>
+    /* Aquí va tu código CSS */
+    body,
+    html {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
 
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>SISTEMA DE GESTIÓN UEBF | ADMINISTRADOR</title>
-        <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-        <!-- Custom fonts for this template-->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-            type="text/css">
-        <link
-            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-            rel="stylesheet">
-        <!-- Custom styles for this template-->
-        <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        <!-- Estilos personalizados -->
-        <style>
-        /* Aquí va tu código CSS */
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-        }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    /* Estilos para el banner */
+    .banner {
+        width: 100%;
+        height: 400px;
+        position: relative;
+        overflow: hidden;
+    }
 
-        /* Estilos para el banner */
-        .banner {
-            width: 100%;
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-        }
+    .banner-images {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
 
-        .banner-images {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+    .banner-images img {
+        max-width: 100%;
+        height: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        z-index: 1;
+        transition: opacity 1s ease;
+    }
 
-        .banner-images img {
-            max-width: 100%;
-            height: auto;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            z-index: 1;
-            transition: opacity 1s ease;
-        }
+    .banner-images img.active {
+        opacity: 1;
+        z-index: 2;
+    }
 
-        .banner-images img.active {
-            opacity: 1;
-            z-index: 2;
-        }
+    .banner-text {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 36px;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 3;
+        font-family: 'Arial', sans-serif;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
 
-        .banner-text {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 36px;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 3;
-            font-family: 'Arial', sans-serif;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
+    .banner-images:hover .banner-text {
+        opacity: 1;
+    }
 
-        .banner-images:hover .banner-text {
-            opacity: 1;
-        }
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 36px;
+        color: #444;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
 
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 36px;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+    .history-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
 
+    .history-content {
+        flex: 1 1 60%;
+        padding: 20px;
+    }
+
+    .history-content p {
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+
+    .history-image img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .divider {
+        width: 80%;
+        margin: 40px auto;
+        border-top: 2px solid #ccc;
+        position: relative;
+    }
+
+    .divider::after {
+        content: '';
+        width: 100px;
+        height: 2px;
+        background-color: #444;
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 40px;
+    }
+
+    .card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        max-width: 300px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .card img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .tab-button {
+        background-color: #f1f1f1;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .tab-button:hover {
+        background-color: #ddd;
+    }
+
+    .tab-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+        display: none;
+    }
+
+    .tab-content p {
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .tab-content ol {
+        padding-left: 20px;
+    }
+
+    .tab-content li {
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
         .history-section {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
         }
 
-        .history-content {
-            flex: 1 1 60%;
-            padding: 20px;
-        }
-
-        .history-content p {
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .history-image img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .divider {
-            width: 80%;
-            margin: 40px auto;
-            border-top: 2px solid #ccc;
-            position: relative;
-        }
-
-        .divider::after {
-            content: '';
-            width: 100px;
-            height: 2px;
-            background-color: #444;
-            position: absolute;
-            top: -1px;
-            left: 50%;
-            transform: translateX(-50%);
+        .history-content,
+        .history-image {
+            flex: 1 1 100%;
+            text-align: center;
         }
 
         .cards {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 40px;
+            flex-direction: column;
+            align-items: center;
         }
+    }
 
-        .card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            max-width: 300px;
-            width: 100%;
-            text-align: center;
-        }
+    .directiva {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-        .card img {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+    .directivo {
+        text-align: center;
+        margin: 20px;
+        flex: 1 0 30%;
+    }
 
-        .card:hover {
-            transform: translateY(-5px);
-        }
+    .directivo img {
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        transition: transform 0.3s ease-in-out;
+    }
 
-        .tabs {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
+    .directivo p {
+        margin: 10px 0;
+    }
 
-        .tab-button {
-            background-color: #f1f1f1;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    .directivo p.nombre {
+        font-size: 18px;
+        font-weight: bold;
+    }
 
-        .tab-button:hover {
-            background-color: #ddd;
-        }
+    .directivo p.cargo {
+        font-size: 14px;
+        color: #444;
+    }
 
-        .tab-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
-            display: none;
-        }
-
-        .tab-content p {
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .tab-content ol {
-            padding-left: 20px;
-        }
-
-        .tab-content li {
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .history-section {
-                flex-direction: column;
-            }
-
-            .history-content,
-            .history-image {
-                flex: 1 1 100%;
-                text-align: center;
-            }
-
-            .cards {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        .directiva {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .directivo {
-            text-align: center;
-            margin: 20px;
-            flex: 1 0 30%;
-        }
-
-        .directivo img {
-            border-radius: 50%;
-            width: 150px;
-            height: 150px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .directivo p {
-            margin: 10px 0;
-        }
-
-        .directivo p.nombre {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .directivo p.cargo {
-            font-size: 14px;
-            color: #444;
-        }
-
-        .directivo:hover img {
-            transform: scale(1.1);
-        }
-        </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    </head>
+    .directivo:hover img {
+        transform: scale(1.1);
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
 
 
 <body>
@@ -495,7 +460,6 @@ $rol = $_SESSION["rol"];
             </div>
         </div>
     </footer>
-    </div>
     </div>
     <!-- Scroll to Top Button-->
     <div class="scroll-to-top" onclick="scrollToTop()">

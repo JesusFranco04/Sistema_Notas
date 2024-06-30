@@ -1,15 +1,3 @@
-<?php
-// Verificar si la sesión no está ya iniciada antes de llamar a session_start()
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Verificar si las variables de sesión están definidas
-if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
-    echo "La sesión ha caducado o no se ha iniciado correctamente.";
-    exit;
-}
-?>
 <div id="wrapper" class="d-flex">
 
     <!-- Barra Lateral -->
@@ -131,7 +119,7 @@ if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
                     </div>
                     <!-- Subsección de Cursos -->
                     <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.php#">
                             <i class='bx bx-book-alt'></i> Cursos
                         </a>
                     </div>
@@ -218,9 +206,11 @@ if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span
-                                class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $_SESSION["cedula"] . ' - ' . $_SESSION['rol'] ?></span>     
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                <?= $_SESSION["nombres"] . ' - ' . $_SESSION['apellidos'] . ' - ' . $_SESSION['rol'] ?>
+                            </span>
                         </a>
+
                         <!-- Dropdown - Información del Usuario -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
@@ -250,7 +240,8 @@ if (!isset($_SESSION["cedula"]) || !isset($_SESSION["rol"])) {
                                     <div class="modal-footer">
                                         <button class="btn btn-secondary" type="button"
                                             data-dismiss="modal">Cancelar</button>
-                                        <a class="btn btn-primary" href="../logout.php">Cerrar Sesión</a>
+                                        <a class="btn btn-primary"
+                                            href="http://localhost/sistema_notas/login.php">Cerrar Sesión</a>
                                     </div>
                                 </div>
                             </div>

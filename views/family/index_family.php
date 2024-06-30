@@ -160,7 +160,7 @@
             <div style="margin-left: auto; margin-right: 20px;">
                 <span style="font-size: 14px; color: #888;">Nombre Completo del Usuario</span>
                 <span style="margin-left: 20px;"></span> <!-- Espacio adicional -->
-                <button onclick="window.location.href='http://localhost/Sistema_Notas/login.php'">Cerrar Sesión</button>
+                <button onclick="window.location.href='http://localhost/Sistema_Notas/login.php">Cerrar Sesión</button>
             </div>
         </div>
     </nav>

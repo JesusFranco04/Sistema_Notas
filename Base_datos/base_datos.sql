@@ -1,4 +1,3 @@
-
 CREATE DATABASE Sistema_Gestion;
 
 USE Sistema_Gestion;
@@ -15,7 +14,6 @@ CREATE TABLE solicitudes (
     PRIMARY KEY (cedula),
     UNIQUE KEY (id)
 );
-
 
 CREATE TABLE soli_profe (
     id INT AUTO_INCREMENT,
@@ -74,8 +72,6 @@ CREATE TABLE `especialidades` (
   PRIMARY KEY (`id_especialidad`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-
-
 CREATE TABLE `cursos` (
   `id_curso` INT NOT NULL,
   `id_nivel` INT NOT NULL,
@@ -98,8 +94,8 @@ CREATE TABLE profesores(
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(20) NOT NULL,
     telefono VARCHAR(10),
-	correo_electronico VARCHAR(100),
-	direccion VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100),
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     discapacidad VARCHAR(10) NOT NULL,
@@ -117,8 +113,8 @@ CREATE TABLE padres(
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(20) NOT NULL,
     telefono VARCHAR(10),
-	correo_electronico VARCHAR(100),
-	direccion VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100),
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     discapacidad VARCHAR(10) NOT NULL,
@@ -128,14 +124,15 @@ CREATE TABLE padres(
     PRIMARY KEY (cedula),
     UNIQUE KEY (id)
 );
+
 CREATE TABLE administrador(
    id INT AUTO_INCREMENT,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(20) NOT NULL,
     telefono VARCHAR(10),
-	correo_electronico VARCHAR(100),
-	direccion VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100),
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     discapacidad VARCHAR(10) NOT NULL,
@@ -146,14 +143,15 @@ CREATE TABLE administrador(
     PRIMARY KEY (cedula),
     UNIQUE KEY (id)
 );
+
 CREATE TABLE estudiantes(
    id INT AUTO_INCREMENT,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(20) NOT NULL,
     telefono VARCHAR(10),
-	correo_electronico VARCHAR(100),
-	direccion VARCHAR(255) NOT NULL,
+    correo_electronico VARCHAR(100),
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     discapacidad VARCHAR(10) NOT NULL,
@@ -161,14 +159,16 @@ CREATE TABLE estudiantes(
     PRIMARY KEY (cedula),
     UNIQUE KEY (id)
 );
+
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     apellido VARCHAR(255),
     cedula VARCHAR(255) UNIQUE,
-    contrasea VARCHAR(255),
-    rol varchar(1)
+    contraseña VARCHAR(255),
+    rol VARCHAR(1)
 );
+
 DELIMITER //
 
 CREATE TRIGGER after_insert_administrador
@@ -176,35 +176,24 @@ AFTER INSERT ON administrador
 FOR EACH ROW
 BEGIN
     INSERT INTO usuarios (nombre, apellido, cedula, contraseña, rol)
-    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, 1);
+    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, '1');
 END; //
-
-DELIMITER ;
-DELIMITER //
 
 CREATE TRIGGER after_insert_profesor
 AFTER INSERT ON profesores
 FOR EACH ROW
 BEGIN
     INSERT INTO usuarios (nombre, apellido, cedula, contraseña, rol)
-    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, 2);
+    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, '2');
 END; //
-
-DELIMITER ;
-DELIMITER //
 
 CREATE TRIGGER after_insert_padres
 AFTER INSERT ON padres
 FOR EACH ROW
 BEGIN
     INSERT INTO usuarios (nombre, apellido, cedula, contraseña, rol)
-    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, 3);
+    VALUES (NEW.nombres, NEW.apellidos, NEW.cedula, NEW.contrasena, '3');
 END; //
-
-DELIMITER ;
-
--- Insertar datos desde la tabla `administrador`
-DELIMITER //
 
 CREATE TRIGGER after_update_administrador
 AFTER UPDATE ON administrador
@@ -212,12 +201,8 @@ FOR EACH ROW
 BEGIN
     UPDATE usuarios
     SET nombre = NEW.nombres, apellido = NEW.apellidos, contraseña = NEW.contrasena
-    WHERE cedula = NEW.cedula AND rol = 1;
+    WHERE cedula = NEW.cedula AND rol = '1';
 END; //
-
-DELIMITER ;
-
-DELIMITER //
 
 CREATE TRIGGER after_update_profesor
 AFTER UPDATE ON profesores
@@ -225,11 +210,8 @@ FOR EACH ROW
 BEGIN
     UPDATE usuarios
     SET nombre = NEW.nombres, apellido = NEW.apellidos, contraseña = NEW.contrasena
-    WHERE cedula = NEW.cedula AND rol = 2;
+    WHERE cedula = NEW.cedula AND rol = '2';
 END; //
-
-DELIMITER ;
-DELIMITER //
 
 CREATE TRIGGER after_update_padres
 AFTER UPDATE ON padres
@@ -237,41 +219,31 @@ FOR EACH ROW
 BEGIN
     UPDATE usuarios
     SET nombre = NEW.nombres, apellido = NEW.apellidos, contraseña = NEW.contrasena
-    WHERE cedula = NEW.cedula AND rol = 3;
+    WHERE cedula = NEW.cedula AND rol = '3';
 END; //
-
-DELIMITER ;
--- se actualizara si etan eliminando
-DELIMITER //
 
 CREATE TRIGGER after_delete_administrador
 AFTER DELETE ON administrador
 FOR EACH ROW
 BEGIN
     DELETE FROM usuarios
-    WHERE cedula = OLD.cedula AND rol = 1;
+    WHERE cedula = OLD.cedula AND rol = '1';
 END; //
-
-DELIMITER ;
-DELIMITER //
 
 CREATE TRIGGER after_delete_profesor
 AFTER DELETE ON profesores
 FOR EACH ROW
 BEGIN
     DELETE FROM usuarios
-    WHERE cedula = OLD.cedula AND rol = 2;
+    WHERE cedula = OLD.cedula AND rol = '2';
 END; //
-
-DELIMITER ;
-DELIMITER //
 
 CREATE TRIGGER after_delete_padres
 AFTER DELETE ON padres
 FOR EACH ROW
 BEGIN
     DELETE FROM usuarios
-    WHERE cedula = OLD.cedula AND rol = 3;
+    WHERE cedula = OLD.cedula AND rol = '3';
 END; //
 
 DELIMITER ;
