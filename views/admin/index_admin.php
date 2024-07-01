@@ -306,68 +306,38 @@
         <!-- Línea Divisoria -->
         <div class="divider"></div>
 
-        <div class="tabs">
-            <button class="tab-button" onclick="showTab('mission')">Misión</button>
-            <button class="tab-button" onclick="showTab('vision')">Visión</button>
-        </div>
-        <div class="tab-content" id="mission">
-            <h1 class="section-title">Misión</h1>
-            <p>En la Unidad Educativa Particular Benjamín Franklin, nuestra misión es proporcionar una educación de
-                excelencia que forme a estudiantes competentes, éticos y comprometidos con su desarrollo personal y el
-                progreso de la sociedad ecuatoriana. En la Unidad Educativa Particular Benjamín Franklin, nuestra misión
-                es formar ciudadanos íntegros, críticos y comprometidos con su país, capaces de contribuir al desarrollo
-                sostenible y al bienestar de la sociedad ecuatoriana a través del conocimiento, la innovación y el
-                servicio. Se sustenta en los siguientes principios:</p>
-            <ol>
-                <li>Proporcionar una Educación de Calidad: Nos comprometemos a ofrecer un programa educativo riguroso y
-                    actualizado, centrado en el desarrollo de habilidades técnicas, científicas y humanísticas que
-                    preparen a nuestros estudiantes para enfrentar los desafíos del mundo contemporáneo.</li>
-                <li>Promover la Formación Integral: Valoramos el desarrollo integral de nuestros estudiantes, por lo que
-                    ofrecemos un ambiente de aprendizaje que fomente el crecimiento académico, emocional, social y
-                    ético. Buscamos cultivar el pensamiento crítico, la creatividad, el trabajo en equipo y el liderazgo
-                    como pilares fundamentales de su formación.</li>
-                <li>Fomentar la Práctica y la Innovación: Reconocemos la importancia de la aplicación práctica del
-                    conocimiento y la innovación como motores de cambio. Por ello, proporcionamos oportunidades para que
-                    nuestros estudiantes participen en proyectos prácticos, investigaciones científicas y actividades
-                    extracurriculares que estimulen su curiosidad y creatividad.</li>
-                <li>Promover la Inclusión y la Diversidad: Nos comprometemos a ofrecer una educación inclusiva que
-                    atienda a la diversidad de necesidades, intereses y capacidades de nuestros estudiantes. Promovemos
-                    un ambiente de respeto, tolerancia y aceptación donde cada individuo se sienta valorado y apoyado en
-                    su proceso de aprendizaje.</li>
-                <li>Establecer Vínculos con la Comunidad: Reconocemos la importancia de trabajar en colaboración con la
-                    comunidad y el sector productivo para enriquecer la experiencia educativa de nuestros estudiantes y
-                    facilitar su inserción en el mundo laboral. Buscamos establecer alianzas estratégicas que brinden
-                    oportunidades de prácticas estudiantiles, pasantías y empleo futuro.</li>
-            </ol>
-        </div>
 
-        <div class="tab-content" id="vision" style="display:none;">
-            <h1 class="section-title">Visión</h1>
-            <p>Nuestra visión educativa se fundamenta en los siguientes pilares:</p>
-            <ol>
-                <li>Excelencia Académica: Buscamos ser reconocidos por ofrecer una educación de calidad que promueva el
-                    pensamiento crítico, la creatividad y la innovación en las áreas de electrónica, electricidad y
-                    mecánica automotriz. Nuestro objetivo es que nuestros estudiantes adquieran los conocimientos y
-                    habilidades necesarios para destacarse en un mundo cada vez más tecnológico y competitivo.</li>
-                <li>Formación Integral: Valoramos el desarrollo personal, social y emocional de nuestros estudiantes.
-                    Promovemos el respeto, la tolerancia y la responsabilidad como valores fundamentales para su
-                    crecimiento como individuos y ciudadanos comprometidos con su entorno.</li>
-                <li>Enfoque Práctico: Reconocemos la importancia de la aplicación práctica del conocimiento. Por ello,
-                    ofrecemos un enfoque pedagógico que combina la teoría con la práctica, a través de laboratorios
-                    equipados y proyectos reales sostenibles y/o ecológicos que permiten a nuestros estudiantes poner en
-                    práctica lo aprendido y desarrollar habilidades técnicas y profesionales desde temprana edad.</li>
-                <li>Inclusión y Diversidad: Nos comprometemos a ofrecer una educación inclusiva que responda a la
-                    diversidad de necesidades, intereses y capacidades de nuestros estudiantes. Fomentamos un ambiente
-                    de respeto y apoyo mutuo donde cada individuo se sienta valorado y motivado a alcanzar su máximo
-                    potencial.</li>
-                <li>Vinculación con la Comunidad: Reconocemos la importancia de establecer vínculos sólidos con la
-                    comunidad y el sector productivo. Buscamos promover alianzas estratégicas que enriquezcan la
-                    experiencia educativa de nuestros estudiantes y les brinden oportunidades de prácticas profesionales
-                    y empleo futuro.</li>
-            </ol>
-            <p>En la Unidad Educativa Particular Benjamín Franklin, aspiramos a formar líderes y ciudadanos íntegros,
-                capaces de contribuir al progreso y desarrollo de su país a través del conocimiento, la innovación y el
-                compromiso social.</p>
+        <!-- Sección de Vision y Misión -->
+        <div class="container">
+            <h1 class="section-title">Visión y Misión</h1>
+            <div class="tabs">
+                <button class="tab-button" onclick="showTab('vision')">Visión</button>
+                <button class="tab-button" onclick="showTab('mision')">Misión</button>
+            </div>
+            <div id="vision" class="tab-content">
+                <h2>Visión</h2>
+                <p>Ser una institución educativa líder en la formación de ciudadanos íntegros, críticos y comprometidos
+                    con
+                    el desarrollo sostenible de la sociedad.</p>
+                <ol>
+                    <li>Promover el pensamiento crítico y la creatividad.</li>
+                    <li>Fomentar valores éticos y morales en nuestros estudiantes.</li>
+                    <li>Integrar la tecnología en el proceso educativo.</li>
+                    <li>Desarrollar programas académicos de alta calidad.</li>
+                </ol>
+            </div>
+            <div id="mision" class="tab-content">
+                <h2>Misión</h2>
+                <p>Nuestra misión es brindar una educación integral que potencie las capacidades individuales de cada
+                    estudiante, preparándolos para enfrentar los desafíos del mundo contemporáneo y contribuyendo al
+                    bienestar de la comunidad.</p>
+                <ol>
+                    <li>Ofrecer una educación de calidad que responda a las necesidades del contexto actual.</li>
+                    <li>Desarrollar habilidades y competencias para el siglo XXI.</li>
+                    <li>Fomentar la responsabilidad social y el compromiso comunitario.</li>
+                    <li>Promover un ambiente de respeto y convivencia pacífica.</li>
+                </ol>
+            </div>
         </div>
 
 
@@ -470,6 +440,15 @@
     $(document).ready(function() {
         console.log("Document ready!");
 
+
+        function showTab(tabName) {
+            var tabs = document.getElementsByClassName("form-section");
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].style.display = "none";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+
         // Mostrar u ocultar el botón al desplazarse
         $(window).scroll(function() {
             console.log("Window scrolled!", $(this).scrollTop());
@@ -496,11 +475,10 @@
         }, 800);
     }
     </script>
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Custom scripts for all pages-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <!-- Otros scripts -->
     <script>
     document.getElementById('sidebarToggle').addEventListener('click', function() {

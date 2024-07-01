@@ -56,7 +56,11 @@
                     <!-- Sección de Usuarios Registrados -->
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/vistaprofe_admin.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
+                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
+                            Administrador
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/profesores.php">
                             <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
                             Profesores
                         </a>
@@ -76,17 +80,22 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Agregar Usuarios</h6>
                         <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/agregarprofe_admin.php">
+                            href="http://localhost/sistema_notas/Crud/administrador/agregar_admin.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Agregar Administrador
+                        </a>
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/profesores/agregar_profe.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Profesor
                         </a>
                         <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/agregarestudiante_admin.php">
+                            href="http://localhost/sistema_notas/Crud/estudiantes/agregar_estudiantes.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Estudiante
                         </a>
                         <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/agregarpadres_admin.php">
+                            href="http://localhost/sistema_notas/Crud/padres/agregar_padres.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Padre
                         </a>
@@ -123,6 +132,11 @@
                             <i class='bx bx-book-alt'></i> Cursos
                         </a>
                     </div>
+                    <div class="submenu-section">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/nivel_admin.php">
+                         Niveles
+                        </a>
+                    </div>
                     <!-- Subsección de Materias -->
                     <div class="submenu-section">
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/materia_admin.php">
@@ -137,32 +151,10 @@
                     </div>
                     <!-- Subsección de Período Lectivo -->
                     <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/periodo_admin.php">
+                        <a class="collapse-item" href=" ">
                             <i class='bx bx-calendar'></i> Período Lectivo
                         </a>
                     </div>
-                </div>
-            </div>
-        </li>
-        <!-- Divisor -->
-        <hr class="sidebar-divider">
-        <!-- Encabezado - Informes -->
-        <div class="sidebar-heading">
-            Informes
-        </div>
-        <!-- Elemento de Navegación - Reportes -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFour"
-                aria-expanded="true" aria-controls="collapseFour">
-                <i class='bx bxs-report' style="font-size: 14px;"></i>
-                <span class="nav-text">Reportes</span>
-            </a>
-            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded submenu-section">
-                    <h6 class="collapse-header">Documentos</h6>
-                    <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/reportesnotas_admin.php">
-                        <i class='bx bx-file' style="font-size: 14px;"></i> Notas
-                    </a>
                 </div>
             </div>
         </li>

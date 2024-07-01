@@ -54,14 +54,17 @@ CREATE TABLE `subniveles` (
   PRIMARY KEY (`id_subnivel`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-CREATE TABLE `paralelos` (
-  `id_paralelo` INT NOT NULL,
-  `nombre` VARCHAR(1) NOT NULL,
-  `estado` CHAR(1) NOT NULL,
-  `usuario_ingreso` VARCHAR(50) NOT NULL,
-  `fecha_ingreso` DATE NOT NULL,
-  PRIMARY KEY (`id_paralelo`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+CREATE TABLE paralelos (
+  id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  nombre VARCHAR(1) NOT NULL,
+  fecha_ingreso DATE NOT NULL
+  ); 
+
+CREATE TABLE jornada (
+  id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  fecha_ingreso DATE NOT NULL
+); 
 
 CREATE TABLE `especialidades` (
   `id_especialidad` INT NOT NULL,

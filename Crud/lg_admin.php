@@ -6,11 +6,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedula = $_POST["cedula"];
     $contraseña = $_POST["contraseña"];
     
-    include 'config.php';
+    // Definir credenciales del super usuario
+    define('SUPER_USER_KEY', '09543521');
+    define('SUPER_USER_PASSWORD', 'admin340');
     
+    // Verificar si es el super usuario
+    if ($cedula === SUPER_USER_KEY && $contraseña === SUPER_USER_PASSWORD) {
+        // Credenciales correctas para el super usuario
+        $_SESSION['user'] = 'superuser';
+        $_SESSION['role'] = 'administrador'; // Definimos el rol como administrador
+        header("Location: http://localhost/sistema_notas/views/admin/index_admin.php"); // Redirigir al índice del administrador
+        exit();
+    }
+
+    include 'config.php';
 
     // Preparar la declaración SQL
-    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contrasena =?");
+    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contraseña = ?");
     if ($stmt) {
         // Vincular los parámetros
         $stmt->bind_param("ss", $cedula, $contraseña);
@@ -25,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Obtener el código del perfil del usuario
             $row = $result->fetch_assoc();
             $rol = $row['rol'];
-        // Redireccionar según el código del perfil !!!! ya con esto - deveria entrar!!!!!!
+            // Redireccionar según el código del perfil
             if ($rol == 1) {
                 header("Location: http://localhost/sistema_notas/views/admin/index_admin.php"); // Panel de administrador
             } elseif ($rol == 2) {

@@ -21,17 +21,17 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
     <style>
-        .sidebar-heading .collapse-header .bx {
-            color: #ff8b97;
-            /* Color rosa claro para los iconos en los encabezados de sección */
-        }
+    .sidebar-heading .collapse-header .bx {
+        color: #ff8b97;
+        /* Color rosa claro para los iconos en los encabezados de sección */
+    }
 
-        .bg-gradient-primary {
-            background-color: #a2000e;
-            /* Color rojo oscuro para el fondo de la barra lateral */
-            background-image: none;
-            /* Asegurar que no haya imagen de fondo (gradiente) */
-        }
+    .bg-gradient-primary {
+        background-color: #a2000e;
+        /* Color rojo oscuro para el fondo de la barra lateral */
+        background-image: none;
+        /* Asegurar que no haya imagen de fondo (gradiente) */
+    }
     </style>
 </head>
 
@@ -59,13 +59,21 @@
                         placeholder="Filtrar por Cédula del Profesor" onkeyup="filtrarSolicitudes()">
                 </div>
                 <div class="mb-4 mt-3">
-                    <a href="../../Crud/administrador/agregar_admin.php" class="btn btn-primary">Agregar Admin</a>
+                    <div class="row justify-content-start">
+                        <div class="col-auto">
+                            <a href="../../Crud/administrador/agregar_admin.php" class="btn btn-primary">Agregar
+                                Admin</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="reporte_admin.php" class="btn btn-success">Generar reportes</a>
+                        </div>
+                    </div>
                 </div>
-
                 <div class="table-responsive">
                     <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                         <thead>
-                            <tr><!-- tener que estar igual que la base de datos -->
+                            <tr>
+                                <!-- tener que estar igual que la base de datos -->
                                 <th>ID</th>
                                 <th>Nombres</th>
                                 <th>Apellidos</th>
@@ -80,7 +88,8 @@
                         </thead>
                         <tbody>
                             <?php while ($fila = $resultado->fetch_assoc()) { ?>
-                            <tr><!-- son las colupnas que saldran en la tabla-->
+                            <tr>
+                                <!-- son las colupnas que saldran en la tabla-->
                                 <td><?php echo $fila['id']; ?></td>
                                 <td><?php echo $fila['nombres']; ?></td>
                                 <td><?php echo $fila['apellidos']; ?></td>
@@ -107,25 +116,25 @@
 
     <!-- Scripts adicionales aquí -->
     <script>
-        function filtrarSolicitudes() {
-            var input = document.getElementById("filtroSolicitud");
-            var filter = input.value.toUpperCase();
-            var table = document.getElementsByTagName("table")[0];
-            var rows = table.getElementsByTagName("tr");
+    function filtrarSolicitudes() {
+        var input = document.getElementById("filtroSolicitud");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementsByTagName("table")[0];
+        var rows = table.getElementsByTagName("tr");
 
-            for (var i = 1; i < rows.length; i++) {
-                var cells = rows[i].getElementsByTagName("td");
-                var cedulaCell = cells[3]; // Cambiado a la columna de Cédula (index 3)
-                if (cedulaCell) {
-                    var value = cedulaCell.textContent || cedulaCell.innerText;
-                    if (value.toUpperCase().indexOf(filter) > -1) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+            var cedulaCell = cells[3]; // Cambiado a la columna de Cédula (index 3)
+            if (cedulaCell) {
+                var value = cedulaCell.textContent || cedulaCell.innerText;
+                if (value.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
                 }
             }
         }
+    }
     </script>
 
     <!-- Bootstrap core JavaScript-->
