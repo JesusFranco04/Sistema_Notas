@@ -35,24 +35,12 @@ CREATE TABLE soli_profe (
     UNIQUE KEY (id)
 );
 
-CREATE TABLE `niveles` (
-  `id_nivel` INT NOT NULL,
-  `nombre` VARCHAR(50) NOT NULL,
-  `estado` CHAR(1) NOT NULL,
-  `usuario_ingreso` VARCHAR(50) NOT NULL,
-  `fecha_ingreso` DATE NOT NULL,
-  PRIMARY KEY (`id_nivel`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+CREATE TABLE niveles(
+ id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+ nombre VARCHAR(100) NOT NULL,
+ fecha_ingreso DATE NOT NULL
+);
 
-CREATE TABLE `subniveles` (
-  `id_subnivel` INT NOT NULL,
-  `nombre` VARCHAR(80) NOT NULL,
-  `abreviatura` VARCHAR(8) NULL DEFAULT NULL,
-  `estado` CHAR(1) NOT NULL,
-  `usuario_ingreso` VARCHAR(50) NOT NULL,
-  `fecha_ingreso` DATE NOT NULL,
-  PRIMARY KEY (`id_subnivel`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE paralelos (
   id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -65,31 +53,50 @@ CREATE TABLE jornada (
   nombre VARCHAR(100) NOT NULL,
   fecha_ingreso DATE NOT NULL
 ); 
+CREATE TABLE materias(
+ id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+ nombre VARCHAR(100) NOT NULL,
+ fecha_ingreso DATE NOT NULL
+);
 
-CREATE TABLE `especialidades` (
-  `id_especialidad` INT NOT NULL,
-  `nombre` VARCHAR(100) NOT NULL,
-  `estado` CHAR(1) NOT NULL,
-  `usuario_ingreso` VARCHAR(50) NOT NULL,
-  `fecha_ingreso` DATE NOT NULL,
-  PRIMARY KEY (`id_especialidad`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+CREATE TABLE especialidades (
+  id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  fecha_ingreso DATE NOT NULL
+); 
+CREATE TABLE subniveles (
+  id  INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  abreviatura VARCHAR(4) NULL DEFAULT NULL,
+  fecha_ingreso DATE NOT NULL
+);
 
-CREATE TABLE `cursos` (
-  `id_curso` INT NOT NULL,
-  `id_nivel` INT NOT NULL,
-  `id_subnivel` INT NOT NULL,
-  `id_especialidad` INT NOT NULL,
-  `id_paralelo` INT NOT NULL,
-  `estado` CHAR(1) NOT NULL,
-  `usuario_ingreso` VARCHAR(50) NOT NULL,
-  `fecha_ingreso` DATE NOT NULL,
-  PRIMARY KEY (`id_curso`),
-  FOREIGN KEY (`id_nivel`) REFERENCES `niveles`(`id_nivel`),
-  FOREIGN KEY (`id_subnivel`) REFERENCES `subniveles`(`id_subnivel`),
-  FOREIGN KEY (`id_especialidad`) REFERENCES `especialidades`(`id_especialidad`),
-  FOREIGN KEY (`id_paralelo`) REFERENCES `paralelos`(`id_paralelo`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+CREATE TABLE periodo(
+ id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+ ano VARCHAR(100) NOT NULL,
+ fecha_ingreso DATE NOT NULL
+);
+
+CREATE TABLE curso (
+  id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+  profesor_id INT NOT NULL,
+  materia_id INT NOT NULL,
+  nivel_id INT NOT NULL,
+  paralelo_id INT NOT NULL,
+  subnivel_id INT NOT NULL,
+  especialidad_id INT NOT NULL,
+  jornada_id INT NOT NULL,
+  periodo_id INT NOT NULL,
+  fecha_ingreso DATE NOT NULL,
+  FOREIGN KEY (profesor_id) REFERENCES profesores(id),
+  FOREIGN KEY (materia_id) REFERENCES materias(id),
+  FOREIGN KEY (nivel_id) REFERENCES niveles(id),
+  FOREIGN KEY (paralelo_id) REFERENCES paralelos(id),
+  FOREIGN KEY (subnivel_id) REFERENCES subniveles(id),
+  FOREIGN KEY (especialidad_id) REFERENCES especialidades(id),
+  FOREIGN KEY (jornada_id) REFERENCES jornada(id),
+  FOREIGN KEY (periodo_id) REFERENCES periodo(id)
+);
 
 CREATE TABLE profesores(
    id INT AUTO_INCREMENT,

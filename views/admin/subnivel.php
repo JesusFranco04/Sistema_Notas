@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Tabla de Materias | Sistema de Gestión UEBF</title>
+    <title>Tabla de subniveles | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" type="text/css">
@@ -37,7 +37,7 @@
     // Incluir el archivo de conexión y verificar la conexión
     include '../../Crud/config.php';
 
-    $sql = "SELECT * FROM materias";
+    $sql = "SELECT * FROM subniveles";
     $resultado = $conn->query($sql);
 
     if (!$resultado) {
@@ -50,14 +50,14 @@
     <div class="container-fluid">
         <div class="row">
             <div class="container">
-                <h1 class="mt-1 text-center text-dark fw-bold">Tabla de Materias</h1>
+                <h1 class="mt-1 text-center text-dark fw-bold">Tabla de subniveles</h1>
                 <div class="mb-4 mt-3">
                     <input type="text" class="form-control" id="filtroSolicitud" placeholder="Filtrar por Cédula del Profesor" onkeyup="filtrarSolicitudes()">
                 </div>
                 <div class="mb-4 mt-3">
                     <div class="row justify-content-start">
                         <div class="col-auto">
-                            <a href="../../Crud/materias/agregar_materias.php" class="btn btn-primary">Agregar Paralelos</a>
+                            <a href="../../Crud/subniveles/agregar_subnivel.php" class="btn btn-primary">Agregar Subnivel</a>
                         </div>
                         <div class="col-auto">
                             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInstrucciones1">Ver Manual de Uso</button>
@@ -72,6 +72,7 @@
                                 <!-- tener que estar igual que la base de datos -->
                                 <th>ID</th>
                                 <th>Nombre</th>
+                                <th>Abreviatura</th>
                                 <th>Fecha de Creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -82,10 +83,11 @@
                                     <!-- son las colupnas que saldran en la tabla-->
                                     <td><?php echo $fila['id']; ?></td>
                                     <td><?php echo $fila['nombre']; ?></td>
+                                    <td><?php echo $fila['abreviatura']; ?></td>
                                     <td><?php echo $fila['fecha_ingreso']; ?></td>
                                     <td>
-                                        <a href="../../Crud/materias//editar_materias.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
-                                        <a href="../../Crud/materias/eliminar_materias.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-danger">Eliminar</a>
+                                        <a href="../../Crud/subniveles/editar_subnivel.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                        <a href="../../Crud/subniveles/eliminar_subnivel.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-danger">Eliminar</a>
                                     </td>
                                 </tr>
                             <?php } ?>

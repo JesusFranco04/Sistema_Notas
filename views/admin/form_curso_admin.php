@@ -1,7 +1,7 @@
 <?php
 // Establecer la zona horaria a Ecuador
 date_default_timezone_set('America/Guayaquil');
-
+session_start();
 
 if (!isset($_SESSION["fecha_ingreso"])) {
     // Guardar la fecha y hora de inicio de sesión en una variable de sesión
@@ -149,387 +149,312 @@ if (!isset($_SESSION["fecha_ingreso"])) {
 
     <div class="container">
         <div class="stepper">
-            <!-- Pasos del formulario -->
-            <!-- Paso 1: Nivel -->
+            <!-- Paso 1: Profesor -->
             <div class="step active">
                 <div class="step-number">1</div>
+                <div class="step-text">Profesor</div>
+            </div>
+
+            <!-- Paso 2: Materia -->
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Materia</div>
+            </div>
+
+            <!-- Paso 3: Nivel -->
+            <div class="step">
+                <div class="step-number">3</div>
                 <div class="step-text">Nivel</div>
             </div>
 
-            <!-- Paso 2: Subnivel -->
+            <!-- Paso 4: Subnivel -->
             <div class="step">
-                <div class="step-number">2</div>
+                <div class="step-number">4</div>
                 <div class="step-text">Subnivel</div>
             </div>
 
-            <!-- Paso 3: Paralelo -->
+            <!-- Paso 5: Especialidad -->
             <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-text">Paralelo</div>
-            </div>
-
-            <!-- Paso 4: Especialidad -->
-            <div class="step">
-                <div class="step-number">4</div>
+                <div class="step-number">5</div>
                 <div class="step-text">Especialidad</div>
             </div>
 
-            <!-- Paso 5: Curso -->
+            <!-- Paso 6: Jornada -->
             <div class="step">
-                <div class="step-number">5</div>
-                <div class="step-text">Curso</div>
+                <div class="step-number">6</div>
+                <div class="step-text">Jornada</div>
+            </div>
+
+            <!-- Paso 7: Periodo -->
+            <div class="step">
+                <div class="step-number">7</div>
+                <div class="step-text">Periodo</div>
             </div>
         </div>
-
-        <!-- Formulario -->
-        <form id="stepperForm" method="POST" action="guardar_curso.php">
-            <!-- Paso 1: Nivel -->
-            <div class="form-section active" id="step1">
-                <h3 class="mb-4">Paso 1: Nivel</h3>
-                <div class="form-group">
-                    <label for="nivel">Nombre del Nivel <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="nivel" name="nivel" required maxlength="50">
-                    <div class="invalid-feedback">Por favor, ingrese el nivel (máximo 50 caracteres).</div>
-                </div>
-                <div class="form-group">
-                    <label for="estado1">Estado <span class="text-danger">*</span>:</label>
-                    <select class="form-control" id="estado1" name="estado1" required>
-                        <option value="">Seleccione...</option>
-                        <option value="A">Activo</option>
-                        <option value="I">Inactivo</option>
-                    </select>
-                    <div class="invalid-feedback">Seleccione el estado del nivel.</div>
-                </div>
-                <div class="form-group">
-                    <label for="usuario_ingreso1">Usuario que ingresa el registro:</label>
-                    <input type="text" class="form-control" id="usuario_ingreso1" name="usuario_ingreso1"
-                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso1" name="fecha_ingreso1"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <!-- Instrucciones adicionales -->
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de nivel, ingrese un
-                        único nivel educativo desde <strong>"Octavo"</strong> hasta <strong>"Tercero de
-                            Bachillerato"</strong> (por ejemplo: "Noveno", "Segundo Bachillerato", etc.).</span><br>
-                </p>
-
-                <!-- Botones de navegación -->
-                <div class="btn-container">
-                    <button type="button" class="btn btn-primary next">Siguiente</button>
-                </div>
-            </div>
-
-
-
-            <!-- Paso 2: Subnivel -->
-            <div class="form-section" id="step2">
-                <h3 class="mb-4">Paso 2: Subnivel</h3>
-                <div class="form-group">
-                    <label for="subnivel">Nombre del Subnivel<span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="subnivel" name="subnivel" required maxlength="50">
-                    <div class="invalid-feedback">Ingrese el Subnivel, máximo 50 caracteres.</div>
-                </div>
-                <div class="form-group">
-                    <label for="abreviatura">Abreviatura <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="abreviatura" name="abreviatura" required maxlength="3">
-                    <div class="invalid-feedback">Ingrese la Abreviatura, máximo 3 caracteres.</div>
-                </div>
-                <div class="form-group">
-                    <label for="estado2">Estado <span class="text-danger">*</span>:</label>
-                    <select class="form-control" id="estado2" name="estado2" required>
-                        <option value="">Seleccione...</option>
-                        <option value="A">Activo</option>
-                        <option value="I">Inactivo</option>
-                    </select>
-                    <div class="invalid-feedback">Seleccione el estado del subnivel.</div>
-                </div>
-                <div class="form-group">
-                    <label for="usuario_ingreso2">Usuario que ingresa el registro:</label>
-                    <input type="text" class="form-control" id="usuario_ingreso2" name="usuario_ingreso2"
-                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso2">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso2" name="fecha_ingreso2"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <!-- Instrucciones adicionales -->
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de nombre del
-                        subnivel, ingrese el nombre completo del subnivel educativo, por ejemplo:
-                        <strong>"Educación General Básica", "Bachillerato Técnico Industrial".</strong></span><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de
-                        abreviatura, escriba la abreviatura correspondiente, por ejemplo: <strong>"EGB",
-                            "BTI".</strong></span>
-                </p>
-
-                <!-- Botones de navegación -->
-                <div class="btn-container">
-                    <button type="button" class="btn btn-secondary previous">Anterior</button>
-                    <button type="button" class="btn btn-primary next">Siguiente</button>
-                </div>
-            </div>
-
-
-
-            <!-- Paso 3: Paralelo -->
-            <div class="form-section" id="step3">
-                <h3 class="mb-4">Paso 3: Paralelo</h3>
-                <div class="form-group">
-                    <label for="paralelo">Nombre del Paralelo <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="paralelo" name="paralelo" required maxlength="1">
-                    <div class="invalid-feedback">Ingrese el Paralelo, máximo 1 caracteres.</div>
-                </div>
-                <div class="form-group">
-                    <label for="estado3">Estado <span class="text-danger">*</span>:</label>
-                    <select class="form-control" id="estado3" name="estado3" required>
-                        <option value="">Seleccione...</option>
-                        <option value="A">Activo</option>
-                        <option value="I">Inactivo</option>
-                    </select>
-                    <div class="invalid-feedback">Seleccione el estado del paralelo.</div>
-                </div>
-                <div class="form-group">
-                    <label for="usuario_ingreso3">Usuario que ingresa el registro:</label>
-                    <input type="text" class="form-control" id="usuario_ingreso3" name="usuario_ingreso3"
-                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso3">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso3" name="fecha_ingreso3"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <!-- Instrucciones adicionales -->
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de
-                        nombre del paralelo, ingrese el paralelo, por ejemplo:
-                        <strong>"A", "B", "C".</strong></span>
-                </p>
-
-                <!-- Botones de navegación -->
-                <div class="btn-container">
-                    <button type="button" class="btn btn-secondary previous">Anterior</button>
-                    <button type="button" class="btn btn-primary next">Siguiente</button>
-                </div>
-            </div>
-
-
-
-            <!-- Paso 4: Especialidad -->
-            <div class="form-section" id="step4">
-                <h3 class="mb-4">Paso 4: Especialidad</h3>
-                <div class="form-group">
-                    <label for="especialidad">Nombre de la Especialidad <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="especialidad" name="especialidad" required
-                        maxlength="50">
-                    <div class="invalid-feedback">Ingrese la Especialidad, máximo 50 caracteres.</div>
-                </div>
-                <div class="form-group">
-                    <label for="estado4">Estado <span class="text-danger">*</span>:</label>
-                    <select class="form-control" id="estado4" name="estado4" required>
-                        <option value="">Seleccione...</option>
-                        <option value="A">Activo</option>
-                        <option value="I">Inactivo</option>
-                    </select>
-                    <div class="invalid-feedback">Seleccione el estado de la especialidad.</div>
-                </div>
-                <div class="form-group">
-                    <label for="usuario_ingreso4">Usuario que ingresa el registro:</label>
-                    <input type="text" class="form-control" id="usuario_ingreso4" name="usuario_ingreso4"
-                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso4">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso4" name="fecha_ingreso4"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de
-                        nombre de la especialidad, escriba una de las siguientes opciones: <strong>"Mecánica
-                            Automotriz", "Electrónica de Consumo" o "Electricidad".</strong></span>
-                </p>
-
-                <!-- Botones de navegación -->
-                <div class="btn-container">
-                    <button type="button" class="btn btn-secondary previous">Anterior</button>
-                    <button type="button" class="btn btn-primary next">Siguiente</button>
-                </div>
-            </div>
-
-
-            <!-- Paso 5: Curso -->
-            <div class="form-section" id="step5">
-                <h3 class="mb-4">Paso 5: Curso</h3>
-                <div class="form-group">
-                    <label for="curso">Nombre del Curso <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="curso" name="curso" required maxlength="50">
-                    <div class="invalid-feedback">Ingrese el Curso, máximo 50 caracteres.</div>
-                </div>
-                <div class="form-group">
-                    <label for="estado5">Estado <span class="text-danger">*</span>:</label>
-                    <select class="form-control" id="estado5" name="estado5" required>
-                        <option value="">Seleccione...</option>
-                        <option value="A">Activo</option>
-                        <option value="I">Inactivo</option>
-                    </select>
-                    <div class="invalid-feedback">Seleccione el estado del curso.</div>
-                </div>
-                <div class="form-group">
-                    <label for="usuario_ingreso5">Usuario que ingresa el registro:</label>
-                    <input type="text" class="form-control" id="usuario_ingreso5" name="usuario_ingreso5"
-                        value="<?php echo $_SESSION['cedula'] . ' ' . $_SESSION['rol']; ?>" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso5">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso5" name="fecha_ingreso5"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <!-- Instrucciones adicionales -->
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">Revise cuidadosamente los datos
-                        antes de guardar el curso. Si necesita hacer modificaciones, haga clic en "Anterior" para
-                        retroceder.</span><br>
-                </p>
-
-                <!-- Resumen antes de guardar -->
-                <div class="alert alert-info">
-                    <strong>Resumen:</strong>
-                    <ul>
-                        <li>Nivel: <span id="resumen_nivel"></span></li>
-                        <li>Subnivel: <span id="resumen_subnivel"></span></li>
-                        <li>Paralelo: <span id="resumen_paralelo"></span></li>
-                        <li>Especialidad: <span id="resumen_especialidad"></span></li>
-                        <li>Curso: <span id="resumen_curso"></span></li>
-                    </ul>
-                </div>
-
-                <!-- Botón de guardar -->
-                <div class="btn-container">
-                    <button type="button" class="btn btn-secondary previous">Anterior</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
-                </div>
-            </div>
-        </form>
     </div>
-    <!-- Pie de Página -->
-    <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-            <div class="copyright text-center my-auto">
-                <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-                    Zambrano. Todos los derechos reservados.</p>
+    <!-- Formulario -->
+    <form id="stepperForm" method="POST" action="guardar_curso.php">
+        <!-- Paso 1: Profesor -->
+        <div class="form-section active" id="step1">
+            <h3 class="mb-4">Paso 1: Profesor</h3>
+            <div class="form-group">
+                <label for="profesor">Profesor <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="profesor" name="profesor" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de profesores obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione un profesor.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-primary next">Siguiente</button>
             </div>
         </div>
-    </footer>
+
+        <!-- Paso 2: Materia -->
+        <div class="form-section" id="step2">
+            <h3 class="mb-4">Paso 2: Materia</h3>
+            <div class="form-group">
+                <label for="materia">Materia <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="materia" name="materia" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de materias obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione una materia.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="button" class="btn btn-primary next">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Paso 3: Nivel -->
+        <div class="form-section" id="step3">
+            <h3 class="mb-4">Paso 3: Nivel</h3>
+            <div class="form-group">
+                <label for="nivel">Nivel <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="nivel" name="nivel" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de niveles obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione un nivel.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="button" class="btn btn-primary next">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Paso 4: Subnivel -->
+        <div class="form-section" id="step4">
+            <h3 class="mb-4">Paso 4: Subnivel</h3>
+            <div class="form-group">
+                <label for="subnivel">Subnivel <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="subnivel" name="subnivel" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de subniveles obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione un subnivel.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="button" class="btn btn-primary next">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Paso 5: Especialidad -->
+        <div class="form-section" id="step5">
+            <h3 class="mb-4">Paso 5: Especialidad</h3>
+            <div class="form-group">
+                <label for="especialidad">Especialidad <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="especialidad" name="especialidad" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de especialidades obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione una especialidad.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="button" class="btn btn-primary next">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Paso 6: Jornada -->
+        <div class="form-section" id="step6">
+            <h3 class="mb-4">Paso 6: Jornada</h3>
+            <div class="form-group">
+                <label for="jornada">Jornada <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="jornada" name="jornada" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de jornadas obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione una jornada.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="button" class="btn btn-primary next">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Paso 7: Periodo -->
+        <div class="form-section" id="step7">
+            <h3 class="mb-4">Paso 7: Periodo</h3>
+            <div class="form-group">
+                <label for="periodo">Periodo <span class="text-danger">*</span>:</label>
+                <select class="form-control" id="periodo" name="periodo" required>
+                    <option value="">Seleccione...</option>
+                    <!-- Opciones de periodos obtenidas dinámicamente -->
+                </select>
+                <div class="invalid-feedback">Seleccione un periodo.</div>
+            </div>
+            <!-- Otros campos según sea necesario -->
+
+            <!-- Fecha de ingreso -->
+            <input type="hidden" id="fecha_ingreso" name="fecha_ingreso" value="<?php echo date('Y-m-d'); ?>">
+
+            <!-- Resumen -->
+            <h4>Resumen del Registro</h4>
+            <ul>
+                <li><strong>Profesor:</strong> <span id="resumen_profesor"></span></li>
+                <li><strong>Materia:</strong> <span id="resumen_materia"></span></li>
+                <li><strong>Nivel:</strong> <span id="resumen_nivel"></span></li>
+                <li><strong>Subnivel:</strong> <span id="resumen_subnivel"></span></li>
+                <li><strong>Especialidad:</strong> <span id="resumen_especialidad"></span></li>
+                <li><strong>Jornada:</strong> <span id="resumen_jornada"></span></li>
+                <li><strong>Periodo:</strong> <span id="resumen_periodo"></span></li>
+            </ul>
+
+            <!-- Botones de navegación -->
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary prev">Anterior</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+        </div>
+    </form>
 
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Incluye jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Incluye Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Incluye SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <!-- Script personalizado -->
     <script>
     $(document).ready(function() {
         var currentStep = 0;
-        var $stepperForm = $('#stepperForm');
-        var $formSections = $stepperForm.find('.form-section');
 
-        // Botón Siguiente
-        $(".next").click(function() {
-            var $step = $(".form-section").eq(currentStep);
-            var $nextStep = $(".form-section").eq(currentStep + 1);
+        // Mostrar el paso actual
+        function showStep(step) {
+            $('.form-section').removeClass('active');
+            $('#step' + (step + 1)).addClass('active');
+            updateStepper(step);
+        }
 
-            if (validateStep($step)) {
-                $step.removeClass("active");
-                $nextStep.addClass("active");
-                currentStep++;
-                updateStepper();
-            }
-        });
+        // Actualizar el stepper visual
+        function updateStepper(step) {
+            $('.step').each(function(index) {
+                if (index === step) {
+                    $(this).addClass('active').removeClass('completed');
+                } else if (index < step) {
+                    $(this).addClass('completed').removeClass('active');
+                } else {
+                    $(this).removeClass('active completed');
+                }
+            });
+        }
 
-        // Botón Anterior
-        $(".previous").click(function() {
-            var $step = $(".form-section").eq(currentStep);
-            var $prevStep = $(".form-section").eq(currentStep - 1);
-
-            $step.removeClass("active");
-            $prevStep.addClass("active");
-            currentStep--;
-            updateStepper();
-        });
-
-        // Función para validar el paso actual
-        function validateStep($step) {
+        // Función para validar los campos de cada paso
+        function validateStep(step) {
             var isValid = true;
-            $step.find("input, select").each(function() {
-                if (!$(this).prop("disabled") && ($(this).prop("required") && !$(this).val())) {
-                    $(this).addClass("is-invalid");
+            $('#step' + (step + 1) + ' input, #step' + (step + 1) + ' select').each(function() {
+                if (!this.checkValidity()) {
+                    $(this).addClass('is-invalid');
                     isValid = false;
                 } else {
-                    $(this).removeClass("is-invalid");
+                    $(this).removeClass('is-invalid');
                 }
             });
             return isValid;
         }
 
-        // Función para actualizar el indicador de pasos
-        function updateStepper() {
-            $(".step").each(function(index) {
-                if (index <= currentStep) {
-                    $(this).addClass("completed");
-                } else {
-                    $(this).removeClass("completed");
-                }
+        // Botón "Siguiente"
+        $('.next').click(function() {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
 
-                if (index === currentStep) {
-                    $(this).addClass("active");
-                } else {
-                    $(this).removeClass("active");
+        // Botón "Anterior"
+        $('.prev').click(function() {
+            currentStep--;
+            showStep(currentStep);
+        });
+
+        // Mostrar el primer paso al cargar la página
+        showStep(currentStep);
+
+       // Actualizar el resumen al mostrar el paso 5
+       $('#step5').on('shown.bs.tab', function() {
+            $('#resumen_profesor').text($('#profesor').val());
+            $('#resumen_materia').text($('#materia').val());
+            $('#resumen_nivel').text($('#nivel').val());
+            $('#resumen_subnivel').text($('#subnivel').val());
+            $('#resumen_paralelo').text($('#paralelo').val());
+            $('#resumen_especialidad').text($('#especialidad').val());
+            $('#resumen_curso').text($('#curso').val());
+            $('#resumen_jornada').text($('#jornada').val());
+            $('#resumen_periodo').text($('#periodo').val());
+        });
+
+        // Mensaje de confirmación al enviar el formulario
+        $('#stepperForm').on('submit', function(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: '¿Estás seguro de enviar el formulario?',
+                text: "Revisa los datos antes de enviar.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, enviar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
                 }
             });
-        }
-    });
-    </script>
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom scripts for all pages-->
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-    <!-- Otros scripts -->
-    <script>
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('accordionSidebar').classList.toggle('collapsed');
+        });
+
+        // Navegación entre pasos del formulario
+        $('.next').click(function() {
+            var nextId = $(this).parents('.form-section').next().attr('id');
+            $('[href="#' + nextId + '"]').tab('show');
+        });
+
+        $('.prev').click(function() {
+            var prevId = $(this).parents('.form-section').prev().attr('id');
+            $('[href="#' + prevId + '"]').tab('show');
+        });
     });
     </script>
 </body>
-
 </html>

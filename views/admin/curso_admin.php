@@ -2,13 +2,12 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Cursos | Sistema De Gestión UEBF</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Tabla de Curso | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
@@ -17,199 +16,254 @@
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
     <!-- Custom styles for this template-->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Estilos personalizados -->
     <style>
-    .table-container {
-        max-height: 400px;
-        overflow-x: auto;
-        overflow-y: auto;
+    .sidebar-heading .collapse-header .bx {
+        color: #ff8b97;
+        /* Color rosa claro para los iconos en los encabezados de sección */
     }
 
-    .filters-add-button {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .filters-form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .filters-form label,
-    .filters-form select,
-    .filters-form button {
-        font-size: 0.875rem;
-        /* Tamaño de letra más pequeño */
-    }
-
-    .actions a {
-        display: block;
-        margin-bottom: 10px;
-        /* Espacio entre botones */
-    }
-
-    .table thead th {
-        color: white;
-        background-color: #dc3545;
-        /* Color rojo */
-        text-align: center;
-        /* Centrar texto */
-    }
-
-    .table tbody td {
-        text-align: center;
-        /* Centrar texto en las celdas del cuerpo */
-    }
-
-    .copyright-container {
-        background-color: #f8f9fa;
-        /* Color de fondo */
-        padding: 10px;
-        /* Espacio interno */
-        border-top: 1px solid #ccc;
-        /* Borde superior */
+    .bg-gradient-primary {
+        background-color: #a2000e;
+        /* Color rojo oscuro para el fondo de la barra lateral */
+        background-image: none;
+        /* Asegurar que no haya imagen de fondo (gradiente) */
     }
     </style>
 </head>
 
 <body>
     <?php
-    // Incluye el archivo navbar_admin.php solo una vez desde el mismo directorio
-    include_once 'navbar_admin.php';
+    // Incluir el archivo de conexión y verificar la conexión
+    include '../../Crud/config.php';
+
+    $sql = "SELECT * FROM curso";
+    $resultado = $conn->query($sql);
+
+    if (!$resultado) {
+        die("Error en la consulta: " . $conn->error);
+    }
     ?>
 
+    <?php include_once 'navbar_admin.php'; ?>
+
     <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="card">
-                    <div class="card-header bg-danger text-white">
-                        Cursos Registrados
-                    </div>
-                    <div class="card-body">
-                        <!-- Filtros de Búsqueda y Botón de Añadir -->
-                        <div class="filters-add-button">
-                            <form class="filters-form">
-                                <label class="my-1 mr-2" for="ordenarPor">Ordenar por:</label>
-                                <select class="custom-select my-1 mr-sm-2" id="ordenarPor">
-                                    <option selected>Seleccionar...</option>
-                                    <option value="recientes">Más Recientes</option>
-                                    <option value="antiguos">Más Antiguos</option>
-                                    <option value="nombreAZ">Nombre A-Z</option>
-                                    <!-- Agregar más opciones según necesidad -->
-                                </select>
-
-                                <label class="my-1 mr-2" for="filtrarPorEstado">Filtrar por Estado:</label>
-                                <select class="custom-select my-1 mr-sm-2" id="filtrarPorEstado">
-                                    <option selected>Seleccionar...</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                </select>
-
-                                <button type="submit" class="btn btn-primary my-1 mr-2">Buscar</button>
-                            </form>
-                            <a href="http://localhost/sistema_notas/views/admin/form_curso_admin.php"
-                                class="btn btn-danger">
-                                <i class="bx bx-plus"></i> Agregar más cursos
-                            </a>
+        <div class="row">
+            <div class="container">
+                <h1 class="mt-1 text-center text-dark fw-bold">Tabla de Cursos</h1>
+                <div class="mb-4 mt-3">
+                    <input type="text" class="form-control" id="filtroSolicitud"
+                        placeholder="Filtrar por Cédula del Profesor" onkeyup="filtrarSolicitudes()">
+                </div>
+                <div class="mb-4 mt-3">
+                    <div class="row justify-content-start">
+                        <div class="col-auto">
+                            <a href="../../Crud/cursos/agregar_curso.php" class="btn btn-primary">Agregar cursos</a>
                         </div>
-
-                        <!-- Tabla de Cursos con Scrollbars -->
-                        <div class="table-container">
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre del Curso</th>
-                                        <th>Nivel</th>
-                                        <th>Especialidad</th>
-                                        <th>Paralelo</th>
-                                        <th>Estado</th>
-                                        <th>Usuario que ingresó</th>
-                                        <th>Fecha de ingreso</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Ejemplo de datos de cursos desde la base de datos -->
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Matemáticas</td>
-                                        <td>Noveno</td>
-                                        <td>Mecánica Automotriz</td>
-                                        <td>A</td>
-                                        <td>Activo</td>
-                                        <td>Admin123</td>
-                                        <td>2024-06-30</td>
-                                        <td class="actions">
-                                            <a href="#" class="btn btn-sm btn-primary">
-                                                <i class='bx bxs-edit'></i> Editar
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-danger">
-                                                <i class='bx bxs-trash'></i> Eliminar
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Historia</td>
-                                        <td>Octavo</td>
-                                        <td>Humanidades</td>
-                                        <td>B</td>
-                                        <td>Inactivo</td>
-                                        <td>Admin456</td>
-                                        <td>2024-06-29</td>
-                                        <td class="actions">
-                                            <a href="#" class="btn btn-sm btn-primary">
-                                                <i class='bx bxs-edit'></i> Editar
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-danger">
-                                                <i class='bx bxs-trash'></i> Eliminar
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <!-- Puedes repetir este patrón para cada curso desde la base de datos -->
-                                </tbody>
-                            </table>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-info" data-toggle="modal"
+                                data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                         </div>
                     </div>
                 </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Profesor</th>
+                                <th>Materia</th>
+                                <th>Nivel</th>
+                                <th>Paralelo</th>
+                                <th>Subnivel</th>
+                                <th>Especialidad</th>
+                                <th>Jornada</th>
+                                <th>Periodo</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($fila = $resultado->fetch_assoc()) { ?>
+                            <tr>
+                                <td><?php echo $fila['id']; ?></td>
+                                <td><?php echo ($fila['profesor_id']); ?></td>
+                                <td><?php echo ($fila['materia_id']); ?></td>
+                                <td><?php echo ($fila['nivel_id']); ?></td>
+                                <td><?php echo ($fila['paralelo_id']); ?></td>
+                                <td><?php echo ($fila['subnivel_id']); ?></td>
+                                <td><?php echo ($fila['especialidad_id']); ?></td>
+                                <td><?php echo ($fila['jornada_id']); ?></td>
+                                <td><?php echo ($fila['periodo_id']); ?></td>
+                                <td><?php echo $fila['fecha_ingreso']; ?></td>
+                                <td>
+                                    <a href="../../Crud/cursos/editar_curso.php?id=<?php echo $fila['id']; ?>"
+                                        class="btn btn-sm btn-primary">Editar</a>
+                                    <a href="../../Crud/cursos/eliminar_curso.php?id=<?php echo $fila['id']; ?>"
+                                        class="btn btn-sm btn-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Manual de Uso - Parte 1 -->
+                <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
+                                    Profesores (1/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol>
+                                    <li><strong>Agregar Profesor:</strong> Al presionar el botón "Agregar Profesor",
+                                        aparecerá un formulario para crear el profesor.
+                                        Uno de esos botones es para generar una contraseña aleatoria y única que no se
+                                        repita con los otros perfiles de profesor
+                                        creados en la tabla. Una vez que todo esté listo, se debe presionar "Agregar",
+                                        lo cual redirigirá a la página de las
+                                        tablas con los datos ya creados. </li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                    onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 2 -->
+                <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
+                                    Profesores (2/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="2">
+                                    <li><strong>Editar Profesor:</strong> Para modificar los datos de un profesor
+                                        existente, haz clic en el botón
+                                        "Editar" junto al profesor correspondiente. Esto abrirá un formulario con los
+                                        datos ya registrados, permitiéndote
+                                        editarlos en caso de que alguno de los campos esté mal registrado. Una vez
+                                        hechos los cambios, podrás guardarlos
+                                        y serás redirigido de nuevo a la pantalla con los datos ya actualizados .</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                    onclick="openNextModal('#modalInstrucciones3')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 3 -->
+                <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
+                                    Profesores (3/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="3">
+                                    <li><strong>Eliminar Profesor:</strong> Si necesitas eliminar un profesor,
+                                        selecciona el botón "Eliminar"
+                                        junto al profesor deseado en la tabla la cual se eliminara de inmediato.</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                    onclick="openNextModal('#modalInstrucciones4')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 4 -->
+                <div class="modal fade" id="modalInstrucciones4" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel4" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel4">Manual de Uso - Gestión de
+                                    Profesores (4/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="4">
+                                    <li><strong>Filtrar por Cédula:</strong> Utiliza el campo de filtro ubicado arriba
+                                        de la tabla para buscar un profesor por su número de cédula. Escribe el número
+                                        de cédula y la tabla se actualizará automáticamente para mostrar los resultados
+                                        coincidentes.</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Pie de Página -->
-    <footer class="text-center mt-4">
-        <div class="copyright-container">
-            <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
-                Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    <!-- Scripts adicionales aquí -->
+    <script>
+    function filtrarSolicitudes() {
+        var input = document.getElementById("filtroSolicitud");
+        var filter = input.value.toUpperCase();
+        var table = document.getElementsByTagName("table")[0];
+        var rows = table.getElementsByTagName("tr");
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+            var cedulaCell = cells[3]; // Cambiado a la columna de Cédula (index 3)
+            if (cedulaCell) {
+                var value = cedulaCell.textContent || cedulaCell.innerText;
+                if (value.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function openNextModal(modalId) {
+        $(modalId).modal('show');
+    }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"
-        integrity="sha384-Ls6XIiqFwV6mbdJi4RtcH6I9zNq0J3T9UJ0V6J+J0AqlAdgrvVv6WqZ6G7feAkb" crossorigin="anonymous">
-    </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+EmmAdHx56E/WFbLEs5EJEC6KpLcIEGcl5B" crossorigin="anonymous">
-    </script>
+
+    <!-- Bootstrap core JavaScript-->
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
     <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom scripts for all pages-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-    <!-- Otros scripts -->
-    <script>
-    document.getElementById('sidebarToggle').click();
-    </script>
 </body>
 
 </html>

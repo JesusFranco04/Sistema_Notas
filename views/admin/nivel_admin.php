@@ -1,14 +1,3 @@
-<?php
-// Establecer la zona horaria a Ecuador
-date_default_timezone_set('America/Guayaquil');
-
-
-if (!isset($_SESSION["fecha_ingreso"])) {
-    // Guardar la fecha y hora de inicio de sesión en una variable de sesión
-    $_SESSION["fecha_ingreso"] = date('Y-m-d H:i:s');
-}
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -18,255 +7,222 @@ if (!isset($_SESSION["fecha_ingreso"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Formulario De Registro De Cursos | Sistema De Gestión UEBF</title>
+    <title>Tabla de niveles | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-        type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Custom styles for this template-->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Estilos personalizados -->
     <style>
-    /* Aquí va tu código CSS */
-    body,
-    html {
-        font-family: Arial, sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 0;
-    }
+        .sidebar-heading .collapse-header .bx {
+            color: #ff8b97;
+            /* Color rosa claro para los iconos en los encabezados de sección */
+        }
 
-    .container {
-        margin-top: 50px;
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .stepper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-    .step {
-        flex: 1;
-        text-align: center;
-        position: relative;
-    }
-
-    .step::after {
-        content: '';
-        position: absolute;
-        top: 12px;
-        left: calc(100% + 5px);
-        width: 50%;
-        height: 1px;
-        background-color: #ccc;
-    }
-
-    .step:last-child::after {
-        display: none;
-    }
-
-    .step.active {
-        color: #dc3545;
-        /* Rojo oscuro bonito */
-    }
-
-    .step.completed {
-        color: #28a745;
-    }
-
-    .step-number {
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        border: 2px solid #ccc;
-        border-radius: 50%;
-        display: inline-block;
-        font-weight: bold;
-        background-color: #fff;
-        position: relative;
-        z-index: 2;
-    }
-
-    .step-text {
-        margin-top: 10px;
-    }
-
-    .form-section {
-        display: none;
-    }
-
-    .form-section.active {
-        display: block;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .btn-container {
-        text-align: right;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        font-size: 16px;
-    }
-
-    .is-invalid {
-        border-color: #dc3545 !important;
-        /* Rojo oscuro bonito para campos inválidos */
-    }
-
-    .invalid-feedback {
-        color: #dc3545;
-        /* Rojo oscuro bonito para mensaje de error */
-        font-size: 14px;
-    }
-
-    .is-invalid {
-        border-color: #dc3545 !important;
-        transition: border-color 0.2s ease-in-out;
-    }
+        .bg-gradient-primary {
+            background-color: #a2000e;
+            /* Color rojo oscuro para el fondo de la barra lateral */
+            background-image: none;
+            /* Asegurar que no haya imagen de fondo (gradiente) */
+        }
     </style>
 </head>
 
 <body>
     <?php
-    // Incluye el archivo navbar_admin.php solo una vez desde el mismo directorio
-    include_once 'navbar_admin.php';
+    // Incluir el archivo de conexión y verificar la conexión
+    include '../../Crud/config.php';
+
+    $sql = "SELECT * FROM niveles";
+    $resultado = $conn->query($sql);
+
+    if (!$resultado) {
+        die("Error en la consulta: " . $conn->error);
+    }
     ?>
 
-        <!-- Formulario -->
-        <form id="stepperForm" method="POST" action="guardar_curso.php">
-            <!-- Paso 1: Nivel -->
-            <div class="form-section active" id="step1">
-                <h3 class="mb-4">Nivel</h3>
-                <div class="form-group">
-                    <label for="nivel">Nombre del Nivel <span class="text-danger">*</span>:</label>
-                    <input type="text" class="form-control" id="nivel" name="nivel" required maxlength="50">
-                    <div class="invalid-feedback">Por favor, ingrese el nivel (máximo 50 caracteres).</div>
+    <?php include_once 'navbar_admin.php'; ?>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="container">
+                <h1 class="mt-1 text-center text-dark fw-bold">Tabla de niveles</h1>
+                <div class="mb-4 mt-3">
+                    <input type="text" class="form-control" id="filtroSolicitud" placeholder="Filtrar por Cédula del Profesor" onkeyup="filtrarSolicitudes()">
                 </div>
-                <div class="form-group">
-                    <label for="fecha_ingreso1">Fecha y hora de ingreso:</label>
-                    <input type="text" class="form-control" id="fecha_ingreso1" name="fecha_ingreso1"
-                        value="<?php echo $_SESSION["fecha_ingreso"]; ?>" readonly>
-                </div>
-
-                <strong style="display: block; border-bottom: 1px solid #999; margin-bottom: 10px;"></strong>
-
-                <!-- Instrucciones adicionales -->
-                <p class="mb-4">
-                    <strong style="color: #666;">Nota:</strong><br>
-                    <strong style="color: #666;">&#8226;</strong>
-                    <span style="font-size: 0.9em; color: #777; margin-left: 10px;">En el campo de nivel, ingrese un
-                        único nivel educativo desde <strong>"Octavo"</strong> hasta <strong>"Tercero de
-                            Bachillerato"</strong> (por ejemplo: "Noveno", "Segundo Bachillerato", etc.).</span><br>
-                </p>
-
-                <!-- Botón de guardar -->
-                <div class="btn-container">
-                <button type="submit" class="btn btn-success">Guardar</button>
+                <div class="mb-4 mt-3">
+                    <div class="row justify-content-start">
+                        <div class="col-auto">
+                            <a href="../../Crud/niveles/agregar_niveles.php" class="btn btn-primary">Agregar Paralelos</a>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInstrucciones1">Ver Manual de Uso</button>
+                        </div>
+                    </div>
                 </div>
 
-    <!-- Pie de Página -->
-    <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-            <div class="copyright text-center my-auto">
-                <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-                    Zambrano. Todos los derechos reservados.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="dataTable" width="%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <!-- tener que estar igual que la base de datos -->
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($fila = $resultado->fetch_assoc()) { ?>
+                                <tr>
+                                    <!-- son las colupnas que saldran en la tabla-->
+                                    <td><?php echo $fila['id']; ?></td>
+                                    <td><?php echo $fila['nombre']; ?></td>
+                                    <td><?php echo $fila['fecha_ingreso']; ?></td>
+                                    <td>
+                                        <a href="../../Crud/niveles/editar_niveles.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-primary">Editar</a>
+                                        <a href="../../Crud/niveles/eliminar_niveles.php ?id=<?php echo $fila['id']; ?>" class="btn btn-sm btn-danger">Eliminar</a>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Manual de Uso - Parte 1 -->
+                <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog" aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de Profesores (1/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol>
+                                    <li><strong>Agregar Profesor:</strong> Al presionar el botón "Agregar Profesor", aparecerá un formulario para crear el profesor. 
+                                    Uno de esos botones es para generar una contraseña aleatoria y única que no se repita con los otros perfiles de profesor
+                                     creados en la tabla. Una vez que todo esté listo, se debe presionar "Agregar", lo cual redirigirá a la página de las
+                                      tablas con los datos ya creados. </li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 2 -->
+                <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog" aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de Profesores (2/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="2">
+                                    <li><strong>Editar Profesor:</strong> Para modificar los datos de un profesor existente, haz clic en el botón 
+                                    "Editar" junto al profesor correspondiente. Esto abrirá un formulario con los datos ya registrados, permitiéndote
+                                     editarlos en caso de que alguno de los campos esté mal registrado. Una vez hechos los cambios, podrás guardarlos 
+                                     y serás redirigido de nuevo a la pantalla con los datos ya actualizados .</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="openNextModal('#modalInstrucciones3')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 3 -->
+                <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog" aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de Profesores (3/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="3">
+                                    <li><strong>Eliminar Profesor:</strong> Si necesitas eliminar un profesor, selecciona el botón "Eliminar" 
+                                    junto al profesor deseado en la tabla la cual se eliminara de inmediato.</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="openNextModal('#modalInstrucciones4')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual de Uso - Parte 4 -->
+                <div class="modal fade" id="modalInstrucciones4" tabindex="-1" role="dialog" aria-labelledby="modalInstruccionesLabel4" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel4">Manual de Uso - Gestión de Profesores (4/4)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ol start="4">
+                                    <li><strong>Filtrar por Cédula:</strong> Utiliza el campo de filtro ubicado arriba de la tabla para buscar un profesor por su número de cédula. Escribe el número de cédula y la tabla se actualizará automáticamente para mostrar los resultados coincidentes.</li>
+                                </ol>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </footer>
+    </div>
 
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Scripts adicionales aquí -->
     <script>
-    $(document).ready(function() {
-        var currentStep = 0;
-        var $stepperForm = $('#stepperForm');
-        var $formSections = $stepperForm.find('.form-section');
+        function filtrarSolicitudes() {
+            var input = document.getElementById("filtroSolicitud");
+            var filter = input.value.toUpperCase();
+            var table = document.getElementsByTagName("table")[0];
+            var rows = table.getElementsByTagName("tr");
 
-        // Botón Siguiente
-        $(".next").click(function() {
-            var $step = $(".form-section").eq(currentStep);
-            var $nextStep = $(".form-section").eq(currentStep + 1);
-
-            if (validateStep($step)) {
-                $step.removeClass("active");
-                $nextStep.addClass("active");
-                currentStep++;
-                updateStepper();
+            for (var i = 1; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName("td");
+                var cedulaCell = cells[3]; // Cambiado a la columna de Cédula (index 3)
+                if (cedulaCell) {
+                    var value = cedulaCell.textContent || cedulaCell.innerText;
+                    if (value.toUpperCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
             }
-        });
-
-        // Botón Anterior
-        $(".previous").click(function() {
-            var $step = $(".form-section").eq(currentStep);
-            var $prevStep = $(".form-section").eq(currentStep - 1);
-
-            $step.removeClass("active");
-            $prevStep.addClass("active");
-            currentStep--;
-            updateStepper();
-        });
-
-        // Función para validar el paso actual
-        function validateStep($step) {
-            var isValid = true;
-            $step.find("input, select").each(function() {
-                if (!$(this).prop("disabled") && ($(this).prop("required") && !$(this).val())) {
-                    $(this).addClass("is-invalid");
-                    isValid = false;
-                } else {
-                    $(this).removeClass("is-invalid");
-                }
-            });
-            return isValid;
         }
 
-        // Función para actualizar el indicador de pasos
-        function updateStepper() {
-            $(".step").each(function(index) {
-                if (index <= currentStep) {
-                    $(this).addClass("completed");
-                } else {
-                    $(this).removeClass("completed");
-                }
-
-                if (index === currentStep) {
-                    $(this).addClass("active");
-                } else {
-                    $(this).removeClass("active");
-                }
-            });
+        function openNextModal(modalId) {
+            $(modalId).modal('show');
         }
-    });
     </script>
+
     <!-- Bootstrap core JavaScript-->
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
     <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom scripts for all pages-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-    <!-- Otros scripts -->
-    <script>
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('accordionSidebar').classList.toggle('collapsed');
-    });
-    </script>
 </body>
 
 </html>
