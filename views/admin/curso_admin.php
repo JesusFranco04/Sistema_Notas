@@ -40,8 +40,28 @@
     // Incluir el archivo de conexión y verificar la conexión
     include '../../Crud/config.php';
 
-    $sql = "SELECT * FROM curso";
-    $resultado = $conn->query($sql);
+    $sql = "
+    SELECT 
+        a.*, 
+        b.nombres AS nombre_profesor,
+        c.nombre AS nombre_materia,
+        d.nombre AS nombre_nivel,
+        e.nombre AS nombre_paralelo,
+        f.nombre AS nombre_subnivel,
+        g.nombre AS nombre_especialidad,
+        h.nombre AS nombre_jornada,
+        i.ano AS nombre_periodo
+    FROM curso a INNER JOIN profesores b ON a.profesor_id = b.id
+    INNER JOIN materias c ON a.materia_id = c.id
+    INNER JOIN niveles d ON a.nivel_id = d.id
+    INNER JOIN paralelos e ON a.paralelo_id = e.id
+    INNER JOIN subniveles f ON a.subnivel_id = f.id
+    INNER JOIN especialidades g ON a.especialidad_id = g.id
+    INNER JOIN jornada h ON a.jornada_id = h.id
+    INNER JOIN periodo i ON a.periodo_id = i.id
+";
+$resultado = $conn->query($sql);
+
 
     if (!$resultado) {
         die("Error en la consulta: " . $conn->error);
@@ -91,14 +111,14 @@
                             <?php while ($fila = $resultado->fetch_assoc()) { ?>
                             <tr>
                                 <td><?php echo $fila['id']; ?></td>
-                                <td><?php echo ($fila['profesor_id']); ?></td>
-                                <td><?php echo ($fila['materia_id']); ?></td>
-                                <td><?php echo ($fila['nivel_id']); ?></td>
-                                <td><?php echo ($fila['paralelo_id']); ?></td>
-                                <td><?php echo ($fila['subnivel_id']); ?></td>
-                                <td><?php echo ($fila['especialidad_id']); ?></td>
-                                <td><?php echo ($fila['jornada_id']); ?></td>
-                                <td><?php echo ($fila['periodo_id']); ?></td>
+                                <td><?php echo ($fila['nombre_profesor']); ?></td>
+                                <td><?php echo ($fila['nombre_materia']); ?></td>
+                                <td><?php echo ($fila['nombre_nivel']); ?></td>
+                                <td><?php echo ($fila['nombre_paralelo']); ?></td>
+                                <td><?php echo ($fila['nombre_subnivel']); ?></td>
+                                <td><?php echo ($fila['nombre_especialidad']); ?></td>
+                                <td><?php echo ($fila['nombre_jornada']); ?></td>
+                                <td><?php echo ($fila['nombre_periodo']); ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
                                     <a href="../../Crud/cursos/editar_curso.php?id=<?php echo $fila['id']; ?>"

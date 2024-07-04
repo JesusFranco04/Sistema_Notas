@@ -90,12 +90,13 @@ mysqli_close($conn);
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Tu CSS personalizado -->
     <style>
-        .container {
-            max-width: 600px;
-        }
-        .card {
-            margin-top: 50px;
-        }
+    .container {
+        max-width: 600px;
+    }
+
+    .card {
+        margin-top: 50px;
+    }
     </style>
 </head>
 
@@ -111,7 +112,8 @@ mysqli_close($conn);
                         <label for="profesor_id">Profesor:</label>
                         <select class="form-control" id="profesor_id" name="profesor_id" required>
                             <?php while ($fila_profesor = mysqli_fetch_assoc($resultado_profesor)): ?>
-                            <option value="<?php echo $fila_profesor['id']; ?>"><?php echo $fila_profesor['nombres']; ?></option>
+                            <option value="<?php echo $fila_profesor['id']; ?>"><?php echo $fila_profesor['nombres']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -119,7 +121,8 @@ mysqli_close($conn);
                         <label for="materia_id">Materia:</label>
                         <select class="form-control" id="materia_id" name="materia_id" required>
                             <?php while ($fila_materia = mysqli_fetch_assoc($resultado_materia)): ?>
-                            <option value="<?php echo $fila_materia['id']; ?>"><?php echo $fila_materia['nombre']; ?></option>
+                            <option value="<?php echo $fila_materia['id']; ?>"><?php echo $fila_materia['nombre']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -127,7 +130,8 @@ mysqli_close($conn);
                         <label for="nivel_id">Nivel:</label>
                         <select class="form-control" id="nivel_id" name="nivel_id" required>
                             <?php while ($fila_nivel = mysqli_fetch_assoc($resultado_nivel)): ?>
-                            <option value="<?php echo $fila_nivel['id']; ?>"><?php echo $fila_nivel['nombre']; ?></option>
+                            <option value="<?php echo $fila_nivel['id']; ?>"><?php echo $fila_nivel['nombre']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -135,7 +139,8 @@ mysqli_close($conn);
                         <label for="paralelo_id">Paralelo:</label>
                         <select class="form-control" id="paralelo_id" name="paralelo_id" required>
                             <?php while ($fila_paralelo = mysqli_fetch_assoc($resultado_paralelo)): ?>
-                            <option value="<?php echo $fila_paralelo['id']; ?>"><?php echo $fila_paralelo['nombre']; ?></option>
+                            <option value="<?php echo $fila_paralelo['id']; ?>"><?php echo $fila_paralelo['nombre']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -143,7 +148,8 @@ mysqli_close($conn);
                         <label for="subnivel_id">Subnivel:</label>
                         <select class="form-control" id="subnivel_id" name="subnivel_id" required>
                             <?php while ($fila_subnivel = mysqli_fetch_assoc($resultado_subnivel)): ?>
-                            <option value="<?php echo $fila_subnivel['id']; ?>"><?php echo $fila_subnivel['nombre']; ?></option>
+                            <option value="<?php echo $fila_subnivel['id']; ?>"><?php echo $fila_subnivel['nombre']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -151,7 +157,8 @@ mysqli_close($conn);
                         <label for="especialidad_id">Especialidad:</label>
                         <select class="form-control" id="especialidad_id" name="especialidad_id" required>
                             <?php while ($fila_especialidad = mysqli_fetch_assoc($resultado_especialidad)): ?>
-                            <option value="<?php echo $fila_especialidad['id']; ?>"><?php echo $fila_especialidad['nombre']; ?></option>
+                            <option value="<?php echo $fila_especialidad['id']; ?>">
+                                <?php echo $fila_especialidad['nombre']; ?></option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -159,7 +166,8 @@ mysqli_close($conn);
                         <label for="jornada_id">Jornada:</label>
                         <select class="form-control" id="jornada_id" name="jornada_id" required>
                             <?php while ($fila_jornada = mysqli_fetch_assoc($resultado_jornada)): ?>
-                            <option value="<?php echo $fila_jornada['id']; ?>"><?php echo $fila_jornada['nombre']; ?></option>
+                            <option value="<?php echo $fila_jornada['id']; ?>"><?php echo $fila_jornada['nombre']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -167,7 +175,8 @@ mysqli_close($conn);
                         <label for="periodo_id">Periodo:</label>
                         <select class="form-control" id="periodo_id" name="periodo_id" required>
                             <?php while ($fila_periodo = mysqli_fetch_assoc($resultado_periodo)): ?>
-                            <option value="<?php echo $fila_periodo['id']; ?>"><?php echo $fila_periodo['ano']; ?></option>
+                            <option value="<?php echo $fila_periodo['id']; ?>"><?php echo $fila_periodo['ano']; ?>
+                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -176,7 +185,7 @@ mysqli_close($conn);
                         <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Agregar</button>
-                    <a href="../../views/admin/cursos_admin.php" class="btn btn-secondary">Regresar</a>
+                    <a href="../../views/admin/curso_admin.php" class="btn btn-secondary">Regresar</a>
                 </form>
             </div>
         </div>
