@@ -7,9 +7,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contraseña = $_POST["contraseña"];
     
     // Definir credenciales del super usuario
-    define('SUPER_USER_KEY', '09543521');
+    define('SUPER_USER_KEY', '0954352185');
     define('SUPER_USER_PASSWORD', 'admin340');
-    
+	
+    include 'config.php';
+
     // Verificar si es el super usuario
     if ($cedula === SUPER_USER_KEY && $contraseña === SUPER_USER_PASSWORD) {
         // Credenciales correctas para el super usuario
@@ -19,10 +21,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    include 'config.php';
-
     // Preparar la declaración SQL
-    $stmt = $conn->prepare("SELECT rol FROM usuarios WHERE cedula = ? AND contraseña = ?");
+    $stmt = $conn->prepare("SELECT codigo_de_perfil, nombres, apellidos, rol FROM usuarios WHERE cedula = ? AND contraseña = ?");
     if ($stmt) {
         // Vincular los parámetros
         $stmt->bind_param("ss", $cedula, $contraseña);
@@ -34,20 +34,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = $stmt->get_result();
         
         if ($result->num_rows == 1) {
-            // Obtener el código del perfil del usuario
+            // Obtener los datos del usuario
             $row = $result->fetch_assoc();
-            $rol = $row['rol'];
-            // Redireccionar según el código del perfil
-            if ($rol == 1) {
-                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php"); // Panel de administrador
-            } elseif ($rol == 2) {
-                header("Location: http://localhost/Sistema_Notas/views/profe/index_profe.php"); // Panel de profesor
-            } elseif ($rol == 3) {
-                header("Location: http://localhost/Sistema_Notas/views/family/index_family.php"); // Panel de padres de familia
+            $codigo_de_perfil = $row['codigo_de_perfil'];
+            $_SESSION["nombres"] = $row['nombres'];
+            $_SESSION["apellidos"] = $row['apellidos'];
+            $_SESSION["rol"] = $row['rol'];
+            
+            // Redireccionar según el rol del usuario
+            switch ($row['rol']) {
+                case 1:
+                    header("Location: http://localhost/sistema_notas/views/admin/index_admin.php"); // Panel de administrador
+                    break;
+                case 2:
+                    header("Location: http://localhost/Sistema_Notas/views/profe/index_profe.php"); // Panel de profesor
+                    break;
+                case 3:
+                    header("Location: http://localhost/Sistema_Notas/views/family/index_family.php"); // Panel de padres de familia
+                    break;
+                default:
+                    echo '<script>alert("¡Rol desconocido! Por favor, contacte al administrador."); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
+                    break;
             }
-            exit;
+            exit();
         } else {
-            echo '<script>alert("Usuario o Contraseña incorrectas!"); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
+            echo '<script>alert("¡Usuario o contraseña incorrectos! Por favor, inténtalo de nuevo."); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
         }
         
         // Cerrar la declaración
@@ -56,6 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Manejar error de SQL
         echo '<script>alert("Error al preparar la consulta SQL: ' . $conn->error . '"); window.location.href = "http://localhost/Sistema_Notas/login.php";</script>';
     }
+    
     // Cerrar la conexión
     $conn->close();
 }
