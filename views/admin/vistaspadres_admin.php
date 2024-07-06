@@ -7,6 +7,22 @@ date_default_timezone_set('America/Guayaquil');
 
 // Consulta SQL para obtener los estudiantes
 $sql = "SELECT * FROM padres";
+
+// Obtener los valores de los filtros
+$fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
+$estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+
+// Consulta SQL para obtener los estudiantes con filtros
+$sql = "SELECT * FROM padres WHERE 1=1";
+
+if (!empty($fecha)) {
+    $sql .= " AND DATE(date_creation) = '$fecha'";
+}
+
+if (!empty($estado)) {
+    $sql .= " AND estado = '$estado'";
+}
+
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
@@ -35,110 +51,72 @@ if (!$resultado) {
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-    <style>
-    /* Estilo para el contenedor de la tabla */
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
+<style>
+        /* Estilo para el contenedor de la tabla */
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
 
-    /* Estilo para separar los botones de acciones */
-    .action-buttons .btn {
-        margin-right: 20px;
-    }
+        /* Estilo para separar los botones de acciones */
+        .action-buttons .btn {
+            margin-right: 20px;
+        }
 
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
 
-    .container-fluid {
-        padding: 20px;
-    }
+        .container-fluid {
+            padding: 20px;
+        }
 
-    .card-statistic {
-        position: relative;
-        overflow: hidden;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        height: 150px;
-    }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
 
-    .card-statistic .card-body {
-        padding: 20px;
-        position: relative;
-    }
+        .card-header {
+            background-color: #c42021; /* Color de fondo rojo */
+            color: white; /* Color del texto */
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 15px; /* Espacio interno alrededor del contenido del encabezado */
+        }
 
-    .card-statistic h5 {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #031d44;
-        display: flex;
-        align-items: center;
-    }
+        .table thead th {
+            background-color: #dc3545;
+            color: white;
+            text-align: center;
+        }
 
-    .card-statistic h5 i {
-        font-size: 1.5rem;
-        margin-left: 10px;
-    }
+        .table tbody td {
+            text-align: center;
+        }
 
-    .card-statistic p {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #305B7A;
-    }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
 
-    .border-left-primary {
-        border-left: 5px solid #c42021;
-    }
+        .filter-icon {
+            margin-right: 5px;
+        }
+        
+        .table tbody .btn-action {
+            margin-bottom: 10px;
+            display: inline-block;
+        }
 
-    .border-left-success {
-        border-left: 5px solid #ffeaae;
-    }
 
-    .border-left-info {
-        border-left: 5px solid #47a025;
-    }
-
-    .chart-container {
-        margin-top: 20px;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Estilo para los botones de acción dentro de la tabla */
-    .table tbody .btn-action {
-        margin-bottom: 10px;
-        display: 10px;
-    }
-
-    .table thead th {
-        background-color: #dc3545;
-        color: white;
-        text-align: center;
-    }
-
-    .table tbody td {
-        text-align: center;
-    }
-
-    .section-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .filter-icon {
-        margin-right: 5px;
-    }
-
-    .filter-container {
-        margin-bottom: 1rem;
-    }
-    </style>
+        .filter-container {
+            margin-bottom: 1rem;
+        }
+</style>
 </head>
 
 <body>
@@ -146,32 +124,36 @@ if (!$resultado) {
 
     <div class="container-fluid">
         <div class="card">
-            <div class="card-header bg-danger text-white">
+            <div class="card-header">
                 <h5 class="mb-0">Tabla de Representantes</h5>
             </div>
             <div class="card-body">
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label for="searchCedula"><i class="fas fa-id-card filter-icon"></i>Cédula</label>
-                            <input type="text" class="form-control" id="searchCedula" name="cedula"
-                                placeholder="Buscar por cédula">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="searchNombre"><i class="fas fa-id-card filter-icon"></i>Nombre</label>
-                            <input type="text" class="form-control" id="searchNombre" name="nombre"
-                                placeholder="Buscar por nombre">
-                        </div>
-                        <div class="col-md-4">
                             <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de
                                 Creación</label>
-                            <input type="date" class="form-control" id="searchFecha" name="fecha">
+                            <input type="date" class="form-control" id="searchFecha" name="fecha"
+                                value="<?php echo $fecha; ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="searchEstado"><i class="fas fa-filter filter-icon"></i>Estado</label>
+                            <select class="form-control" id="searchEstado" name="estado">
+                                <option value="">Todos</option>
+                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos
+                                </option>
+                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>
+                                    Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
                         </div>
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="../../Crud/estudiantes/agregar_padres.php" class="btn btn-primary">Agregar
+                                <a href="../../Crud/padres/agregar_padres.php" class="btn btn-primary">Agregar
                                     Representante</a>
                             </div>
                             <div class="col-auto">
@@ -184,7 +166,6 @@ if (!$resultado) {
                         </div>
                     </div>
                 </form>
-
                 <div class="table-responsive table-container">
                     <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
                         <thead>
@@ -224,8 +205,11 @@ if (!$resultado) {
                                 <td><?php echo $fila['contrasena']; ?></td>
                                 <td><?php echo $fila['date_creation']; ?></td>
                                 <td>
-                                    <a href="../../Crud/padres/actualizar_padres.php?cedula=<?php echo $fila['cedula']; ?>" class="btn btn-warning btn-action">Editar</a>
-                                    <a href="../../Crud/padres/eliminar_padres.php?cedula=<?php echo $fila['cedula']; ?>" class="btn btn-danger btn-action" onclick="return confirm('¿Está seguro de eliminar este registro?');">Eliminar</a>
+                                    <a href="../../Crud/padres/actualizar_padres.php?cedula=<?php echo $fila['cedula']; ?>"
+                                        class="btn btn-warning btn-action">Editar</a>
+                                    <a href="../../Crud/padres/eliminar_padres.php?cedula=<?php echo $fila['cedula']; ?>"
+                                        class="btn btn-danger btn-action"
+                                        onclick="return confirm('¿Está seguro de eliminar este registro?');">Eliminar</a>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -257,21 +241,21 @@ if (!$resultado) {
         // Aplicar los filtros
         $('#searchCedula').keyup(function() {
             $('#dataTable').DataTable().column(
-                3) // Reemplaza el número con el índice de la columna de nombre
+                    3) // Reemplaza el número con el índice de la columna de nombre
                 .search(this.value)
                 .draw();
         });
 
         $('#searchNombre').keyup(function() {
             $('#dataTable').DataTable().column(
-                1) // Reemplaza el número con el índice de la columna de nombre
+                    1) // Reemplaza el número con el índice de la columna de nombre
                 .search(this.value)
                 .draw();
         });
 
         $('#searchFecha').keyup(function() {
             $('#dataTable').DataTable().column(
-                8) // Reemplaza el número con el índice de la columna de fecha
+                    8) // Reemplaza el número con el índice de la columna de fecha
                 .search(this.value)
                 .draw();
         });

@@ -15,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $discapacidad = isset($_POST['discapacidad']) ? $_POST['discapacidad'] : null;
     $rol = isset($_POST['rol']) ? $_POST['rol'] : null;
     $contrasena = isset($_POST['contrasena']) ? $_POST['contrasena'] : null;
-    $archivo = isset($_FILES['archivo']['name']) ? $_FILES['archivo']['name'] : null; // Nombre del archivo subido
     $date_creation = isset($_POST['date_creation']) ? $_POST['date_creation'] : null; // Fecha de creación
 
     // Verificar que los campos requeridos no estén vacíos
@@ -33,12 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $discapacidad = mysqli_real_escape_string($conn, $discapacidad);
         $rol = mysqli_real_escape_string($conn, $rol);
         $contrasena = mysqli_real_escape_string($conn, $contrasena);
-        $archivo = mysqli_real_escape_string($conn, $archivo);
         $date_creation = mysqli_real_escape_string($conn, $date_creation);
 
         // Preparar consulta SQL (asegúrate de tener las columnas correctas en tu base de datos)
-        $sql = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, rol, contrasena, archivo, date_creation)
-                VALUES ('$nombres', '$apellidos', '$cedula', '$telefono', '$correo_electronico', '$direccion', '$fecha_nacimiento', '$genero', '$discapacidad', '$rol', '$contrasena', '$archivo', '$date_creation')";
+        $sql = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, rol, contrasena, date_creation)
+                VALUES ('$nombres', '$apellidos', '$cedula', '$telefono', '$correo_electronico', '$direccion', '$fecha_nacimiento', '$genero', '$discapacidad', '$rol', '$contrasena', '$date_creation')";
                 
         if (mysqli_query($conn, $sql)) {
             header("Location: ../../views/admin/administradores.php");
@@ -99,7 +97,7 @@ mysqli_close($conn);
     }
 
     .card {
-        width: 80%;
+        width: 100%;
         max-width: 600px;
         padding: 20px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -120,139 +118,108 @@ mysqli_close($conn);
     <div class="container mt-5">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Agregar Admin</h5>
+                <h5 class="card-title">Agregar Administrador</h5>
             </div>
             <div class="card-body">
-                <form action="agregar_admin.php" method="post" enctype="multipart/form-data"
-                    onsubmit="return validarFormulario()">
-                    <div class="form-group">
-                        <label for="nombres">Nombres:</label>
-                        <input type="text" class="form-control" id="nombres" name="nombres" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="apellidos">Apellidos:</label>
-                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cedula">Cédula:</label>
-                        <input type="text" class="form-control" id="cedula" name="cedula" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="text" class="form-control" id="telefono" name="telefono" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="correo_electronico">Correo Electrónico:</label>
-                        <input type="email" class="form-control" id="correo_electronico" name="correo_electronico"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label for="direccion">Dirección:</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion">
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha_de_nacimiento">Fecha de Nacimiento:</label>
-                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
-                    </div>
-                    <div class="form-group">
-                        <label for="genero">Género:</label>
-                        <select class="form-control" id="genero" name="genero">
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="discapacidad">Discapacidad:</label>
-                        <select class="form-control" id="discapacidad" name="discapacidad">
-                            <option value="">Seleccionar</option>
-                            <option value="Si">Si</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rol">Rol:</label>
-                        <select class="form-control" id="rol" name="rol" required>
-                            <option value="">Selecciona Rol</option>
-                            <option value="1">Abministrador</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="contrasena">Contraseña:</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="contrasena" name="contrasena"
-                                placeholder="Ingrese texto" aria-label="Caja de texto"
-                                aria-describedby="button-generate" disabled>
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button" id="button-generate"
-                                    onclick="generarClave()" required>Generar Clave</button>
-                            </div>
+                <form action="agregar_administrador.php" method="post" onsubmit="return validarFormulario()">
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-6">
+                            <label for="nombres" class="form-label"><i class="fas fa-user"></i> Nombres:</label>
+                            <input type="text" class="form-control" id="nombres" name="nombres" required>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="apellidos" class="form-label"><i class="fas fa-user"></i> Apellidos:</label>
+                            <input type="text" class="form-control" id="apellidos" name="apellidos" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="archivo">Archivo:</label>
-                        <input type="file" class="form-control-file" id="archivo" name="archivo"
-                            onchange="mostrarInfoArchivo()" required>
-                        <div id="info-archivo"></div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-4">
+                            <label for="cedula" class="form-label"><i class="fas fa-id-card"></i> Cédula:</label>
+                            <input type="text" class="form-control" id="cedula" name="cedula" required>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <label for="telefono" class="form-label"><i class="fas fa-phone"></i> Teléfono:</label>
+                            <input type="text" class="form-control" id="telefono" name="telefono">
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <label for="correo_electronico" class="form-label"><i class="fas fa-at"></i> Correo
+                                Electrónico:</label>
+                            <input type="email" class="form-control" id="correo_electronico" name="correo_electronico"
+                                required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="date_creation">Fecha de Creación:</label>
-                        <input type="text" class="form-control" id="date_creation" name="date_creation"
-                            value="<?php echo date('Y-m-d H:i:s'); ?>" readonly>
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-8">
+                            <label for="direccion" class="form-label"><i class="fas fa-map-marker-alt"></i>
+                                Dirección:</label>
+                            <input type="text" class="form-control" id="direccion" name="direccion" required>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <label for="fecha_nacimiento" class="form-label"><i class="fas fa-calendar-alt"></i> Fecha
+                                de Nacimiento:</label>
+                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento"
+                                required>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                    <a href="../../views/admin/administradores.php" class="btn btn-secondary">Regresar</a>
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-6">
+                            <label for="genero" class="form-label"><i class="fas fa-venus-mars"></i> Género:</label>
+                            <select class="form-control" id="genero" name="genero" required>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="discapacidad" class="form-label"><i class="fas fa-wheelchair"></i>
+                                Discapacidad:</label>
+                            <input type="text" class="form-control" id="discapacidad" name="discapacidad">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-6">
+                            <label for="rol" class="form-label"><i class="fas fa-user-cog"></i> Rol:</label>
+                            <input type="text" class="form-control" id="rol" name="rol" required>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label for="contrasena" class="form-label"><i class="fas fa-key"></i> Contraseña:</label>
+                            <input type="password" class="form-control" id="contrasena" name="contrasena" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12 col-lg-12">
+                            <label for="date_creation" class="form-label"><i class="fas fa-clock"></i> Fecha de
+                                creación:</label>
+                            <input type="datetime-local" class="form-control" id="date_creation" name="date_creation"
+                                required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                            <a href="../../views/admin/administradores.php" class="btn btn-danger"><i
+                                    class="fas fa-window-close"></i> Cancelar</a>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Scripts adicionales aquí -->
-
+    <!-- Bootstrap core JavaScript-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <!-- Validación de formulario-->
     <script>
-    function generarClave() {
-        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let clave = '';
-        for (let i = 0; i < 12; i++) {
-            const randomIndex = Math.floor(Math.random() * caracteres.length);
-            clave += caracteres[randomIndex];
-        }
-        const input_contrasena = document.getElementById('contrasena');
-        input_contrasena.value = clave;
-        input_contrasena.disabled = false; // Habilitar el campo
-        document.getElementById('button-generate').disabled = true; // Deshabilitar el botón de generar
-        document.getElementById('submit-button').disabled = false; // Habilitar el botón de guardar
-    }
-
     function validarFormulario() {
-        const input_contrasena = document.getElementById('contrasena');
-        if (input_contrasena.value === '') {
-            alert('Por favor, genere una contraseña.');
-            return false;
-        }
-        return true;
-    }
-
-    function mostrarInfoArchivo() {
-        const input = document.getElementById('archivo');
-        const infoArchivo = document.getElementById('info-archivo');
-        if (input.files.length > 0) {
-            const archivo = input.files[0];
-            const tamaño = archivo.size / 1024;
-            const tipo = archivo.type || 'Tipo desconocido';
-            infoArchivo.innerHTML = `
-                <p><strong>Nombre:</strong> ${archivo.name}</p>
-                <p><strong>Tipo:</strong> ${tipo}</p>
-                <p><strong>Tamaño:</strong> ${tamaño.toFixed(2)} KB</p>
-            `;
-        } else {
-            infoArchivo.innerHTML = '';
-        }
+        // Aquí puedes agregar validaciones adicionales si las necesitas
+        return true; // Devuelve true si el formulario es válido
     }
     </script>
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 </body>
-</body>
+
 </html>

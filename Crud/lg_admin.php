@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows == 1) {
             // Obtener los datos del usuario
             $row = $result->fetch_assoc();
-            $codigo_de_perfil = $row['codigo_de_perfil'];
             $_SESSION["nombres"] = $row['nombres'];
             $_SESSION["apellidos"] = $row['apellidos'];
             $_SESSION["rol"] = $row['rol'];
