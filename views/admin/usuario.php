@@ -1,11 +1,13 @@
 <?php
+session_start();
 // Incluir el archivo de conexión y verificar la conexión
-include('../../config.php');
+include('../../Crud/config.php'); // Ruta absoluta 
 
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
-// Consulta SQL para obtener los administradores
-$sql = "SELECT * FROM administrador";
+
+// Consulta SQL para obtener los usuarios
+$sql = "SELECT * FROM usuario";
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
@@ -22,7 +24,7 @@ if (!$resultado) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Administradores | Sistema de Gestión UEBF</title>
+    <title>Usuarios | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
@@ -114,7 +116,7 @@ if (!$resultado) {
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Tabla de Administradores</h5>
+                <h5 class="mb-0">Tabla de Usuarios</h5>
             </div>
             <div class="card-body">
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
@@ -142,16 +144,16 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="../../Crud/admin/administrador/agregar_admin.php"
+                                <a href="http://localhost/sistema_notas/Crud/admin/usuario/agregar_usuario.php"
                                     class="btn btn-primary">Agregar
-                                    Administrador</a>
+                                    Usuario</a>
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-info" data-toggle="modal"
                                     data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                             </div>
                             <div class="col-auto">
-                                <a href="reporte_administrador.php" class="btn btn-success">Generar reportes</a>
+                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
                             </div>
                         </div>
                     </div>
@@ -162,17 +164,11 @@ if (!$resultado) {
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombres</th>
-                                <th>Apellidos</th>
                                 <th>Cédula</th>
-                                <th>Correo Electrónico</th>
-                                <th>Teléfono</th>
-                                <th>Dirección</th>
-                                <th>Fecha de Nacimiento</th>
-                                <th>Género</th>
-                                <th>Discapacidad</th>
+                                <th>Contraseña</th>
                                 <th>Rol</th>
                                 <th>Estado</th>
+                                <th>Usuario de Ingreso</th>
                                 <th>Fecha de Ingreso</th>
                                 <th>Acciones</th>
                             </tr>
@@ -182,22 +178,15 @@ if (!$resultado) {
                             while ($fila = mysqli_fetch_assoc($resultado)) {
                                 ?>
                             <tr>
-                                <td><?php echo $fila['id_administrador']; ?></td>
-                                <td><?php echo $fila['nombres']; ?></td>
-                                <td><?php echo $fila['apellidos']; ?></td>
+                                <td><?php echo $fila['id_usuario']; ?></td>
                                 <td><?php echo $fila['cedula']; ?></td>
-                                <td><?php echo $fila['correo_electronico']; ?></td>
-                                <td><?php echo $fila['telefono']; ?></td>
-                                <td><?php echo $fila['direccion']; ?></td>
-                                <td><?php echo $fila['fecha_nacimiento']; ?></td>
-                                <td><?php echo ucfirst($fila['genero']); ?></td>
-                                <td><?php echo ucfirst($fila['discapacidad']); ?></td>
-                                <td><?php echo $fila['rol']; ?></td>
+                                <td><?php echo $fila['contraseña']; ?></td>
+                                <td><?php echo $fila['id_rol']; ?></td>
                                 <td><?php echo $fila['estado'] == 'A' ? 'Activo' : 'Inactivo'; ?></td>
+                                <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                <td>
-                                    <a href="../../Crud/admin/administrador/editar_admin.php?cedula=<?php echo $fila['cedula']; ?>"
+                                    <a href="http://localhost/sistema_notas/Crud/admin/usuario/editar_usuario.php?cedula=<?php echo $fila['cedula']; ?>"
                                         class="btn btn-warning btn-action">Editar</a>
                                     <button type="button" class="btn btn-danger btn-action"
                                         onclick="mostrarModalCambioEstado('<?php echo $fila['cedula']; ?>', '<?php echo $fila['estado']; ?>');">
@@ -236,66 +225,66 @@ if (!$resultado) {
                             </div>
                         </div>
                     </div>
-                    <!-- Fin del Modal -->
+                    <!-- Fin Modal de Confirmación -->
+
+                    <!-- Modal de Instrucciones -->
+                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstrucciones1Label" aria-hidden="true">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema de
+                                        Gestión
+                                        UEBF</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <embed src="Manual_de_Usuario.pdf" type="application/pdf" width="100%"
+                                        height="600px" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Modal de Instrucciones -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Instrucciones -->
-    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" aria-labelledby="modalInstruccionesLabel1"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Usuario - Sección Administradores
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <embed src="http://localhost/sistema_notas/manuales/manual_admin.pdf" type="application/pdf"
-                        width="100%" height="500px">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Bootstrap core JavaScript -->
+    <!-- Bootstrap core JavaScript-->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- SB Admin 2 JS-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
-<script>
-    function mostrarModalCambioEstado(cedula, estadoActual) {
-        // Obtener elementos del modal
-        var mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
-        var formularioConfirmacion = document.getElementById('formularioConfirmacion');
-        var inputCedula = document.getElementById('inputCedula');
-        var inputEstado = document.getElementById('inputEstado');
-
-        // Configurar el mensaje del modal
-        if (estadoActual == 'A') {
-            mensajeConfirmacion.textContent =
-                "¿Está seguro de que desea cambiar el estado del administrador con cédula " + cedula + " a inactivo?";
-            inputEstado.value = 'I'; // Cambiar a inactivo
+    <!-- Script para mostrar modal de confirmación -->
+    <script>
+    function mostrarModalCambioEstado(cedula, estado) {
+        var mensaje = '';
+        if (estado === 'A') {
+            mensaje = '¿Está seguro que desea eliminar este usuario?';
         } else {
-            mensajeConfirmacion.textContent =
-                "¿Está seguro de que desea cambiar el estado del administrador con cédula " + cedula + " a activo?";
-            inputEstado.value = 'A'; // Cambiar a activo
+            mensaje = '¿Está seguro que desea activar este usuario?';
         }
-
-        // Configurar los valores de los campos del formulario
-        inputCedula.value = cedula;
-
-        // Mostrar el modal
+        $('#mensajeConfirmacion').text(mensaje);
+        $('#inputCedula').val(cedula);
+        $('#inputEstado').val(estado);
         $('#modalConfirmacion').modal('show');
     }
-</script>
+    </script>
 
 </body>
 
 </html>
+
+<?php
+// Liberar resultado
+mysqli_free_result($resultado);
+
+// Cerrar conexión
+$conn->close();
+?>

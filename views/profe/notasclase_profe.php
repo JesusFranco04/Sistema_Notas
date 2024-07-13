@@ -209,12 +209,13 @@
                 </ul>
             </li>
         </ul>
-        <div class="session-info">
+            <!--      <div class="session-info">
             <img src="http://localhost/sistema_notas/imagenes/agenda.png" alt="Usuario">
             <span>Nombre Completo del Usuario</span>
             <button>Cerrar Sesión</button>
         </div>
-    </nav>
+    </nav>      
+-->
     <main>
         <section class="student-list">
             <h2>Consulta por Clase - Notas de Estudiantes</h2>

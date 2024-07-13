@@ -174,16 +174,17 @@
                 </ul>
             </li>
         </ul>
-        <div class="session-info">
-            <!-- Información de sesión del usuario -->
+             <!--     
+ <div class="session-info">
+            Información de sesión del usuario 
             <img src="http://localhost/sistema_notas/imagenes/agenda.png" alt="Usuario">
-            <!-- Imagen del usuario -->
+            
             <span>Nombre Completo del Usuario</span>
-            <!-- Nombre del usuario -->
+           
             <button>Cerrar Sesión</button>
-            <!-- Botón para cerrar sesión -->
+            
         </div>
-    </nav>
+    </nav>-->
     <section style="padding: 40px; text-align: center;">
         <!-- Sección principal con contenido centrado -->
         <h2>¡Bienvenido!</h2>

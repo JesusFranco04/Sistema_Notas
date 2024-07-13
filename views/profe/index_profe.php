@@ -449,21 +449,20 @@
                     </ul>
                 </li>
             </ul>
-        <div class="session-info">
-            <img src="http://localhost/sistema_notas/imagenes/media/{{$_SESSION['archivo']}}" alt="Imagen de perfil">
-            <span>{{Nombre del Profesor}}</span>
-            <button onclick="window.location.href='http://localhost/sistema_notas/login.php">Cerrar Sesión</button>
-        </div>
+            <div class="session-info">
+                <span>{{Nombre del Profesor}}</span>
+                <button onclick="window.location.href='http://localhost/sistema_notas/login.php">Cerrar Sesión</button>
+            </div>
         </nav>
 
         <!-- Banner con imágenes -->
         <div class="banner">
-        <div class="banner-images">
-            <img class="active" src="http://localhost/sistema_notas/imagenes/banners1.png" alt="Imagen 1">
-            <img src="http://localhost/sistema_notas/imagenes/banners2.png" alt="Imagen 2">
-            <img src="http://localhost/sistema_notas/imagenes/banners3.png" alt="Imagen 3">
-            <div class="banner-text">SISTEMA DE GESTIÓN - UEBF</div>
-        </div>
+            <div class="banner-images">
+                <img class="active" src="http://localhost/sistema_notas/imagenes/banners1.png" alt="Imagen 1">
+                <img src="http://localhost/sistema_notas/imagenes/banners2.png" alt="Imagen 2">
+                <img src="http://localhost/sistema_notas/imagenes/banners3.png" alt="Imagen 3">
+                <div class="banner-text">SISTEMA DE GESTIÓN - UEBF</div>
+            </div>
         </div>
 
         <!-- Sección de Historia del Colegio -->
@@ -570,28 +569,29 @@
                 <p class="cargo">Psicólogo/a Pedagógico/a</p>
             </div>
 
-        <!-- Pie de página -->
-        <footer>
-            <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
-                Todos los derechos reservados.</p>
-        </footer>
+            <!-- Pie de página -->
+            <footer>
+                <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
+                    Zambrano.
+                    Todos los derechos reservados.</p>
+            </footer>
 
-        <!-- Script para tabs -->
-        <script>
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
+            <!-- Script para tabs -->
+            <script>
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tab-button");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
             }
-            tablinks = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }
-        </script>
+            </script>
     </body>
 
     </html>

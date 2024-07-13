@@ -1,235 +1,343 @@
+<?php
+include('Crud/config.php');
+
+// Definición de claves de superusuario
+define('SUPER_USER_KEY', '0954352185');
+define('SUPER_USER_PASSWORD', 'admin340');
+
+$error_message = ''; // Inicializa la variable de mensaje de error
+
+// Verificar si se está enviando el formulario por método POST
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $cedula = $_POST['cedula'];
+    $contraseña = $_POST['contraseña'];
+
+    // Validación de superusuario
+    if ($cedula === SUPER_USER_KEY && $contraseña === SUPER_USER_PASSWORD) {
+        // Iniciar sesión para el superusuario
+        session_start();
+        $_SESSION['cedula'] = $cedula;
+        $_SESSION['rol'] = 'Superusuario';
+        // Redirigir al panel de administración
+        header('Location: http://localhost/sistema_notas/views/admin/index_admin.php');
+        exit;
+    }
+    
+    // Consultar en la base de datos para usuario normal
+    $query = "SELECT id_usuario, cedula, contraseña, id_rol FROM usuario WHERE cedula = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $cedula);
+    $stmt->execute();
+    $stmt->bind_result($id_usuario, $cedula_db, $contraseña_db, $id_rol, );
+    $stmt->fetch();
+    
+    // Si se encuentra la cédula en la base de datos
+    if ($cedula_db) {
+        // Validar la contraseña ingresada
+        if (password_verify($contraseña, $contraseña_db)) {
+            // Iniciar sesión para el usuario
+            session_start();
+            $_SESSION['id_usuario'] = $id_usuario;
+            $_SESSION['cedula'] = $cedula_db;
+            $_SESSION['rol'] = $id_rol;
+            // Redirigir según el rol del usuario
+            switch ($id_rol) {
+                case 1:
+                    header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
+                    break;
+                case 2:
+                    header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
+                    break;
+                case 3:
+                    header("Location: http://localhost/sistema_notas/views/family/index_family.php");
+                    break;
+                default:
+                    header("Location: http://localhost/sistema_notas/login.php");
+                    break;
+            }
+            exit;
+        } else {
+            // Mensaje de error si la contraseña no coincide
+            $error_message = '<i class="bi bi-exclamation-triangle"></i> La contraseña ingresada es incorrecta.';
+        }
+    } else {
+        // Mensaje de error si no se encuentra un usuario con la cédula proporcionada
+        $error_message = '<i class="bi bi-exclamation-triangle"></i> No se encontró un usuario con la cédula proporcionada.';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
-    <!-- Configura la vista para que sea responsiva en dispositivos móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Título de la página -->
     <title>INICIAR SESIÓN | SISTEMA DE GESTIÓN UEBF</title>
-    <!-- Favicon de la página -->
-    <link rel="shortcut icon" href="imagenes/logo.png" type="image/x-icon">
-    <!-- Fuente de Google para los textos -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
-    <!-- Hoja de estilos principal del proyecto -->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- Iconos de boxicons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/boxicons/2.0.7/css/boxicons.min.css">
-    <!-- Estilos internos de la página -->
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="../Sistema_Notas/css/estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        /* Estilos generales del cuerpo */
-        body {
-            font-family: 'Nunito', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #8B0000, #FF6347);
-            color: #fff;
-        }
+    /* Estilos generales del cuerpo */
+    body {
+        font-family: 'Nunito', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #8B0000, #FF6347);
+        color: #fff;
+    }
 
-        /* Estilos del contenedor de login */
-        .login-container {
-            display: flex;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            width: 900px;
-            max-width: 100%;
-            margin: 20px;
-        }
+    .alert-danger {
+        display: <?php echo (!empty($error_message)) ? 'block' : 'none'; ?>;
+        /* Mostrar mensaje de error si existe */
+    }
 
-        /* Estilos de la imagen del login */
-        .login-image {
-            flex: 1;
-            background: url('imagenes/profesor.png') no-repeat center center;
-            background-size: cover;
-        }
+    /* Estilo para el contenedor principal del formulario de inicio de sesión */
+    .login-container {
+        display: flex;
+        /* Permite al contenedor y sus hijos alinearse en una fila */
+        background: #fff;
+        /* Fondo blanco para el contenedor */
+        border-radius: 15px;
+        /* Bordes redondeados */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        /* Sombra para dar profundidad */
+        overflow: hidden;
+        /* Oculta el desbordamiento del contenido */
+        width: 900px;
+        /* Ancho fijo para el contenedor */
+        max-width: 100%;
+        /* Asegura que el contenedor no exceda el ancho de la pantalla */
+        margin: 20px;
+        /* Espacio alrededor del contenedor */
+    }
 
-        /* Estilos del formulario de login */
-        .login-form {
-            flex: 1;
-            padding: 40px;
-            text-align: center;
-            color: #8B0000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    /* Estilo para la sección de la imagen en el contenedor de inicio de sesión */
+    .login-image {
+        flex: 1;
+        /* Ocupa la mitad del contenedor */
+        background: url('/Sistema_Notas/imagenes/profesor.png') no-repeat center center;
+        /* Imagen de fondo centrada */
+        background-size: cover;
+        /* Escala la imagen para cubrir todo el área */
+    }
 
-        /* Estilos del título del formulario */
-        .login-form h1 {
-            margin: 0 0 10px;
-            font-size: 24px;
-            color: #961717;
-        }
+    /* Estilo para el formulario de inicio de sesión */
+    .login-form {
+        flex: 1;
+        /* Ocupa la otra mitad del contenedor */
+        padding: 40px;
+        /* Espaciado interno */
+        text-align: center;
+        /* Centra el texto */
+        color: #8B0000;
+        /* Color del texto */
+        display: flex;
+        /* Flexbox para el contenedor del formulario */
+        flex-direction: column;
+        /* Alinea los elementos en columna */
+        justify-content: center;
+        /* Centra los elementos verticalmente */
+    }
 
-        /* Estilos del párrafo de instrucciones */
-        .login-form p {
-            margin: 0 0 20px;
-            font-size: 14px;
-            color: #6b7280;
-        }
+    /* Estilo para el encabezado (h1) en el formulario de inicio de sesión */
+    .login-form h1 {
+        margin: 0 0 10px;
+        /* Margen inferior para espacio con el siguiente elemento */
+        font-size: 24px;
+        /* Tamaño de fuente */
+        color: #961717;
+        /* Color del texto */
+    }
 
-        /* Estilos del grupo de entrada */
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-            position: relative;
-        }
+    /* Estilo para el párrafo (p) en el formulario de inicio de sesión */
+    .login-form p {
+        margin: 0 0 20px;
+        /* Margen inferior para espacio con el siguiente elemento */
+        font-size: 14px;
+        /* Tamaño de fuente */
+        color: #6b7280;
+        /* Color del texto */
+    }
 
-        /* Estilos de las etiquetas */
-        .input-group label {
-            display: block;
-            font-size: 14px;
-            color: #525252;
-            margin-bottom: 5px;
-        }
+    /* Estilo para los grupos de entrada */
+    .input-group {
+        margin-bottom: 20px;
+        /* Espacio inferior entre grupos de entrada */
+        text-align: left;
+        /* Alinea el texto a la izquierda */
+    }
 
-        /* Estilos de los campos de entrada */
-        .input-group input {
-            width: calc(100% - 30px);
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            background: #f9f9f9;
-            transition: border 0.3s ease;
-            box-sizing: border-box;
-        }
+    /* Estilo para las etiquetas (label) dentro de los grupos de entrada */
+    .input-group label {
+        display: block;
+        /* Hace que la etiqueta ocupe toda la línea */
+        font-size: 14px;
+        /* Tamaño de fuente */
+        color: #525252;
+        /* Color del texto */
+        margin-bottom: 5px;
+        /* Espacio inferior entre la etiqueta y el campo de entrada */
+    }
 
-        /* Estilos del botón para mostrar/ocultar contraseña */
-        .input-group .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #ccc;
-        }
+    /* Estilo para los campos de entrada */
+    .input-group input {
+        width: 100%;
+        /* Ancho completo del contenedor */
+        padding: 12px;
+        /* Espaciado interno */
+        border: 1px solid #ddd;
+        /* Borde gris claro */
+        border-radius: 5px;
+        /* Bordes redondeados */
+        font-size: 14px;
+        /* Tamaño de fuente */
+        background: #f9f9f9;
+        /* Fondo gris claro */
+        transition: border 0.3s ease;
+        /* Transición suave para el borde */
+        box-sizing: border-box;
+        /* Incluye el borde y el padding en el tamaño total */
+    }
 
-        /* Cambia el color del botón de mostrar/ocultar contraseña al pasar el cursor */
-        .input-group .toggle-password:hover {
-            color: #8B0000;
-        }
+    /* Estilo para el texto de ayuda (small) en los grupos de entrada */
+    .input-group small {
+        display: block;
+        /* Hace que el texto de ayuda ocupe toda la línea */
+        font-size: 12px;
+        /* Tamaño de fuente */
+        color: #6b7280;
+        /* Color del texto */
+        margin-top: 5px;
+        /* Espacio superior entre el campo de entrada y el texto de ayuda */
+        cursor: pointer;
+        /* Muestra el cursor de puntero al pasar sobre el texto */
+    }
 
-        /* Estilos del contenedor del botón */
-        .button-container {
-            display: flex;
-            justify-content: center;
-        }
+    /* Estilo para el contenedor del botón */
+    .button-container {
+        display: flex;
+        /* Flexbox para el contenedor del botón */
+        justify-content: center;
+        /* Centra el botón horizontalmente */
+    }
 
-        /* Estilos del botón de enviar */
-        button {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px;
-            background: #B22222;
-            border: none;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 20px;
-        }
+    /* Estilo para el botón de inicio de sesión */
+    button {
+        width: 100%;
+        /* Ancho completo del contenedor del botón */
+        max-width: 300px;
+        /* Ancho máximo del botón */
+        padding: 12px;
+        /* Espaciado interno */
+        background: #B22222;
+        /* Color de fondo */
+        border: none;
+        /* Sin borde */
+        border-radius: 5px;
+        /* Bordes redondeados */
+        color: #fff;
+        /* Color del texto */
+        font-size: 16px;
+        /* Tamaño de fuente */
+        cursor: pointer;
+        /* Muestra el cursor de puntero */
+        transition: background 0.3s ease;
+        /* Transición suave para el fondo */
+        margin-top: 20px;
+        /* Espacio superior entre el formulario y el botón */
+    }
 
-        /* Cambia el color de fondo del botón al pasar el cursor */
-        button:hover {
-            background: #8B0000;
-        }
+    /* Estilo para el botón de inicio de sesión cuando el usuario pasa el cursor sobre él */
+    button:hover {
+        background: #8B0000;
+        /* Color de fondo más oscuro */
+    }
 
-        /* Estilos del mensaje de error */
-        .error-message {
-            color: #FF6347;
-            font-size: 14px;
-            display: none;
-        }
+    /* Estilo para el mensaje de error */
+    .error-message {
+        color: #FF6347;
+        /* Color del texto */
+        font-size: 14px;
+        /* Tamaño de fuente */
+        display: none;
+        /* Oculta el mensaje por defecto */
+    }
     </style>
 </head>
 
 <body>
-    <!-- Contenedor principal del login -->
     <div class="login-container">
-        <!-- Imagen de la parte izquierda del contenedor -->
         <div class="login-image"></div>
-        <!-- Formulario de la parte derecha del contenedor -->
         <div class="login-form">
-            <!-- Título del formulario -->
             <h1>Iniciar Sesión</h1>
-            <!-- Instrucciones para el usuario -->
             <p>Por favor, introduzca sus credenciales para acceder al sistema</p>
-            <!-- Formulario de login -->
-            <form id="loginForm" class="user" action="../Sistema_Notas/Crud/lg_admin.php" method="post" onsubmit="return validateForm()">
-                <!-- Grupo de entrada para la cédula -->
+
+            <!-- Mostrar mensaje de error si existe -->
+            <?php if (!empty($error_message)) : ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $error_message; ?>
+            </div>
+            <?php endif; ?>
+
+            <form id="loginForm" class="user" action="login.php" method="post" onsubmit="return validateForm()">
                 <div class="input-group">
                     <label for="cedula">Cédula</label>
-                    <input type="text" id="cedula" name="cedula" required placeholder="Ingrese el número de identificación" maxlength="10" pattern="[0-9]{10}" title="Por favor, ingrese 10 números">
+                    <input type="text" id="cedula" name="cedula" required
+                        placeholder="Ingrese el número de identificación" maxlength="10" pattern="[0-9]{10}"
+                        title="Por favor, ingrese 10 números">
                 </div>
-                <!-- Grupo de entrada para la contraseña -->
                 <div class="input-group">
                     <label for="contraseña">Contraseña</label>
-                    <input type="password" id="contraseña" name="contraseña" required placeholder="Introduzca la contraseña" maxlength="20" pattern="[A-Za-z0-9]*" title="La contraseña debe contener solamente letras y números">
-                    <!-- Botón para mostrar/ocultar la contraseña -->
-                    <span class="toggle-password" onclick="togglePassword()">
-                        <i class='bx bxs-show'></i>
-                    </span>
+                    <input type="password" id="contraseña" name="contraseña" required
+                        placeholder="Introduzca la contraseña" maxlength="8" pattern="[A-Za-z0-9]*"
+                        title="La contraseña debe contener solamente letras y números">
+                    <small id="passwordHelp" class="form-text text-muted" ondblclick="mostrarContrasena()">
+                        Haga doble clic para mostrar/ocultar la contraseña.
+                    </small>
                 </div>
-                <!-- Contenedor del botón de enviar -->
                 <div class="button-container">
                     <button type="submit">Iniciar Sesión</button>
                 </div>
-                <!-- Mensaje de error -->
-                <p class="error-message" id="errorMessage"></p>
             </form>
         </div>
     </div>
 
-    <!-- Scripts para validar y mostrar/ocultar la contraseña -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Función para validar el formulario antes de enviarlo
-        function validateForm() {
-            const cedula = document.getElementById('cedula').value;
-            const contraseña = document.getElementById('contraseña').value;
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Verifica que la cédula tenga 10 dígitos
-            if (cedula.length !== 10) {
-                errorMessage.textContent = 'La cédula debe tener 10 dígitos.';
-                errorMessage.style.display = 'block';
-                return false;
-            }
-
-            // Verifica que la contraseña solo contenga letras y números
-            if (!/^[A-Za-z0-9]*$/.test(contraseña)) {
-                errorMessage.textContent = 'La contraseña debe contener solamente letras y números.';
-                errorMessage.style.display = 'block';
-                return false;
-            }
-
-            // Si todo está correcto, oculta el mensaje de error y permite el envío del formulario
-            errorMessage.style.display = 'none';
-            return true;
+    // Función para validar el formulario de inicio de sesión
+    function validateForm() {
+        const cedula = document.getElementById('cedula').value;
+        const contraseña = document.getElementById('contraseña').value;
+        const errorMessage = document.getElementById('errorMessage');
+        if (cedula.length !== 10) {
+            errorMessage.textContent = 'La cédula debe tener 10 dígitos.';
+            errorMessage.style.display = 'block';
+            return false;
         }
-
-        // Función para mostrar/ocultar la contraseña
-        function togglePassword() {
-            const passwordInput = document.getElementById('contraseña');
-            const togglePasswordIcon = document.querySelector('.toggle-password i');
-
-            // Cambia el tipo de input entre 'password' y 'text'
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                togglePasswordIcon.classList.remove('bxs-show');
-                togglePasswordIcon.classList.add('bxs-hide');
-            } else {
-                passwordInput.type = 'password';
-                togglePasswordIcon.classList.remove('bxs-hide');
-                togglePasswordIcon.classList.add('bxs-show');
-            }
+        if (!/^[A-Za-z0-9]*$/.test(contraseña)) {
+            errorMessage.textContent = 'La contraseña debe contener solamente letras y números.';
+            errorMessage.style.display = 'block';
+            return false;
         }
+        errorMessage.style.display = 'none';
+        return true;
+    }
+
+    // Función para mostrar u ocultar la contraseña
+    function mostrarContrasena() {
+        var contraseña = document.getElementById("contraseña");
+        if (contraseña.type === "password") {
+            contraseña.type = "text";
+        } else {
+            contraseña.type = "password";
+        }
+    }
     </script>
 </body>
 

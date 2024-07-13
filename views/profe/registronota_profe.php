@@ -285,13 +285,12 @@
                 </ul>
             </li>
         </ul>
-        <div class="session-info">
-            <img src="http://localhost/sistema_notas/imagenes/media/{{$_SESSION['archivo']}}" alt="Imagen de perfil">
+            <!--       <div class="session-info">
             <span>Nombre del Profesor</span>
             <button onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar Sesión</button>
         </div>
     </nav>
-
+-->
     <div class="container">
         <h1>Registro de Calificaciones</h1>
 

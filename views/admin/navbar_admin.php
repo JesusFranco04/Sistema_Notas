@@ -56,6 +56,11 @@
                     <!-- Sección de Usuarios Registrados -->
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/views/admin/usuario.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Usuario
+                        </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
                             <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
                             Administrador
@@ -80,12 +85,12 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Agregar Usuarios</h6>
                         <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/administrador/agregar_admin.php">
+                            href="http://localhost/sistema_notas/Crud/admin/administrador/agregar_admin.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Administrador
                         </a>
                         <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/profesores/agregar_profe.php">
+                            href="http://localhost/sistema_notas/Crud/admin/usuario/agregar_usuario.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Profesor
                         </a>
@@ -94,8 +99,7 @@
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Estudiante
                         </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/padres/agregar_padres.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/Crud/padres/agregar_padres.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
                             Agregar Padre
                         </a>
@@ -134,7 +138,7 @@
                     </div>
                     <div class="submenu-section">
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/nivel_admin.php">
-                         Niveles
+                            Niveles
                         </a>
                     </div>
                     <!-- Subsección de Materias -->
@@ -158,19 +162,7 @@
                 </div>
             </div>
         </li>
-        <!-- Divisor -->
-        <hr class="sidebar-divider">
-        <!-- Encabezado - Actividades -->
-        <div class="sidebar-heading">
-            Actividades
-        </div>
-        <!-- Elemento de Navegación - Solicitudes -->
-        <li class="nav-item">
-            <a class="nav-link" href="http://localhost/sistema_notas/views/admin/solicitud_admin.php">
-                <i class='bx bxs-comment-detail' style="font-size: 13px;"></i>
-                <span class="nav-text">Solicitudes</span>
-            </a>
-        </li>
+
         <!-- Divisor -->
         <hr class="sidebar-divider d-none d-md-block">
         <!-- Activador de la Barra Lateral (Barra Lateral) -->
@@ -178,66 +170,81 @@
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
         </div>
     </ul>
+    <!-- Fin de la Barra Lateral -->
 
+    <!-- Contenido de la Página -->
     <div id="content-wrapper" class="d-flex flex-column">
 
         <!-- Contenido Principal -->
         <div id="content">
 
-            <!-- Barra Superior -->
+            <!-- Barra de Navegación Superior -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-                <!-- Activador de la Barra Lateral (Barra Superior) -->
+                <!-- Barra de Navegación - Alternador de la Barra Lateral (Barra Superior) -->
                 <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                     <i class="fa fa-bars"></i>
                 </button>
 
-                <!-- Barra de Navegación Superior -->
+
+                <!-- Menú de la Barra de Navegación - Contenido (Barra Superior) -->
                 <ul class="navbar-nav ml-auto">
-                    <!-- Información del Usuario -->
+
+                    <!-- Ítem de la Barra de Navegación - Enlace de Uso Libre (Barra Superior) -->
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                <?= $_SESSION["nombres"] . ' - ' . $_SESSION['apellidos'] . ' - ' . $_SESSION['rol'] ?>
+                                <?php echo $_SESSION['rol']; ?> - <?php echo $_SESSION['cedula']; ?>
                             </span>
                         </a>
 
-                        <!-- Dropdown - Información del Usuario -->
+                        <!-- Menú desplegable - Contenido (Barra Superior) -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                            <a class="dropdown-item"
+                                href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
+                                <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;"></i>
                                 Perfil
                             </a>
+
                             <div class="dropdown-divider"></div>
+
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;"></i>
                                 Cerrar Sesión
                             </a>
                         </div>
-                        <!-- Logout Modal-->
-                        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
-                            aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Confirmar cierre de sesión</h5>
-                                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">Haz clic en "Cerrar Sesión" si deseas finalizar tu sesión
-                                        actual.</div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-secondary" type="button"
-                                            data-dismiss="modal">Cancelar</button>
-                                        <a class="btn btn-primary"
-                                            href="http://localhost/sistema_notas/login.php">Cerrar Sesión</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
+
                     </li>
+                    <!-- Fin del Ítem de la Barra de Navegación - Enlace de Uso Libre (Barra Superior) -->
+
                 </ul>
+                <!-- Fin del Menú de la Barra de Navegación - Contenido (Barra Superior) -->
+
             </nav>
+            <!-- Fin del Encabezado de la Barra de Navegación - Inicio de Sesión (Barra Superior) -->
+
+            <!-- Logout Modal -->
+            <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Confirmar cierre de sesión</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas cerrar tu sesión actual? Haz clic en "Cerrar Sesión" para confirmar.
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Fin del Logout Modal -->
