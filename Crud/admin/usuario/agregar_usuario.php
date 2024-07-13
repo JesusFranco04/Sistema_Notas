@@ -219,7 +219,7 @@ if (isset($conn)) {
             </div>
             <div class="card-body">
                 <!-- Formulario de Registro -->
-                <form action="http://localhost/sistema_notas/Crud/guardar_usuario.php" method="POST"
+                <form action=" " method="POST"
                     onsubmit="return validarFormulario()">
                     <div class="mb-3">
                         <label for="cedula" class="form-label required"><i class='bx bx-id-card'></i> Cédula:</label>

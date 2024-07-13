@@ -360,7 +360,7 @@ if (isset($conn)) {
                 <h5 class="card-title">Formulario de Registro del Periodo Académico</h5>
             </div>
             <div class="card-body">
-                <form action="http://localhost/sistema_notas/Crud/guarda_periodo.php" method="POST"
+                <form action=" " method="POST"
                     onsubmit="return validarFormulario()">
                     <div class="mb-3">
                         <label for="nombre" class="form-label required"><i class='bx bx-id-card'></i> Nombre:</label>

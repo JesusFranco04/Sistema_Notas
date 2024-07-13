@@ -356,7 +356,7 @@ if (isset($conn)) {
                 <h5 class="card-title">Formulario de Registro de Paralelo</h5>
             </div>
             <div class="card-body">
-                <form action="http://localhost/sistema_notas/Crud/guardar_paralelo.php" method="POST"
+                <form action=" " method="POST"
                     onsubmit="return validarFormulario()">
                     <div class="mb-3">
                         <label for="nombre" class="form-label required"><i class='bx bx-id-card'></i> Nombre:</label>
