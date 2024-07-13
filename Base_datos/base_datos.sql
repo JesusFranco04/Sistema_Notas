@@ -198,22 +198,6 @@ CREATE TABLE curso ( -- En esta tabla se guardara los datos de la siguiente mane
     FOREIGN KEY (id_especialidad) REFERENCES especialidad(id_especialidad)
 );
 
-CREATE TABLE asignacion_profesor ( -- Asignación de Profesores a Cursos
-    id_asig_profesor INT AUTO_INCREMENT PRIMARY KEY,
-    id_profesor INT NOT NULL,
-    id_curso INT NOT NULL,
-    id_materia INT NOT NULL,
-    id_jornada INT NOT NULL,
-    id_his_academico INT NOT NULL,
-	estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    FOREIGN KEY (id_profesor) REFERENCES profesor(id_profesor),
-    FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
-    FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
-    FOREIGN KEY (id_jornada) REFERENCES jornada(id_jornada),
-    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
-);
 
 CREATE TABLE asignacion_estudiante ( -- Asignación de Estudiantes a Cursos
     id_asig_estudiante INT AUTO_INCREMENT PRIMARY KEY,
@@ -254,7 +238,7 @@ CREATE TABLE Tipos_Evaluacion (
 );
 
 -- Tabla Evaluaciones
-CREATE TABLE Evaluaciones (
+CREATE TABLE Evaluacion (
     id_evaluacion INT AUTO_INCREMENT PRIMARY KEY,
     id_materia INT,
     id_examen INT,
@@ -288,7 +272,7 @@ CREATE TABLE Evalu_Estudiantes (
     FOREIGN KEY (id_materia) REFERENCES Materia(id_materia),
     FOREIGN KEY (id_jornada) REFERENCES Jornada(id_jornada),
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico),
-    FOREIGN KEY (id_evaluacion) REFERENCES Evaluaciones(id_evaluacion),
+    FOREIGN KEY (id_evaluacion) REFERENCES Evaluacion(id_evaluacion),
     INDEX idx_estado (estado)
 );
 
