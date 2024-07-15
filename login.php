@@ -22,50 +22,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: http://localhost/sistema_notas/views/admin/index_admin.php');
         exit;
     }
-    
-    // Consultar en la base de datos para usuario normal
-    $query = "SELECT id_usuario, cedula, contraseña, id_rol FROM usuario WHERE cedula = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $cedula);
+
+    // Validación de usuarios regulares
+    require 'Crud/config.php';
+
+    // Validación de usuarios regulares
+    $sql = "SELECT id_usuario, cedula, contraseña, id_rol FROM usuario WHERE cedula = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $cedula);
     $stmt->execute();
-    $stmt->bind_result($id_usuario, $cedula_db, $contraseña_db, $id_rol, );
-    $stmt->fetch();
-    
-    // Si se encuentra la cédula en la base de datos
-    if ($cedula_db) {
-        // Validar la contraseña ingresada
-        if (password_verify($contraseña, $contraseña_db)) {
-            // Iniciar sesión para el usuario
-            session_start();
-            $_SESSION['id_usuario'] = $id_usuario;
-            $_SESSION['cedula'] = $cedula_db;
-            $_SESSION['rol'] = $id_rol;
-            // Redirigir según el rol del usuario
-            switch ($id_rol) {
-                case 1:
-                    header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
-                    break;
-                case 2:
-                    header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
-                    break;
-                case 3:
-                    header("Location: http://localhost/sistema_notas/views/family/index_family.php");
-                    break;
-                default:
-                    header("Location: http://localhost/sistema_notas/login.php");
-                    break;
-            }
-            exit;
-        } else {
-            // Mensaje de error si la contraseña no coincide
-            $error_message = '<i class="bi bi-exclamation-triangle"></i> La contraseña ingresada es incorrecta.';
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user && $contraseña === $user['contraseña']) {
+        session_start();
+        $_SESSION['cedula'] = $user['cedula'];
+        $_SESSION['id_rol'] = $user['id_rol'];
+        switch ($user['id_rol']) {
+            case 1:
+                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
+                break;
+            case 2:
+                header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
+                break;
+            case 3:
+                header("Location: http://localhost/sistema_notas/views/family/index_family.php");
+                break;
+            default:
+                header("Location: http://localhost/sistema_notas/login.php");
+                break;
         }
+        exit();
     } else {
-        // Mensaje de error si no se encuentra un usuario con la cédula proporcionada
-        $error_message = '<i class="bi bi-exclamation-triangle"></i> No se encontró un usuario con la cédula proporcionada.';
+        $error_message = "Cédula o contraseña incorrecta";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -75,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INICIAR SESIÓN | SISTEMA DE GESTIÓN UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="../Sistema_Notas/css/estilos.css">
+    <link rel="stylesheet" href="css/estilos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -93,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     .alert-danger {
-        display: <?php echo (!empty($error_message)) ? 'block' : 'none'; ?>;
+        display: <?php echo ( !empty($error_message)) ? 'block': 'none';
+        ?>;
         /* Mostrar mensaje de error si existe */
     }
 

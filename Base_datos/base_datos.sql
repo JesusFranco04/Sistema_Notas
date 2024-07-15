@@ -23,17 +23,15 @@ VALUES ('Padre', 'A', '0954352185', NOW());
 
 CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    cedula VARCHAR(10) NOT NULL,
-    contraseña VARCHAR(255) NOT NULL, -- Debe ser lo suficientemente larga para almacenar el hash encriptado
+    cedula VARCHAR(10) NOT NULL UNIQUE,
+    contraseña VARCHAR(255) NOT NULL,
     id_rol INT NOT NULL,
-    estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que inicia sesión
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora que inicia sesión ese usuario
-    UNIQUE KEY (cedula),
-    FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
-    CHECK (CHAR_LENGTH(cedula) = 10)
+    estado CHAR(1) NOT NULL,
+    usuario_ingreso VARCHAR(50) NOT NULL,
+    fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
 );
-ALTER TABLE usuario ADD INDEX (usuario_ingreso);
+
 
 
 CREATE TABLE nivel ( -- En esta tabla se guardara los datos por ejemplo: A, B, C, D,... 
@@ -101,87 +99,73 @@ CREATE TABLE historial_academico ( -- En esta tabla se guardara los datos de los
     fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- Fecha y hora de registro
 );
 
-CREATE TABLE administrador ( -- En esta tabla se guardara los datos de los administradores 
+CREATE TABLE administrador (
     id_administrador INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
-    cedula VARCHAR(10) NULL,
-    telefono VARCHAR(10)NOT NULL,
+    cedula VARCHAR(10) NOT NULL UNIQUE,
+    telefono VARCHAR(10) NOT NULL,
     correo_electronico VARCHAR(100) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
     discapacidad ENUM('si', 'no') NOT NULL,
-    id_rol INT NULL,
-    estado CHAR(1) DEFAULT 'A',
-    usuario_ingreso VARCHAR(50) NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    UNIQUE KEY (cedula),
-    FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
-    FOREIGN KEY (usuario_ingreso) REFERENCES usuario(usuario_ingreso)
+    id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
-CREATE TABLE profesor ( -- En esta tabla se guardara los datos de los profesores
+
+CREATE TABLE profesor (
     id_profesor INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
-    cedula VARCHAR(10) NULL,
+    cedula VARCHAR(10) NOT NULL UNIQUE,
     telefono VARCHAR(10) NOT NULL,
     correo_electronico VARCHAR(100) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('Femenino', 'Masculino', 'Otros') NOT NULL,
+    genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
     discapacidad ENUM('si', 'no') NOT NULL,
-    id_rol INT NULL,
-    estado CHAR(1) DEFAULT 'A',
-    usuario_ingreso VARCHAR(50) NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    UNIQUE KEY (cedula),
-    FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
-    FOREIGN KEY (usuario_ingreso) REFERENCES usuario(usuario_ingreso)
+    id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
-CREATE TABLE padre ( -- En esta tabla se guardara los datos de padre de familia
+
+
+CREATE TABLE padre (
     id_padre INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
-    cedula VARCHAR(10) NULL,
-    parentesco VARCHAR(50) NOT NULL, -- Tipo de parentezco del padre con el estudiante (madre, padre, tía, tío, abuelo, etc.)
+    cedula VARCHAR(10) NOT NULL UNIQUE,
+    parentesco VARCHAR(50) NOT NULL,
     telefono VARCHAR(10) NOT NULL,
-    correo_electronico VARCHAR(100),
-    direccion VARCHAR(255) NOT NULL NOT NULL,
+    correo_electronico VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('Femenino', 'Masculino', 'Otros') NOT NULL,
+    genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
     discapacidad ENUM('si', 'no') NOT NULL,
-    id_rol INT NULL,
-    estado CHAR(1) DEFAULT 'A',
-    usuario_ingreso VARCHAR(50) NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    UNIQUE KEY (cedula),
-    FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
-    FOREIGN KEY (usuario_ingreso) REFERENCES usuario(usuario_ingreso)
+    id_usuario INT NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
-CREATE TABLE estudiante ( -- En esta tabla se guardara los datos de los estudiantes
+
+CREATE TABLE estudiante (
     id_estudiante INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
-    cedula VARCHAR(10) NOT NULL,
-    telefono VARCHAR(10),
-    correo_electronico VARCHAR(100),
-    direccion VARCHAR(255),
+    cedula VARCHAR(10) NOT NULL UNIQUE,
+    telefono VARCHAR(10) NULL,
+    correo_electronico VARCHAR(100) NULL,
+    direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('Femenino', 'Masculino', 'Otros') NOT NULL,
+    genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
     discapacidad ENUM('si', 'no') NOT NULL,
-    id_padre INT NOT NULL,
-    estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    UNIQUE KEY (cedula),
-    FOREIGN KEY (id_padre) REFERENCES padre(id_padre),
-    INDEX (id_padre), -- Índice para mejorar la velocidad de las consultas relacionadas con padres
-    INDEX (estado) -- Índice para mejorar la velocidad de las consultas según el estado del estudiante
+    estado CHAR(1) NOT NULL DEFAULT 'A',
+    usuario_ingreso VARCHAR(50) NOT NULL,
+    fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
 
 CREATE TABLE curso ( -- En esta tabla se guardara los datos de la siguiente manera: Primer Bachillerato G BTI Electricidad
     id_curso INT AUTO_INCREMENT PRIMARY KEY,

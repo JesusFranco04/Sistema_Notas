@@ -144,7 +144,7 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="http://localhost/sistema_notas/Crud/admin/usuario/agregar_usuario.php"
+                                <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
                                     class="btn btn-primary">Agregar
                                     Usuario</a>
                             </div>

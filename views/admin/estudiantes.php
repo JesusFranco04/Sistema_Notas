@@ -5,27 +5,15 @@ include '../../Crud/config.php';
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
 
-// Obtener los valores de los filtros
-$fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
-$estado = isset($_GET['estado']) ? $_GET['estado'] : '';
-
-// Consulta SQL para obtener los estudiantes con filtros
-$sql = "SELECT * FROM estudiantes WHERE 1=1";
-
-if (!empty($fecha)) {
-    $sql .= " AND DATE(date_creation) = '$fecha'";
-}
-
-if (!empty($estado)) {
-    $sql .= " AND estado = '$estado'";
-}
-
+// Consulta SQL para obtener los profesores
+$sql = "SELECT * FROM estudiante";
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -44,74 +32,78 @@ if (!$resultado) {
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-    <!-- Custom styles for this template-->
+    <!-- Bootstrap core CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SB Admin 2 CSS -->
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-    }
+        /* Estilo para el contenedor de la tabla */
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
 
-    .container-fluid {
-        padding: 20px;
-    }
+        /* Estilo para separar los botones de acciones */
+        .action-buttons .btn {
+            margin-right: 20px;
+        }
 
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
 
-    .card-header {
-        background-color: #c42021;
-        color: white;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
+        .container-fluid {
+            padding: 20px;
+        }
 
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
 
-    .action-buttons .btn {
-        margin-right: 10px;
-    }
+        .card-header {
+            background-color: #c42021; /* Color de fondo rojo */
+            color: white; /* Color del texto */
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 15px; /* Espacio interno alrededor del contenido del encabezado */
+        }
 
-    .table thead th {
-        background-color: #dc3545;
-        color: white;
-        text-align: center;
-    }
+        .table thead th {
+            background-color: #dc3545;
+            color: white;
+            text-align: center;
+        }
 
-    .table tbody td {
-        text-align: center;
-    }
+        .table tbody td {
+            text-align: center;
+        }
 
-    .filter-icon {
-        margin-right: 5px;
-    }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
 
-    .filter-container {
-        margin-bottom: 1rem;
-    }
+        .filter-icon {
+            margin-right: 5px;
+        }
+        
+        .table tbody .btn-action {
+            margin-bottom: 10px;
+            display: inline-block;
+        }
 
-    .pagination .active a {
-        background-color: #c42021 !important;
-        border-color: #c42021 !important;
-    }
 
-    .pagination .disabled a {
-        color: #6c757d !important;
-    }
-
-    /* Estilos para los botones de acción dentro de la tabla */
-    .table tbody .btn-action {
-        margin-bottom: 10px;
-        display: inline-block;
-    }
+        .filter-container {
+            margin-bottom: 1rem;
+        }
 </style>
 </head>
 
@@ -149,8 +141,7 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="../../Crud/estudiantes/agregar_estudiantes.php" class="btn btn-primary">Agregar
-                                    Estudiante</a>
+                                <a href="http://localhost/sistema_notas/Crud/admin/estudiante/agregar_estudiante.php" class="btn btn-primary">Agregar Estudiante</a>
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-info" data-toggle="modal"
@@ -164,7 +155,7 @@ if (!$resultado) {
                 </form>
 
                 <div class="table-responsive table-container">
-                    <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+                    <table class="table table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -177,17 +168,16 @@ if (!$resultado) {
                                 <th>Fecha de Nacimiento</th>
                                 <th>Género</th>
                                 <th>Discapacidad</th>
+                                <th>Estado</th>
+                                <th>Usuario de Ingreso</th>
                                 <th>Fecha de Creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            // Iterar sobre los resultados de la consulta
-                            while ($fila = $resultado->fetch_assoc()) {
-                            ?>
+                            <?php while ($fila = $resultado->fetch_assoc()) { ?>
                             <tr>
-                                <td><?php echo $fila['id']; ?></td>
+                                <td><?php echo $fila['id_estudiante']; ?></td>
                                 <td><?php echo $fila['nombres']; ?></td>
                                 <td><?php echo $fila['apellidos']; ?></td>
                                 <td><?php echo $fila['cedula']; ?></td>
@@ -197,19 +187,18 @@ if (!$resultado) {
                                 <td><?php echo $fila['fecha_nacimiento']; ?></td>
                                 <td><?php echo $fila['genero']; ?></td>
                                 <td><?php echo $fila['discapacidad']; ?></td>
-                                <td><?php echo $fila['date_creation']; ?></td>
+                                <td><?php echo $fila['estado']; ?></td>
+                                <td><?php echo $fila['usuario_ingreso']; ?></td>
+                                <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <!-- Botones de acción -->
-                                    <a href="../../Crud/estudiantes/modificar_estudiantes.php?id=<?php echo $fila['id']; ?>"
-                                        class="btn btn-sm btn-warning btn-action">Modificar</a>
-                                    <a href="../../Crud/estudiantes/eliminar_estudiantes.php?cedula=<?php echo $fila['cedula']; ?>"
+                                    <a href="../../Crud/profesores/editar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
+                                        class="btn btn-warning btn-action">Editar</a>
+                                    <a href="../../Crud/profesores/eliminar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
                                         class="btn btn-danger btn-action"
                                         onclick="return confirm('¿Está seguro de eliminar este registro?');">Eliminar</a>
-                                </td>                               
+                                </td>
                             </tr>
-                            <?php
-                            }
-                            ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
@@ -225,9 +214,29 @@ if (!$resultado) {
     <!-- Page level plugins -->
     <script src="http://localhost/sistema_notas/vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="http://localhost/sistema_notas/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <!-- Page level custom scripts -->
-    <script src="http://localhost/sistema_notas/js/demo/datatables-demo.js"></script>
+    <!-- Script personalizado para la tabla -->
+    <script>
+    $(document).ready(function() {
+        $('#dataTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+            },
+            "order": [
+                [0, "desc"]
+            ]
+        });
 
+        // Filtro por cédula
+        $('#searchCedula').on('keyup', function() {
+            $('#dataTable').DataTable().column(3).search(this.value).draw();
+        });
+
+        // Filtro por fecha de creación
+        $('#searchFecha').on('change', function() {
+            $('#dataTable').DataTable().column(9).search(this.value).draw();
+        });
+    });
+    </script>
 </body>
 
 </html>

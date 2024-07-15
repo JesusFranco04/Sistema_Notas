@@ -56,52 +56,25 @@
                     <!-- Sección de Usuarios Registrados -->
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/usuario.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/usuario.php">
                             <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
-                            Usuario
+                            Usuarios
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
                             <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
-                            Administrador
+                            Administradores
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/profesores.php">
                             <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
                             Profesores
                         </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/vistaestudiante_admin.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/estudiantes.php">
                             <i class='bx bx-user-pin' style="font-size: 18px; margin-right: 10px;"></i>
                             Estudiantes
                         </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/vistaspadres_admin.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/padres.php">
                             <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
-                            Padres
-                        </a>
-                    </div>
-
-                    <!-- Sección de Usuarios por Agregar -->
-                    <div class="submenu-section">
-                        <h6 class="collapse-header">Agregar Usuarios</h6>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/admin/administrador/agregar_admin.php">
-                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
-                            Agregar Administrador
-                        </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/admin/usuario/agregar_usuario.php">
-                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
-                            Agregar Profesor
-                        </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/Crud/estudiantes/agregar_estudiantes.php">
-                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
-                            Agregar Estudiante
-                        </a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/Crud/padres/agregar_padres.php">
-                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
-                            Agregar Padre
+                            Representantes
                         </a>
                     </div>
                 </div>
@@ -125,38 +98,45 @@
                     <!-- Subsección de Calificaciones -->
                     <div class="submenu-section">
                         <h6 class="collapse-header">Coordinación Académica</h6>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/nivel_admin.php">
+                            <i class='bx bx-layer'></i> Niveles
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/subnivel.php">
+                            <i class='bx bx-layer'></i> Subniveles
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/especialidades.php">
+                            <i class='bx bx-book-content'></i> Especialidades
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/materia_admin.php">
+                            <i class='bx bx-book-content'></i> Materias
+                        </a>
                         <a class="collapse-item"
                             href="http://localhost/sistema_notas/views/admin/calificacion_admin.php">
                             <i class='bx bx-file'></i> Calificaciones
                         </a>
                     </div>
-                    <!-- Subsección de Cursos -->
+                    <!-- Sección de Usuarios por Agregar -->
                     <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.php#">
-                            <i class='bx bx-book-alt'></i> Cursos
+                        <h6 class="collapse-header">Agregar Académicos</h6>
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/admin/paralelo/agregar_paralelo.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Agregar Paralelos
                         </a>
-                    </div>
-                    <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/nivel_admin.php">
-                            Niveles
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/admin/jornada/agregar_jornada.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Agregar Jornadas
                         </a>
-                    </div>
-                    <!-- Subsección de Materias -->
-                    <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/materia_admin.php">
-                            <i class='bx bx-book-content'></i> Materias
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/admin/periodo_academico/agregar_periodo.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Agregar Periodos
                         </a>
-                    </div>
-                    <!-- Subsección de Jornadas -->
-                    <div class="submenu-section">
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/jornada_admin.php">
-                            <i class='bx bx-time'></i> Jornadas
-                        </a>
-                    </div>
-                    <!-- Subsección de Período Lectivo -->
-                    <div class="submenu-section">
-                        <a class="collapse-item" href=" ">
-                            <i class='bx bx-calendar'></i> Período Lectivo
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/admin/historial_academico/agregar_historial.php">
+                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            Agregar Historiales
                         </a>
                     </div>
                 </div>
@@ -238,7 +218,8 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            ¿Estás seguro de que deseas cerrar tu sesión actual? Haz clic en "Cerrar Sesión" para confirmar.
+                            ¿Estás seguro de que deseas cerrar tu sesión actual? Haz clic en "Cerrar Sesión" para
+                            confirmar.
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>

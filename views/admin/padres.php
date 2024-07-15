@@ -7,7 +7,7 @@ include('../../Crud/config.php'); // Ruta absoluta
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
 // Consulta SQL para obtener los usuarios
-$sql = "SELECT * FROM especialidad";
+$sql = "SELECT * FROM padre";
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
@@ -24,7 +24,7 @@ if (!$resultado) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Especialidades | Sistema de Gestión UEBF</title>
+    <title>Padres | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
@@ -116,7 +116,7 @@ if (!$resultado) {
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Tabla de Especialidades</h5>
+                <h5 class="mb-0">Tabla de los Representantes</h5>
             </div>
             <div class="card-body">
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
@@ -144,9 +144,9 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="http://localhost/sistema_notas/Crud/admin/especialidad/agregar_especialidad.php"
+                                <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
                                     class="btn btn-primary">Agregar
-                                    Especialidad</a>
+                                    Padres</a>
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-info" data-toggle="modal"
@@ -163,12 +163,18 @@ if (!$resultado) {
                     <table class="table table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <!-- tener que estar igual que la base de datos -->
                                 <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Estado</th>
-                                <th>Usuario de Ingreso</th>
-                                <th>Fecha de Ingreso</th>
+                                <th>Nombres</th>
+                                <th>Apellidos</th>
+                                <th>Cédula</th>
+                                <th>Parentesco</th>
+                                <th>Telefono</th>
+                                <th>Correo Electronico</th>
+                                <th>Dirección</th>
+                                <th>Fecha de Nacimiento</th>
+                                <th>Genero</th>
+                                <th>Discapacidad</th>
+                                <th>ID_Usuario</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -177,19 +183,30 @@ if (!$resultado) {
                             while ($fila = mysqli_fetch_assoc($resultado)) {
                                 ?>
                             <tr>
-                                <td><?php echo $fila['id_especialidad']; ?></td>
-                                <td><?php echo $fila['nombre']; ?></td>
-                                <td><?php echo $fila['estado']; ?></td>
-                                <td><?php echo $fila['usuario_ingreso']; ?></td>
-                                <td><?php echo $fila['fecha_ingreso']; ?></td>
+                                <td><?php echo $fila['id_padre']; ?></td>
+                                <td><?php echo $fila['nombres']; ?></td>
+                                <td><?php echo $fila['apellidos']; ?></td>
+                                <td><?php echo $fila['cedula']; ?></td>
+                                <td><?php echo $fila['parentesco']; ?></td>
+                                <td><?php echo $fila['telefono']; ?></td>
+                                <td><?php echo $fila['correo_electronico']; ?></td>
+                                <td><?php echo $fila['direccion']; ?></td>
+                                <td><?php echo $fila['fecha_nacimiento']; ?></td>
+                                <td><?php echo $fila['genero']; ?></td>
+                                <td><?php echo $fila['discapacidad']; ?></td>
+                                <td><?php echo $fila['id_usuario']; ?></td>
                                 <td>
-                                    <a href="../../Crud/niveles/editar_niveles.php ?id=<?php echo $fila['id_especialidad']; ?>"
-                                        class="btn btn-sm btn-primary">Editar</a>
-                                    <a href="../../Crud/niveles/eliminar_niveles.php ?id=<?php echo $fila['id_especialidad']; ?>"
-                                        class="btn btn-sm btn-danger">Eliminar</a>
+                                    <a href="http://localhost/sistema_notas/Crud/admin/usuario/editar_usuario.php?cedula=<?php echo $fila['id_padre']; ?>"
+                                        class="btn btn-warning btn-action">Editar</a>
+                                    <button type="button" class="btn btn-danger btn-action"
+                                        onclick="mostrarModalCambioEstado('<?php echo $fila['cedula']; ?>', '<?php echo $fila['id_padre']; ?>');">
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php
+                            }
+                            ?>
                         </tbody>
                     </table>
                     <!-- Modal de Confirmación -->
@@ -206,8 +223,7 @@ if (!$resultado) {
                                     <p id="mensajeConfirmacion"></p>
                                 </div>
                                 <div class="modal-footer">
-                                    <form id="formularioConfirmacion" method="POST"
-                                        action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
+                                    <form id="formularioConfirmacion" method="POST" action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
                                         <input type="hidden" id="inputCedula" name="cedula" value="">
                                         <input type="hidden" id="inputEstado" name="estado" value="">
                                         <button type="button" class="btn btn-secondary"
@@ -227,8 +243,7 @@ if (!$resultado) {
                         <div class="modal-dialog modal-xl" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema
-                                        de
+                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema de
                                         Gestión
                                         UEBF</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">

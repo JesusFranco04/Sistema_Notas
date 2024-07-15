@@ -1,9 +1,12 @@
 <?php
 session_start();
 
-// Incluir el archivo de configuraci�n para conectarte a la base de datos
+// Incluir el archivo de configuración para conectarte a la base de datos
 include('../../config.php'); // Ruta absoluta 
 date_default_timezone_set('America/Guayaquil');
+
+$success = "";
+$error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre'];
@@ -11,36 +14,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $usuario_ingreso = $_SESSION['cedula'];
     $fecha_ingreso = date('Y-m-d H:i:s');
 
-    if (!empty($nombre) && !empty($estado)) {
-        $query = "INSERT INTO materia (nombre, estado, usuario_ingreso, fecha_ingreso) 
-                  VALUES (?, ?, ?, ?)";
+    // Validación básica para asegurar que el nombre no esté vacío
+    if (!empty($nombre)) {
+        try {
+            // Verificar si el registro ya existe
+            $query_check = "SELECT COUNT(*) AS count FROM materia WHERE nombre = ?";
+            $stmt_check = $conn->prepare($query_check);
+            
+            if ($stmt_check) {
+                $stmt_check->bind_param("s", $nombre);
+                $stmt_check->execute();
+                $stmt_check->bind_result($count);
+                $stmt_check->fetch();
+                $stmt_check->close();
 
-        $stmt = $conn->prepare($query);
+                if ($count > 0) {
+                    $error = "El nombre de materia '$nombre' ya está registrado. Por favor, ingresa otro nombre.";
+                } else {
+                    // Insertar el nuevo registro si no existe
+                    $query_insert = "INSERT INTO materia (nombre, estado, usuario_ingreso, fecha_ingreso) 
+                                     VALUES (?, ?, ?, ?)";
 
-        if ($stmt) {
-            $stmt->bind_param("ssss", $nombre, $estado, $usuario_ingreso, $fecha_ingreso);
+                    $stmt_insert = $conn->prepare($query_insert);
 
-            if ($stmt->execute()) {
-                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
-                exit;
+                    if ($stmt_insert) {
+                        $stmt_insert->bind_param("ssss", $nombre, $estado, $usuario_ingreso, $fecha_ingreso);
+
+                        if ($stmt_insert->execute()) {
+                            $success = "La materia '$nombre' ha sido creada exitosamente.";
+                        } else {
+                            $error = "Error al crear la materia. Inténtalo nuevamente.";
+                        }
+
+                        $stmt_insert->close();
+                    } else {
+                        $error = "Error en la preparación de la consulta: " . $conn->error;
+                    }
+                }
             } else {
-                echo '<div style="color: red;">Error al crear el nivel. Int�ntalo nuevamente.</div>';
+                $error = "Error en la preparación de la consulta: " . $conn->error;
             }
-
-            $stmt->close();
-        } else {
-            echo '<div style="color: red;">Error en la preparaci�n de la consulta: ' . $conn->error . '</div>';
+        } catch (Exception $e) {
+            $error = "Error: " . $e->getMessage();
         }
     } else {
-        echo '<div style="color: red;">Por favor completa todos los campos requeridos.</div>';
+        $error = "Por favor ingresa un nombre para la materia.";
     }
 }
 
-// Cerrar la conexi�n a la base de datos al finalizar
+// Cerrar la conexión a la base de datos al finalizar
 if (isset($conn)) {
     $conn->close();
 }
 ?>
+
 
 
 
@@ -55,146 +82,80 @@ if (isset($conn)) {
     <meta name="author" content="">
     <title>Registro de Materias | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-        type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <!-- Custom styles for this template-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <!-- Incluye Boxicons para iconos -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.0/css/boxicons.min.css">
-    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <style>
-    .required::after {
-        content: '*';
-        color: red;
-    }
-
+    /* Estilos adicionales */
     body {
-        font-family: Arial, sans-serif;
         background-color: #f8f9fa;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        /* Asegura que el cuerpo ocupe al menos el 100% de la altura del viewport */
+        font-family: Arial, sans-serif;
     }
 
     .container {
         max-width: 800px;
-        margin: auto;
-        /* Auto para centrar horizontalmente */
-        margin-top: 20px;
-        /* Margen superior */
-        margin-bottom: 50px;
-        /* Margen inferior */
-        padding: 10px;
+        margin: 50px auto;
         background-color: #fff;
-        border: 1px solid #ccc;
+        padding: 30px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        flex: 1;
-        /* Para que ocupe el espacio restante verticalmente */
+        box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
     }
 
-    .card-header {
-        background-color: #ef233c;
+    .header-banner {
+        background-color: #c1121f;
         color: #fff;
-        padding: 15px;
-        border-radius: 10px 10px 0 0;
+        text-align: center;
+        padding: 10px 0;
     }
 
-    .card-title {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .form-label {
-        font-weight: bold;
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        background-color: #e71b2a;
+        padding: 10px;
+        border-radius: 10px;
+        color: #fff;
     }
 
     .form-label.required::after {
         content: " *";
-        color: #dc3545;
+        color: red;
+        margin-left: 5px;
     }
 
-    .input-group-append .btn,
-    .btn-primary,
-    .btn-danger {
-        background-color: #007bff;
-        border-color: #007bff;
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .btn-cancelar {
+        background-color: #6c757d;
         color: #fff;
     }
 
-    .input-group-append .btn:hover,
-    .btn-primary:hover,
-    .btn-danger:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
+    .btn-registrar {
+        background-color: #e71b2a;
+        color: #fff;
     }
 
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    input[type="date"],
-    select {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 6px;
+    .form-label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .bx {
+        margin-right: 10px;
+    }
+
+    #button-generate {
+        background-color: #e71b2a;
+        color: #fff;
+        border-color: #e71b2a;
         width: 100%;
-        box-sizing: border-box;
     }
 
-    input[type="radio"] {
-        margin-right: 5px;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    .mt-4 {
-        margin-top: 1.5rem;
-    }
-
-    .mt-5 {
-        margin-top: 3rem;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    .topbar {
-        height: 22px;
+    #button-generate:hover {
         background-color: #c1121f;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-color: #c1121f;
     }
 
     footer {
@@ -209,188 +170,112 @@ if (isset($conn)) {
         margin: 0;
     }
 
-    <style>.required::after {
-        content: '*';
-        color: red;
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        /* Asegura que el cuerpo ocupe al menos el 100% de la altura del viewport */
-    }
-
-    .container {
-        max-width: 800px;
-        margin: auto;
-        /* Auto para centrar horizontalmente */
-        margin-top: 20px;
-        /* Margen superior */
-        margin-bottom: 50px;
-        /* Margen inferior */
+    .error-message,
+    .success-message {
+        margin: 10px 0;
         padding: 10px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        flex: 1;
-        /* Para que ocupe el espacio restante verticalmente */
-    }
-
-    .card-header {
-        background-color: #ef233c;
-        color: #fff;
-        padding: 15px;
-        border-radius: 10px 10px 0 0;
-    }
-
-    .card-title {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .form-label {
-        font-weight: bold;
-    }
-
-    .form-label.required::after {
-        content: " *";
-        color: #dc3545;
-    }
-
-    .input-group-append .btn,
-    .btn-primary,
-    .btn-danger {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: #fff;
-    }
-
-    .input-group-append .btn:hover,
-    .btn-primary:hover,
-    .btn-danger:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    input[type="date"],
-    select {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 6px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    input[type="radio"] {
-        margin-right: 5px;
-    }
-
-    .text-center {
+        border-radius: 5px;
         text-align: center;
     }
 
-    .mt-4 {
-        margin-top: 1.5rem;
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
     }
 
-    .mt-5 {
-        margin-top: 3rem;
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
     }
 
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .row {
+    .button-group {
         display: flex;
-        flex-wrap: wrap;
+        justify-content: flex-end;
+        /* Alineación a la derecha */
+        margin-top: 20px;
+        /* Ajusta según sea necesario */
     }
 
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    .topbar {
-        height: 22px;
-        background-color: #c1121f;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    footer {
-        background-color: #c1121f;
+    .btn-secondary {
+        background-color: #6c757d;
         color: #fff;
-        text-align: center;
-        padding: 20px 0;
-        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+        /* Espacio entre los botones */
     }
 
-    footer p {
-        margin: 0;
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-primary {
+        background-color: #e71b2a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+        /* Espacio entre los botones */
+    }
+
+    .btn-primary:hover {
+        background-color: #c1121f;
     }
     </style>
 </head>
 
 <body>
-    <div class="topbar"></div> <!-- Barra superior vacía -->
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Formulario de Registro de Materia</h5>
-            </div>
-            <div class="card-body">
-                <form action=" " method="POST"
-                    onsubmit="return validarFormulario()">
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label required"><i class='bx bx-id-card'></i> Nombre:</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" maxlength="40" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-check'></i> Estado:</label>
-                        <input type="text" class="form-control" id="estado" name="estado" value="A" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-user'></i> Usuario de Ingreso:</label>
-                        <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
-                            value="<?php echo $_SESSION['cedula']; ?>" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-calendar'></i> Fecha de Ingreso:</label>
-                        <input type="text" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
-                            value="<?php echo date('Y-m-d H:i:s'); ?>" readonly disabled>
-                    </div>
+    <div class="header-banner">
+        <h1>Formulario de Registro de Materias | Sistema de Gestión UEBF</h1>
+    </div>
+    <div class="container">
+        <h2><i class='bx bxs-folder-plus'></i> Registro de Materia</h2>
+        <div class="card-body">
+            <?php
+            // Mostrar mensajes de éxito o error si están presentes
+            if (!empty($error)) {
+                echo '<div class="error-message">' . $error . '</div>';
+            }
+            if (!empty($success)) {
+                echo '<div class="success-message">' . $success . '</div>';
+            }
+            ?>
+            <form action="" method="POST" onsubmit="return validarFormulario()">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label required"><i class='bx bxs-book-bookmark'></i> Nombre:</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                        title="Ingrese solo letras y espacios" maxlength="40" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required"><i class='bx bxs-check-square'></i> Estado:</label>
+                    <input type="text" class="form-control" id="estado" name="estado" value="A" readonly disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required"><i class='bx bxs-user-circle'></i> Usuario de Ingreso:</label>
+                    <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
+                        value="<?php echo $_SESSION['cedula']; ?>" readonly disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required"><i class='bx bxs-calendar'></i> Fecha de Ingreso:</label>
+                    <input type="text" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
+                        value="<?php echo date('Y-m-d H:i:s'); ?>" readonly disabled>
+                </div>
 
-                    <div class="button-group mt-4">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="location.href='http://localhost/sistema_notas/views/admin/index_admin.php';"><i
-                                class='bx bx-arrow-back'></i> Regresar</button>
-                        <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Crear Nivel</button>
-                    </div>
-                </form>
-            </div>
+                <div class="button-group mt-4">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="location.href='http://localhost/sistema_notas/views/admin/materia_admin.php';"><i
+                            class='bx bx-arrow-back'></i> Regresar</button>
+                    <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Crear Materia</button>
+                </div>
+            </form>
         </div>
+    </div>
     </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
@@ -400,12 +285,21 @@ if (isset($conn)) {
 
     <!-- Incluye Bootstrap JS para funcionalidades -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Incluye Boxicons JS para iconos -->
-    <script src="https://cdn.jsdelivr.net/npm/boxicons@2.1.0/js/boxicons.min.js"></script>
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <script>
+    function validarFormulario() {
+        var nombre = document.getElementById('nombre').value.trim();
+
+        // Validar que el campo nombre no esté vacío
+        if (nombre === '') {
+            document.getElementById('error-nombre').textContent = 'Este campo es obligatorio.';
+            return false;
+        } else {
+            document.getElementById('error-nombre').textContent = '';
+        }
+
+        return true; // Permitir el envío del formulario si todas las validaciones pasan
+    }
+    </script>
 </body>
 
 </html>

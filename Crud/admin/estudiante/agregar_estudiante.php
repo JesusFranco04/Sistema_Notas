@@ -1,184 +1,430 @@
 <?php
-include '../config.php';
+session_start();
+include('../../config.php');
+date_default_timezone_set('America/Guayaquil');
 
-// Verificar que se han enviado datos por POST
+$mensaje = array();
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Obtener datos del formulario
-    $nombres = isset($_POST['nombres']) ? $_POST['nombres'] : null;
-    $apellidos = isset($_POST['apellidos']) ? $_POST['apellidos'] : null;
-    $cedula = isset($_POST['cedula']) ? $_POST['cedula'] : null;
-    $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : null;
-    $correo_electronico = isset($_POST['correo_electronico']) ? $_POST['correo_electronico'] : null;
-    $direccion = isset($_POST['direccion']) ? $_POST['direccion'] : null;
-    $fecha_nacimiento = isset($_POST['fecha_nacimiento']) ? $_POST['fecha_nacimiento'] : null;
-    $genero = isset($_POST['genero']) ? $_POST['genero'] : null;
-    $discapacidad = isset($_POST['discapacidad']) ? $_POST['discapacidad'] : null;
-    $date_creation = isset($_POST['date_creation']) ? $_POST['date_creation'] : null; // Fecha de creación
+    $nombres = trim($_POST['nombres']);
+    $apellidos = trim($_POST['apellidos']);
+    $cedula = trim($_POST['cedula']);
+    $telefono = !empty(trim($_POST['telefono'])) ? trim($_POST['telefono']) : null;
+    $correo_electronico = !empty(trim($_POST['correo_electronico'])) ? trim($_POST['correo_electronico']) : null;
+    $direccion = trim($_POST['direccion']);
+    $fecha_nacimiento = trim($_POST['fecha_nacimiento']);
+    $genero = $_POST['genero'];
+    $discapacidad = trim($_POST['discapacidad']);
+    $estado = $_POST['estado'];
+    
+    // Capturar valores de usuario_ingreso y fecha_ingreso
+    $usuario_ingreso = $_SESSION['cedula'];
+    $fecha_ingreso = date('Y-m-d H:i:s');
 
-    // Verificar que los campos requeridos no estén vacíos
-    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($telefono) && !empty($correo_electronico) && !empty($date_creation)) {
-        
-        // Escapar caracteres especiales y evitar inyección SQL
-        $nombres = mysqli_real_escape_string($conn, $nombres);
-        $apellidos = mysqli_real_escape_string($conn, $apellidos);
-        $cedula = mysqli_real_escape_string($conn, $cedula);
-        $telefono = mysqli_real_escape_string($conn, $telefono);
-        $correo_electronico = mysqli_real_escape_string($conn, $correo_electronico);
-        $direccion = mysqli_real_escape_string($conn, $direccion);
-        $fecha_nacimiento = mysqli_real_escape_string($conn, $fecha_nacimiento);
-        $genero = mysqli_real_escape_string($conn, $genero);
-        $discapacidad = mysqli_real_escape_string($conn, $discapacidad);
-        $date_creation = mysqli_real_escape_string($conn, $date_creation);
+    // Verificar si los campos obligatorios están llenos
+    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado)) {
+        // Verificación si ya existe el registro
+        $sql = "SELECT * FROM estudiante WHERE cedula = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("s", $cedula);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        // Preparar consulta SQL (asegúrate de tener las columnas correctas en tu base de datos)
-        $sql = "INSERT INTO estudiantes (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, date_creation)
-                VALUES ('$nombres', '$apellidos', '$cedula', '$telefono', '$correo_electronico', '$direccion', '$fecha_nacimiento', '$genero', '$discapacidad', '$date_creation')";
-                
-        if (mysqli_query($conn, $sql)) {
-            header("Location: ../../views/admin/vistaestudiante_admin.php");
-            exit; // Salir del script después de la redirección
+            if ($result->num_rows > 0) {
+                $mensaje = array(
+                    'texto' => 'El estudiante con esta cédula ya está registrado.',
+                    'clase' => 'alert-danger'
+                );
+            } else {
+                // Insertar nuevo registro
+                $sql_insert = "INSERT INTO estudiante (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, estado, usuario_ingreso, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt_insert = $conn->prepare($sql_insert);
+                if ($stmt_insert) {
+                    // Bind parameters
+                    $stmt_insert->bind_param("ssssssssssss", $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $estado, $usuario_ingreso, $fecha_ingreso);
+
+                    if ($stmt_insert->execute()) {
+                        $mensaje = array(
+                            'texto' => 'Estudiante registrado correctamente.',
+                            'clase' => 'alert-success'
+                        );
+                    } else {
+                        $mensaje = array(
+                            'texto' => 'Error al registrar el estudiante. Inténtalo nuevamente.',
+                            'clase' => 'alert-danger'
+                        );
+                    }
+
+                    $stmt_insert->close();
+                } else {
+                    $mensaje = array(
+                        'texto' => 'Error al preparar la consulta para registro.',
+                        'clase' => 'alert-danger'
+                    );
+                }
+            }
+            $stmt->close();
         } else {
-            echo "Error al ejecutar la consulta: " . mysqli_error($conn);
-        }        
-
+            $mensaje = array(
+                'texto' => 'Error al preparar la consulta para verificación de registro.',
+                'clase' => 'alert-danger'
+            );
+        }
     } else {
-        echo "Todos los campos marcados como requeridos deben estar llenos.";
+        // Si se llenaron todos los campos obligatorios, proceder con la inserción
+        // Verificar si el estudiante ya está registrado
+        $sql = "SELECT * FROM estudiante WHERE cedula = ?";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("s", $cedula);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $mensaje = array(
+                    'texto' => 'El estudiante con esta cédula ya está registrado.',
+                    'clase' => 'alert-danger'
+                );
+            } else {
+                // Insertar nuevo registro
+                $sql_insert = "INSERT INTO estudiante (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, estado, usuario_ingreso, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt_insert = $conn->prepare($sql_insert);
+                if ($stmt_insert) {
+                    // Bind parameters
+                    if (empty($telefono)) {
+                        $telefono = null; // Set to null if empty
+                    }
+                    if (empty($correo_electronico)) {
+                        $correo_electronico = null; // Set to null if empty
+                    }
+                    
+                    $stmt_insert->bind_param("ssssssssssss", $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $estado, $usuario_ingreso, $fecha_ingreso);
+
+                    if ($stmt_insert->execute()) {
+                        $mensaje = array(
+                            'texto' => 'Estudiante registrado correctamente.',
+                            'clase' => 'alert-success'
+                        );
+                    } else {
+                        $mensaje = array(
+                            'texto' => 'Error al registrar el estudiante. Inténtalo nuevamente.',
+                            'clase' => 'alert-danger'
+                        );
+                    }
+
+                    $stmt_insert->close();
+                } else {
+                    $mensaje = array(
+                        'texto' => 'Error al preparar la consulta para registro.',
+                        'clase' => 'alert-danger'
+                    );
+                }
+            }
+            $stmt->close();
+        } else {
+            $mensaje = array(
+                'texto' => 'Error al preparar la consulta para verificación de registro.',
+                'clase' => 'alert-danger'
+            );
+        }
     }
+}
 
-} 
-
-// Cerrar conexión si es necesario
-mysqli_close($conn);
+if (isset($conn)) {
+    $conn->close();
+}
 ?>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Agregar Estudiantes| Sistema de Gestión UEBF</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Estudiante | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-        type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <!-- Custom styles for this template-->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <!-- Boxicons CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.0.7/css/boxicons.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
     <style>
-    .sidebar-heading .collapse-header .bx {
-        color: #ff8b97;
-        /* Color rosa claro para los iconos en los encabezados de sección */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
     }
 
-    .bg-gradient-primary {
-        background-color: #a2000e;
-        /* Color rojo oscuro para el fondo de la barra lateral */
-        background-image: none;
-        /* Asegurar que no haya imagen de fondo (gradiente) */
+    .header-banner {
+        background-color: #c1121f;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .header-banner h1 {
+        margin: 0;
+        font-size: 24px;
     }
 
     .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-
-    .card {
-        width: 80%;
-        max-width: 600px;
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
         padding: 20px;
+        border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    .card-header {
-        background-color: #f8f9fc;
-        padding: 10px;
+    .form-label.required::after {
+        content: " *";
+        color: red;
+        margin-left: 5px;
     }
 
-    .card-title {
-        margin-bottom: 0;
+    h2 {
+        color: #e71b2a;
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .card-body {
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .button-group {
+        margin-top: 20px;
+        text-align: right;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-primary {
+        background-color: #e71b2a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #c1121f;
+    }
+
+    .form-label {
+        font-size: 16px;
+        color: #555;
+    }
+
+    .optional-text {
+        font-size: 12px;
+        color: #999;
+        margin-left: 5px;
+    }
+
+    footer {
+        background-color: #c1121f;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+        width: 100%;
+    }
+
+    footer p {
+        margin: 0;
     }
     </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Agregar Estudiante</h5>
+    <div class="header-banner">
+        <h1>Formulario de Registro de Estudiantes | Sistema de Gestión UEBF</h1>
+    </div>
+    <div class="container">
+        <h2><i class='bx bxs-folder-plus'></i> Registro de Estudiante</h2>
+        <div class="card-body">
+            <!-- Mostrar mensajes de alerta -->
+            <?php if (!empty($mensaje)): ?>
+            <div class="alert <?php echo $mensaje['clase']; ?> alert-dismissible fade show" role="alert">
+                <?php echo $mensaje['texto']; ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="card-body">
-                <form action="agregar_estudiantes.php" method="post" enctype="multipart/form-data"
-                    onsubmit="return validarFormulario()">
-                    <div class="form-group">
-                        <label for="nombres">Nombres:</label>
-                        <input type="text" class="form-control" id="nombres" name="nombres" required>
+            <?php endif; ?>
+            <form action="" method="POST" onsubmit="return validarFormulario()">
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="nombres" class="form-label required"><i class='bx bxs-user'></i>
+                                Nombre:</label>
+                            <input type="text" class="form-control" id="nombres" name="nombres"
+                                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Ingrese solo letras y espacios" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="apellidos">Apellidos:</label>
-                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="apellidos" class="form-label required"><i class='bx bxs-user-detail'></i>
+                                Apellidos:</label>
+                            <input type="text" class="form-control" id="apellidos" name="apellidos"
+                                pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Ingrese solo letras y espacios" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="cedula">Cédula:</label>
-                        <input type="text" class="form-control" id="cedula" name="cedula" required>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="cedula" class="form-label required"><i class='bx bxs-id-card'></i>
+                                Cédula:</label>
+                            <input type="text" class="form-control" id="cedula" name="cedula" maxlength="10"
+                                pattern="[0-9]{10}" title="Ingrese exactamente 10 dígitos numéricos" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="telefono">Teléfono:</label>
-                        <input type="text" class="form-control" id="telefono" name="telefono" required>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="telefono" class="form-label"><i class='bx bxs-phone'></i>
+                                Teléfono: <span class="optional-text">(Opcional)</span></label>
+                            <input type="text" class="form-control" id="telefono" name="telefono" maxlength="10"
+                                pattern="09[0-9]{8}"
+                                title="El teléfono debe iniciar con 09 seguido de 8 dígitos numéricos">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="correo_electronico">Correo Electrónico:</label>
-                        <input type="email" class="form-control" id="correo_electronico" name="correo_electronico"
-                            required>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="correo_electronico" class="form-label"><i class='bx bxs-envelope'></i>
+                                Correo Electrónico: <span class="optional-text">(Opcional)</span></label>
+                            <input type="email" class="form-control" id="correo_electronico" name="correo_electronico">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="direccion">Dirección:</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="direccion" class="form-label required"><i class='bx bxs-location-plus'></i>
+                                Dirección:</label>
+                            <input type="text" class="form-control" id="direccion" name="direccion">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="fecha_de_nacimiento">Fecha de Nacimiento:</label>
-                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fecha_nacimiento" class="form-label required"><i class='bx bxs-calendar'></i>
+                                Fecha de Nacimiento:</label>
+                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento"
+                                required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="genero">Género:</label>
-                        <select class="form-control" id="genero" name="genero">
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                        </select>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="genero" class="form-label required"><i class='bx bx-female-sign'></i>
+                                Género:</label>
+                            <select class="form-control" id="genero" name="genero" required>
+                                <option value="">Seleccionar género</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="discapacidad">Discapacidad:</label>
-                        <select class="form-control" id="discapacidad" name="discapacidad">
-                            <option value="">Seleccionar</option>
-                            <option value="Si">Si</option>
-                            <option value="No">No</option>
-                        </select>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="discapacidad" class="form-label required"><i class='bx bx-handicap'></i>
+                                Discapacidad:</label>
+                            <select class="form-control" id="discapacidad" name="discapacidad" required>
+                                <option value="">Seleccionar discapacidad</option>
+                                <option value="si">Sí</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="date_creation">Fecha de Creación:</label>
-                        <input type="text" class="form-control" id="date_creation" name="date_creation"
-                            value="<?php echo date('Y-m-d H:i:s'); ?>" readonly>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="estado" class="form-label required"><i class='bx bxs-check-square'></i>
+                                Estado:</label>
+                            <select class="form-control" id="estado" name="estado">
+                                <option value="">Seleccionar estado</option>
+                                <option value="A">Activo</option>
+                                <option value="I">Inactivo</option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                    <a href="../../views/admin/vistaestudiante_admin.php" class="btn btn-secondary">Regresar</a>
-                </form>
-            </div>
+                </div>
+                <div class="button-group mt-4">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="location.href='http://localhost/sistema_notas/views/admin/estudiantes.php';"><i
+                            class='bx bx-arrow-back'></i> Regresar</button>
+                    <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Crear Estudiante</button>
+                </div>
+            </form>
         </div>
     </div>
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
+            Zambrano.
+            Todos los derechos reservados.</p>
+    </footer>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+        integrity="sha384-M3P5FQ7iHpK2iKdXEL3b2OnI4M9N8DIt8pP+5PhpoWz5EMvqgKf8kS/1tc73B3rV" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+pbv/5+XqJZmAnlyU7tcF+5Q8qndX3d7WI6" crossorigin="anonymous">
+    </script>
+    <script>
+    function validarFormulario() {
+        var fechaNacimiento = document.getElementById('fecha_nacimiento').value.trim();
+        var hoy = new Date();
+        var fechaNac = new Date(fechaNacimiento);
+        var edad = hoy.getFullYear() - fechaNac.getFullYear();
+        var mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+        }
+
+        // Validar edad entre 11 y 18 años
+        if (edad < 11 || edad > 18) {
+            alert('La fecha de nacimiento no es válida. Debe tener entre 11 y 18 años.');
+            return false;
+        }
+
+        return true;
+    }
+    </script>
 </body>
-</body>
+
 </html>

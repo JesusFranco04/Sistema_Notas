@@ -1,19 +1,19 @@
 <?php
+session_start();
 // Incluir el archivo de conexión y verificar la conexión
-include '../../Crud/config.php';
+include('../../Crud/config.php'); // Ruta absoluta 
 
 // Configurar la zona horaria de Ecuador
-date_default_timezone_set('America/Guayaquil');
+date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
-// Consulta SQL para obtener los profesores
-$sql = "SELECT * FROM profesores";
+// Consulta SQL para obtener los usuarios
+$sql = "SELECT * FROM profesor";
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -39,76 +39,79 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
-        /* Estilo para el contenedor de la tabla */
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-        }
+    <style>
+    /* Estilo para el contenedor de la tabla */
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+    }
 
-        /* Estilo para separar los botones de acciones */
-        .action-buttons .btn {
-            margin-right: 20px;
-        }
+    /* Estilo para separar los botones de acciones */
+    .action-buttons .btn {
+        margin-right: 20px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+    }
 
-        .container-fluid {
-            padding: 20px;
-        }
+    .container-fluid {
+        padding: 20px;
+    }
 
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
 
-        .card-header {
-            background-color: #c42021; /* Color de fondo rojo */
-            color: white; /* Color del texto */
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            padding: 15px; /* Espacio interno alrededor del contenido del encabezado */
-        }
+    .card-header {
+        background-color: #c42021;
+        /* Color de fondo rojo */
+        color: white;
+        /* Color del texto */
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 15px;
+        /* Espacio interno alrededor del contenido del encabezado */
+    }
 
-        .table thead th {
-            background-color: #dc3545;
-            color: white;
-            text-align: center;
-        }
+    .table thead th {
+        background-color: #dc3545;
+        color: white;
+        text-align: center;
+    }
 
-        .table tbody td {
-            text-align: center;
-        }
+    .table tbody td {
+        text-align: center;
+    }
 
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
 
-        .filter-icon {
-            margin-right: 5px;
-        }
-        
-        .table tbody .btn-action {
-            margin-bottom: 10px;
-            display: inline-block;
-        }
+    .filter-icon {
+        margin-right: 5px;
+    }
 
+    .table tbody .btn-action {
+        margin-bottom: 10px;
+        display: inline-block;
+    }
 
-        .filter-container {
-            margin-bottom: 1rem;
-        }
-</style>
+    .filter-container {
+        margin-bottom: 1rem;
+    }
+    </style>
 </head>
 
 <body>
     <?php include_once 'navbar_admin.php'; ?>
+
 
     <div class="container-fluid">
         <div class="card">
@@ -141,7 +144,8 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="../../Crud/profesores/agregar_profe.php" class="btn btn-primary">Agregar
+                                <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
+                                    class="btn btn-primary">Agregar
                                     Profesor</a>
                             </div>
                             <div class="col-auto">
@@ -149,7 +153,7 @@ if (!$resultado) {
                                     data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                             </div>
                             <div class="col-auto">
-                                <a href="reporte_estudiante.php" class="btn btn-success">Generar reportes</a>
+                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
                             </div>
                         </div>
                     </div>
@@ -163,23 +167,22 @@ if (!$resultado) {
                                 <th>Nombres</th>
                                 <th>Apellidos</th>
                                 <th>Cédula</th>
-                                <th>Teléfono</th>
-                                <th>Correo Electrónico</th>
+                                <th>Telefono</th>
+                                <th>Correo Electronico</th>
                                 <th>Dirección</th>
                                 <th>Fecha de Nacimiento</th>
-                                <th>Género</th>
+                                <th>Genero</th>
                                 <th>Discapacidad</th>
-                                <th>Rol</th>
-                                <th>Contraseña</th>
-                                <th>Archivo</th>
-                                <th>Fecha de Creación</th>
+                                <th>ID_Usuario</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($fila = $resultado->fetch_assoc()) { ?>
+                            <?php
+                            while ($fila = mysqli_fetch_assoc($resultado)) {
+                                ?>
                             <tr>
-                                <td><?php echo $fila['id']; ?></td>
+                                <td><?php echo $fila['id_profesor']; ?></td>
                                 <td><?php echo $fila['nombres']; ?></td>
                                 <td><?php echo $fila['apellidos']; ?></td>
                                 <td><?php echo $fila['cedula']; ?></td>
@@ -189,57 +192,107 @@ if (!$resultado) {
                                 <td><?php echo $fila['fecha_nacimiento']; ?></td>
                                 <td><?php echo $fila['genero']; ?></td>
                                 <td><?php echo $fila['discapacidad']; ?></td>
-                                <td><?php echo $fila['rol']; ?></td>
-                                <td><?php echo $fila['contrasena']; ?></td>
-                                <td><?php echo $fila['archivo']; ?></td>
-                                <td><?php echo $fila['date_creation']; ?></td>
+                                <td><?php echo $fila['id_usuario']; ?></td>
                                 <td>
-                                    <a href="../../Crud/profesores/editar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
+                                    <a href="http://localhost/sistema_notas/Crud/admin/usuario/editar_usuario.php?cedula=<?php echo $fila['id_profesor']; ?>"
                                         class="btn btn-warning btn-action">Editar</a>
-                                    <a href="../../Crud/profesores/eliminar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
-                                        class="btn btn-danger btn-action"
-                                        onclick="return confirm('¿Está seguro de eliminar este registro?');">Eliminar</a>
+                                    <button type="button" class="btn btn-danger btn-action"
+                                        onclick="mostrarModalCambioEstado('<?php echo $fila['cedula']; ?>', '<?php echo $fila['id_profesor']; ?>');">
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php
+                            }
+                            ?>
                         </tbody>
                     </table>
+                    <!-- Modal de Confirmación -->
+                    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p id="mensajeConfirmacion"></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form id="formularioConfirmacion" method="POST" action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
+                                        <input type="hidden" id="inputCedula" name="cedula" value="">
+                                        <input type="hidden" id="inputEstado" name="estado" value="">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">Cancelar</button>
+                                        <button type="submit" id="botonConfirmacion"
+                                            class="btn btn-primary">Confirmar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Modal de Confirmación -->
+
+                    <!-- Modal de Instrucciones -->
+                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstrucciones1Label" aria-hidden="true">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema de
+                                        Gestión
+                                        UEBF</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <embed src="Manual_de_Usuario.pdf" type="application/pdf" width="100%"
+                                        height="600px" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fin Modal de Instrucciones -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts adicionales aquí -->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Bootstrap core JavaScript-->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- SB Admin 2 JS-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-    <!-- Page level plugins -->
-    <script src="http://localhost/sistema_notas/vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <!-- Script personalizado para la tabla -->
+
+    <!-- Script para mostrar modal de confirmación -->
     <script>
-    $(document).ready(function() {
-        $('#dataTable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-            },
-            "order": [
-                [0, "desc"]
-            ]
-        });
-
-        // Filtro por cédula
-        $('#searchCedula').on('keyup', function() {
-            $('#dataTable').DataTable().column(3).search(this.value).draw();
-        });
-
-        // Filtro por fecha de creación
-        $('#searchFecha').on('change', function() {
-            $('#dataTable').DataTable().column(9).search(this.value).draw();
-        });
-    });
+    function mostrarModalCambioEstado(cedula, estado) {
+        var mensaje = '';
+        if (estado === 'A') {
+            mensaje = '¿Está seguro que desea eliminar este usuario?';
+        } else {
+            mensaje = '¿Está seguro que desea activar este usuario?';
+        }
+        $('#mensajeConfirmacion').text(mensaje);
+        $('#inputCedula').val(cedula);
+        $('#inputEstado').val(estado);
+        $('#modalConfirmacion').modal('show');
+    }
     </script>
+
 </body>
 
 </html>
+
+<?php
+// Liberar resultado
+mysqli_free_result($resultado);
+
+// Cerrar conexión
+$conn->close();
+?>

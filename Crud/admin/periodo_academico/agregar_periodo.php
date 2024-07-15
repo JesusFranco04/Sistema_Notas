@@ -1,199 +1,134 @@
 <?php
-// Iniciar la sesión para obtener datos del usuario que está logueado
 session_start();
-// Incluir el archivo de configuración para conectarte a la base de datos
 include('../../config.php');
-date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
+date_default_timezone_set('America/Guayaquil');
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Limpiar y validar los datos del formulario
     $nombre = $_POST['nombre'];
-    $estado = 'A';
+    $estado = 'A'; // Estado por defecto al crear
     $usuario_ingreso = $_SESSION['cedula'];
     $fecha_ingreso = date('Y-m-d H:i:s');
 
-    if (!empty($nombre) && !empty($estado)) {
-        $query = "INSERT INTO periodo_academico (nombre, estado, usuario_ingreso, fecha_ingreso) 
-                  VALUES (?, ?, ?, ?)";
+    try {
+        // Verificar si el registro ya existe
+        $query_check = "SELECT COUNT(*) AS count FROM periodo_academico WHERE nombre = ?";
+        $stmt_check = $conn->prepare($query_check);
+        $stmt_check->bind_param("s", $nombre);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        $row_check = $result_check->fetch_assoc();
 
-        $stmt = $conn->prepare($query);
-
-        if ($stmt) {
-            $stmt->bind_param("ssss", $nombre, $estado, $usuario_ingreso, $fecha_ingreso);
-
-            if ($stmt->execute()) {
-                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
-                exit;
-            } else {
-                echo '<div style="color: red;">Error al crear el periodo acad�mico. Int�ntalo nuevamente.</div>';
-            }
-
-            $stmt->close();
+        if ($row_check['count'] > 0) {
+            $error = "Ya existe un período académico con este nombre.";
         } else {
-            echo '<div style="color: red;">Error en la preparaci�n de la consulta: ' . $conn->error . '</div>';
+            // Insertar el nuevo período académico
+            $query_insert = "INSERT INTO periodo_academico (nombre, estado, usuario_ingreso, fecha_ingreso) 
+                             VALUES (?, ?, ?, ?)";
+            $stmt_insert = $conn->prepare($query_insert);
+            $stmt_insert->bind_param("ssss", $nombre, $estado, $usuario_ingreso, $fecha_ingreso);
+
+            if ($stmt_insert->execute()) {
+                $success = "El período académico '$nombre' ha sido creado exitosamente.";
+            } else {
+                $error = "Error al crear el período académico. Inténtalo nuevamente.";
+            }
         }
-    } else {
-        echo '<div style="color: red;">Por favor completa todos los campos requeridos.</div>';
+    } catch (Exception $e) {
+        $error = "Error: " . $e->getMessage();
     }
 }
 
-// Cerrar la conexi�n a la base de datos al finalizar
+// Cerrar la conexión a la base de datos al finalizar
 if (isset($conn)) {
     $conn->close();
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Registro de los Periodos Académicos | Sistema de Gestión UEBF</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Período Académico | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-        type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <!-- Custom styles for this template-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <!-- Incluye Boxicons para iconos -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.0/css/boxicons.min.css">
-    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <style>
-    .required::after {
-        content: '*';
-        color: red;
-    }
-
+    /* Estilos adicionales */
     body {
-        font-family: Arial, sans-serif;
         background-color: #f8f9fa;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        /* Asegura que el cuerpo ocupe al menos el 100% de la altura del viewport */
+        font-family: Arial, sans-serif;
     }
 
     .container {
         max-width: 800px;
-        margin: auto;
-        /* Auto para centrar horizontalmente */
-        margin-top: 20px;
-        /* Margen superior */
-        margin-bottom: 50px;
-        /* Margen inferior */
-        padding: 10px;
+        margin: 50px auto;
         background-color: #fff;
-        border: 1px solid #ccc;
+        padding: 30px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        flex: 1;
-        /* Para que ocupe el espacio restante verticalmente */
+        box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
     }
 
-    .card-header {
-        background-color: #ef233c;
+    .header-banner {
+        background-color: #c1121f;
         color: #fff;
-        padding: 15px;
-        border-radius: 10px 10px 0 0;
+        text-align: center;
+        padding: 10px 0;
     }
 
-    .card-title {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .form-label {
-        font-weight: bold;
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        background-color: #e71b2a;
+        padding: 10px;
+        border-radius: 10px;
+        color: #fff;
     }
 
     .form-label.required::after {
         content: " *";
-        color: #dc3545;
+        color: red;
+        margin-left: 5px;
     }
 
-    .input-group-append .btn,
-    .btn-primary,
-    .btn-danger {
-        background-color: #007bff;
-        border-color: #007bff;
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .btn-cancelar {
+        background-color: #6c757d;
         color: #fff;
     }
 
-    .input-group-append .btn:hover,
-    .btn-primary:hover,
-    .btn-danger:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
+    .btn-registrar {
+        background-color: #e71b2a;
+        color: #fff;
     }
 
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    input[type="date"],
-    select {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 6px;
+    .form-label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .bx {
+        margin-right: 10px;
+    }
+
+    #button-generate {
+        background-color: #e71b2a;
+        color: #fff;
+        border-color: #e71b2a;
         width: 100%;
-        box-sizing: border-box;
     }
 
-    input[type="radio"] {
-        margin-right: 5px;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    .mt-4 {
-        margin-top: 1.5rem;
-    }
-
-    .mt-5 {
-        margin-top: 3rem;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-    }
-
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    .topbar {
-        height: 22px;
+    #button-generate:hover {
         background-color: #c1121f;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-color: #c1121f;
     }
 
     footer {
@@ -208,204 +143,140 @@ if (isset($conn)) {
         margin: 0;
     }
 
-    <style>.required::after {
-        content: '*';
-        color: red;
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f8f9fa;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        /* Asegura que el cuerpo ocupe al menos el 100% de la altura del viewport */
-    }
-
-    .container {
-        max-width: 800px;
-        margin: auto;
-        /* Auto para centrar horizontalmente */
-        margin-top: 20px;
-        /* Margen superior */
-        margin-bottom: 50px;
-        /* Margen inferior */
+    .error-message,
+    .success-message {
+        margin: 10px 0;
         padding: 10px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        flex: 1;
-        /* Para que ocupe el espacio restante verticalmente */
-    }
-
-    .card-header {
-        background-color: #ef233c;
-        color: #fff;
-        padding: 15px;
-        border-radius: 10px 10px 0 0;
-    }
-
-    .card-title {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-
-    .card-body {
-        padding: 20px;
-    }
-
-    .form-label {
-        font-weight: bold;
-    }
-
-    .form-label.required::after {
-        content: " *";
-        color: #dc3545;
-    }
-
-    .input-group-append .btn,
-    .btn-primary,
-    .btn-danger {
-        background-color: #007bff;
-        border-color: #007bff;
-        color: #fff;
-    }
-
-    .input-group-append .btn:hover,
-    .btn-primary:hover,
-    .btn-danger:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    input[type="date"],
-    select {
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        padding: 6px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    input[type="radio"] {
-        margin-right: 5px;
-    }
-
-    .text-center {
+        border-radius: 5px;
         text-align: center;
     }
 
-    .mt-4 {
-        margin-top: 1.5rem;
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
     }
 
-    .mt-5 {
-        margin-top: 3rem;
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
     }
 
-    .mb-3 {
-        margin-bottom: 1rem;
-    }
-
-    .row {
+    .button-group {
         display: flex;
-        flex-wrap: wrap;
+        justify-content: flex-end;
+        /* Alineación a la derecha */
+        margin-top: 20px;
+        /* Ajusta según sea necesario */
     }
 
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-    }
-
-    .topbar {
-        height: 22px;
-        background-color: #c1121f;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    footer {
-        background-color: #c1121f;
+    .btn-secondary {
+        background-color: #6c757d;
         color: #fff;
-        text-align: center;
-        padding: 20px 0;
-        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+        /* Espacio entre los botones */
     }
 
-    footer p {
-        margin: 0;
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-primary {
+        background-color: #e71b2a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 20px;
+        /* Espacio entre los botones */
+    }
+
+    .btn-primary:hover {
+        background-color: #c1121f;
     }
     </style>
 </head>
 
 <body>
-    <div class="topbar"></div> <!-- Barra superior vacía -->
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Formulario de Registro del Periodo Académico</h5>
-            </div>
-            <div class="card-body">
-                <form action=" " method="POST"
-                    onsubmit="return validarFormulario()">
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label required"><i class='bx bx-id-card'></i> Nombre:</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" maxlength="40" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-check'></i> Estado:</label>
-                        <input type="text" class="form-control" id="estado" name="estado" value="A" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-user'></i> Usuario de Ingreso:</label>
-                        <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
-                            value="<?php echo $_SESSION['cedula']; ?>" readonly disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label required"><i class='bx bx-calendar'></i> Fecha de Ingreso:</label>
-                        <input type="text" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
-                            value="<?php echo date('Y-m-d H:i:s'); ?>" readonly disabled>
-                    </div>
+    <div class="header-banner">
+        <h1>Formulario de Registro del Período Académico | Sistema de Gestión UEBF</h1>
+    </div>
+    <div class="container">
+        <h2><i class='bx bxs-folder-plus'></i> Registro del Período Académico</h2>
+        <div class="card-body">
+            <?php
+            // Mostrar mensajes de éxito o error si están presentes
+            if (!empty($error)) {
+                echo '<div class="error-message">' . $error . '</div>';
+            }
+            if (!empty($success)) {
+                echo '<div class="success-message">' . $success . '</div>';
+            }
+            ?>
+            <form action="" method="POST" onsubmit="return validarFormulario()">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label required"><i class='bx bxs-school'></i> Nombre del
+                        Período:</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+"
+                        title="Ingrese solo letras y espacios" maxlength="40" required>
+                </div>
 
-                    <div class="button-group mt-4">
-                        <button type="button" class="btn btn-secondary"
-                            onclick="location.href='http://localhost/sistema_notas/views/admin/index_admin.php';"><i
-                                class='bx bx-arrow-back'></i> Regresar</button>
-                        <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Crear Nivel</button>
-                    </div>
-                </form>
-            </div>
+                <div class="mb-3">
+                    <label for="estado" class="form-label required"><i class='bx bxs-check-square'></i> Estado:</label>
+                    <input type="text" class="form-control" id="estado" name="estado" value="A" readonly disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label for="usuario_ingreso" class="form-label required"><i class='bx bxs-user-circle'></i> Usuario
+                        de Ingreso:</label>
+                    <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
+                        value="<?php echo $_SESSION['cedula']; ?>" readonly disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label for="fecha_ingreso" class="form-label required"><i class='bx bxs-calendar'></i> Fecha de
+                        Ingreso:</label>
+                    <input type="text" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
+                        value="<?php echo date('Y-m-d H:i:s'); ?>" readonly disabled>
+                </div>
+
+                <div class="mb-3 text-center">
+                    <a href="../index_admin.php" class="btn btn-cancelar"><i class='bx bx-x-circle'></i> Cancelar</a>
+                    <button type="submit" class="btn btn-registrar"><i class='bx bx-save'></i> Crear Período
+                        Académico</button>
+                </div>
+            </form>
         </div>
     </div>
+
     <footer>
-        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-            Zambrano.
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
     </footer>
 
     <!-- Incluye Bootstrap JS para funcionalidades -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Incluye Boxicons JS para iconos -->
-    <script src="https://cdn.jsdelivr.net/npm/boxicons@2.1.0/js/boxicons.min.js"></script>
-    <!-- Bootstrap core JavaScript-->
-    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
-    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <script>
+    function validarFormulario() {
+        var nombre = document.getElementById('nombre').value.trim();
 
+        // Validar que el campo nombre no esté vacío
+        if (nombre === '') {
+            document.getElementById('error-nombre').textContent = 'Este campo es obligatorio.';
+            return false;
+        } else {
+            document.getElementById('error-nombre').textContent = '';
+        }
+
+        return true; // Permitir el envío del formulario si todas las validaciones pasan
+    }
+    </script>
 </body>
 
 </html>
