@@ -109,10 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <style>
-    /* Estilos adicionales */
     body {
-        background-color: #f8f9fa;
         font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-banner {
+        background-color: #c1121f;
+        color: #fff;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .header-banner h1 {
+        margin: 0;
+        font-size: 24px;
     }
 
     .container {
@@ -122,13 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
-    }
-
-    .header-banner {
-        background-color: #c1121f;
-        color: #fff;
-        text-align: center;
-        padding: 10px 0;
     }
 
     h2 {
@@ -151,14 +157,110 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         margin-bottom: 20px;
     }
 
-    .btn-cancelar {
-        background-color: #6c757d;
-        color: #fff;
+    /* Alinear el grupo de botones a la derecha */
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        /* Espacio entre los botones */
     }
 
-    .btn-registrar {
+    /* Estilos generales para los botones */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        /* Tamaño de fuente reducido */
+        padding: 8px 16px;
+        /* Reducción de relleno */
+        border-radius: 6px;
+        /* Borde más suave */
+        border: none;
+        cursor: pointer;
+        /* Cambia el cursor a una mano cuando se pasa el ratón sobre el botón */
+        transition: background-color 0.3s ease;
+        /* Añade una transición suave al color de fondo cuando cambia */
+        text-transform: uppercase;
+        font-weight: bold;
+        color: white;
+        /* Color del texto en todos los botones */
+    }
+
+    /* Estilos para el botón Regresar */
+    .btn-regresar {
+        background-color: #6c757d;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-regresar:active {
+        background-color: #545b62;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    /* Estilos para el botón Crear Usuario */
+    .btn-crear-usuario {
         background-color: #e71b2a;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-crear-usuario:hover {
+        background-color: #c21623;
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-crear-usuario:active {
+        background-color: #a0121d;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    /* Icono dentro del botón */
+    .btn i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: #e71b2a;
+        /* Color de fondo del botón */
         color: #fff;
+        /* Color del texto dentro del botón */
+        border: none;
+        /* Elimina cualquier borde alrededor del botón */
+        border-radius: 10px;
+        /* Redondea las esquinas del botón con un radio de 10 píxeles */
+        padding: 10px 20px;
+        /* Añade espacio interno alrededor del contenido del botón */
+        cursor: pointer;
+        /* Cambia el cursor a una mano cuando se pasa el ratón sobre el botón */
+        transition: background-color 0.3s ease;
+        /* Añade una transición suave al color de fondo cuando cambia */
+        margin-left: 0px;
+        /* Espacio a la izquierda del botón */
+        width: 150px;
+        /* Ancho del botón */
+        height: 38px;
+        /* Altura del botón */
+    }
+
+    .btn-primary:hover {
+        background-color: #c1121f;
     }
 
     .form-label {
@@ -354,11 +456,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
-            <div class="form-group text-center">
-                <button type="button" class="btn btn-cancelar mr-2"
-                    onclick="location.href='http://localhost/sistema_notas/views/admin/usuario.php';"><i
-                        class='bx bx-arrow-back'></i> Cancelar</button>
-                <button type="submit" class="btn btn-registrar"><i class='bx bx-user-plus'></i> Crear Usuario</button>
+            <div class="button-group mt-4">
+                <button type="button" class="btn btn-regresar"
+                    onclick="location.href='http://localhost/sistema_notas/views/admin/usuario.php';">
+                    <i class='bx bx-arrow-back'></i> Regresar
+                </button>
+                <button type="submit" class="btn btn-crear-usuario">
+                    <i class='bx bx-save'></i> Crear Usuario
+                </button>
             </div>
         </form>
     </div>

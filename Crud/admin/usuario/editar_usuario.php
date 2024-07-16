@@ -6,11 +6,11 @@ include('../../config.php');
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
 // Obtener el ID del usuario a editar desde la URL
-$id_usuario = $_GET['id'];
+$id_usuario = $_GET['id_usuario'];
 
 // Consultar los datos del usuario en la base de datos
 $sql = "SELECT * FROM usuarios WHERE id = $id_usuario";
-$result = mysqli_query($conexion, $sql);
+$result = mysqli_query($conn, $sql);
 $usuario = mysqli_fetch_assoc($result);
 
 // Si no se encuentra el usuario, redirigir a la página de error o lista de usuarios
@@ -31,7 +31,7 @@ if (!$usuario) {
 <body>
     <h2>Editar Usuario</h2>
     <form action="actualizar_usuario.php" method="post">
-        <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+        <input type="hidden" name="id" value="<?php echo $usuario['id_usuario']; ?>">
         
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre" value="<?php echo $usuario['nombre']; ?>" required>

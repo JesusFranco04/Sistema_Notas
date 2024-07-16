@@ -181,11 +181,21 @@ if (isset($conn)) {
 
     .container {
         max-width: 800px;
-        margin: 20px auto;
+        margin: 50px auto;
         background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        background-color: #e71b2a;
+        padding: 10px;
+        border-radius: 10px;
+        color: #fff;
     }
 
     .form-label.required::after {
@@ -194,68 +204,47 @@ if (isset($conn)) {
         margin-left: 5px;
     }
 
-    h2 {
-        color: #e71b2a;
-        font-size: 20px;
-        margin-bottom: 20px;
-    }
-
-    .card-body {
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-
     .form-group {
-        margin-bottom: 1rem;
+        margin-bottom: 20px;
     }
 
-    .button-group {
-        margin-top: 20px;
-        text-align: right;
-    }
-
-    .btn-secondary {
+    .btn-cancelar {
         background-color: #6c757d;
         color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-left: 10px;
     }
 
-    .btn-secondary:hover {
-        background-color: #5a6268;
-    }
-
-    .btn-primary {
+    .btn-registrar {
         background-color: #e71b2a;
         color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-left: 10px;
-    }
-
-    .btn-primary:hover {
-        background-color: #c1121f;
     }
 
     .form-label {
-        font-size: 16px;
-        color: #555;
+        font-weight: bold;
+        color: #333;
     }
 
-    .optional-text {
-        font-size: 12px;
-        color: #999;
-        margin-left: 5px;
+    .bx {
+        margin-right: 10px;
     }
+
+    #button-generate {
+        background-color: #e71b2a;
+        color: #fff;
+        border-color: #e71b2a;
+        width: 100%;
+    }
+
+    #button-generate:hover {
+        background-color: #c1121f;
+        border-color: #c1121f;
+    }
+	
+	.optional-text {
+    font-size: 12px; /* Tamaño pequeño de la letra */
+    color: #999; /* Color gris */
+    margin-left: 5px;
+}
+
 
     footer {
         background-color: #c1121f;
@@ -268,6 +257,103 @@ if (isset($conn)) {
     footer p {
         margin: 0;
     }
+
+    .error-message,
+    .success-message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    /* Alinear el grupo de botones a la derecha */
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        /* Espacio entre los botones */
+    }
+
+    /* Estilos generales para los botones */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        /* Tamaño de fuente reducido */
+        padding: 8px 16px;
+        /* Reducción de relleno */
+        border-radius: 6px;
+        /* Borde más suave */
+        border: none;
+        cursor: pointer;
+        /* Cambia el cursor a una mano cuando se pasa el ratón sobre el botón */
+        transition: background-color 0.3s ease;
+        /* Añade una transición suave al color de fondo cuando cambia */
+        text-transform: uppercase;
+        font-weight: bold;
+        color: white;
+        /* Color del texto en todos los botones */
+    }
+
+    /* Estilos para el botón Regresar */
+    .btn-regresar {
+        background-color: #6c757d;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-regresar:active {
+        background-color: #545b62;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    /* Estilos para el botón Crear Usuario */
+    .btn-crear-usuario {
+        background-color: #e71b2a;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-crear-usuario:hover {
+        background-color: #c21623;
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    .btn-crear-usuario:active {
+        background-color: #a0121d;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: white;
+        /* Asegurar que el texto sea blanco */
+    }
+
+    /* Icono dentro del botón */
+    .btn i {
+        margin-right: 8px;
+    }
     </style>
 </head>
 
@@ -276,7 +362,7 @@ if (isset($conn)) {
         <h1>Formulario de Registro de Estudiantes | Sistema de Gestión UEBF</h1>
     </div>
     <div class="container">
-        <h2><i class='bx bxs-folder-plus'></i> Registro de Estudiante</h2>
+        <h2><i class='bx bx-user-pin'></i> Registro de Estudiante</h2>
         <div class="card-body">
             <!-- Mostrar mensajes de alerta -->
             <?php if (!empty($mensaje)): ?>
@@ -380,10 +466,13 @@ if (isset($conn)) {
                     </div>
                 </div>
                 <div class="button-group mt-4">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="location.href='http://localhost/sistema_notas/views/admin/estudiantes.php';"><i
-                            class='bx bx-arrow-back'></i> Regresar</button>
-                    <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Crear Estudiante</button>
+                    <button type="button" class="btn btn-regresar"
+                        onclick="location.href='http://localhost/sistema_notas/views/admin/estudiantes.php';">
+                        <i class='bx bx-arrow-back'></i> Regresar
+                    </button>
+                    <button type="submit" class="btn btn-crear-usuario">
+                        <i class='bx bx-save'></i> Crear Estudiante
+                    </button>
                 </div>
             </form>
         </div>

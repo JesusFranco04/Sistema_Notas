@@ -57,7 +57,7 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/usuario.php">
-                            <i class='bx bx-plus' style="font-size: 18px; margin-right: 10px;"></i>
+                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
                             Usuarios
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
