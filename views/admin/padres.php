@@ -175,7 +175,6 @@ if (!$resultado) {
                                 <th>Genero</th>
                                 <th>Discapacidad</th>
                                 <th>ID_Usuario</th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -195,14 +194,6 @@ if (!$resultado) {
                                 <td><?php echo $fila['genero']; ?></td>
                                 <td><?php echo $fila['discapacidad']; ?></td>
                                 <td><?php echo $fila['id_usuario']; ?></td>
-                                <td>
-                                    <a href="http://localhost/sistema_notas/Crud/admin/usuario/editar_usuario.php?cedula=<?php echo $fila['id_padre']; ?>"
-                                        class="btn btn-warning btn-action">Editar</a>
-                                    <button type="button" class="btn btn-danger btn-action"
-                                        onclick="mostrarModalCambioEstado('<?php echo $fila['cedula']; ?>', '<?php echo $fila['id_padre']; ?>');">
-                                        Eliminar
-                                    </button>
-                                </td>
                             </tr>
                             <?php
                             }

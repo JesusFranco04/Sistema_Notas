@@ -362,7 +362,7 @@ if (isset($conn)) {
         <h1>Formulario de Registro de Estudiantes | Sistema de Gestión UEBF</h1>
     </div>
     <div class="container">
-        <h2><i class='bx bx-user-pin'></i> Registro de Estudiante</h2>
+        <h2><i class='bx bx-user-pin'></i>Registro de Estudiante</h2>
         <div class="card-body">
             <!-- Mostrar mensajes de alerta -->
             <?php if (!empty($mensaje)): ?>

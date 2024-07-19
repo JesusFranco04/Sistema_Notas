@@ -192,11 +192,8 @@ if (!$resultado) {
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <a href="../../Crud/profesores/editar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
+                                    <a href="http://localhost/sistema_notas/Crud/admin/estudiante/editar_estudiantes.php?cedula=<?php echo $fila['cedula']; ?>"
                                         class="btn btn-warning btn-action">Editar</a>
-                                    <a href="../../Crud/profesores/eliminar_profe.php?cedula=<?php echo $fila['cedula']; ?>"
-                                        class="btn btn-danger btn-action"
-                                        onclick="return confirm('¿Está seguro de eliminar este registro?');">Eliminar</a>
                                 </td>
                             </tr>
                             <?php } ?>
