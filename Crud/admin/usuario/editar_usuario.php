@@ -429,6 +429,7 @@ $rol_data = $result_roles->fetch_assoc();
                         <label for="id_rol"><i class='bx bxs-user-circle'></i> Rol: <span
                                 class="required">*</span></label>
                         <select class="form-control" id="id_rol" name="id_rol" required>
+                            <option value="">Seleccione rol</option>
                             <option value="1" <?php echo $id_rol == 1 ? 'selected' : ''; ?>>Administrador</option>
                             <option value="2" <?php echo $id_rol == 2 ? 'selected' : ''; ?>>Profesor</option>
                             <option value="3" <?php echo $id_rol == 3 ? 'selected' : ''; ?>>Padre</option>
@@ -440,7 +441,7 @@ $rol_data = $result_roles->fetch_assoc();
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="parentesco"><i class='bx bxs-user'></i> Parentesco: </label>
+                        <label for="parentesco"><i class='bx bxs-user'></i> Parentesco: <span class="required">*</span></label>
                         <input type="text" class="form-control" id="parentesco" name="parentesco"
                             value="<?php echo htmlspecialchars($rol_data['parentesco']); ?>">
                     </div>

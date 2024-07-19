@@ -335,7 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Formulario de Edición de Cursos | Sistema de Gestión UEBF</h1>
     </div>
     <div class="container">
-        <h2><i class='bx bxs-badge-check' ></i>Editar Curso</h2>
+        <h2><i class='bx bxs-folder'></i>Editar Curso</h2>
         <!-- Mostrar mensaje de error o éxito -->
         <?php if ($error_message): ?>
         <div class="error-message"><?php echo $error_message; ?></div>
@@ -423,7 +423,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="col-md-6 form-group">
-                    <label for="id_especialidad" class="form-label">Especialidad</label>
+                    <label for="id_especialidad" class="form-label required">Especialidad</label>
                     <select class="form-control" id="id_especialidad" name="id_especialidad">
                         <option value="">Seleccione una especialidad</option>
                         <?php
@@ -438,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="col-md-6 form-group">
-                    <label for="id_jornada" class="form-label">Jornada</label>
+                    <label for="id_jornada" class="form-label required">Jornada</label>
                     <select class="form-control" id="id_jornada" name="id_jornada">
                         <option value="">Seleccione una jornada</option>
                         <?php
@@ -453,7 +453,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="col-md-6 form-group">
-                    <label for="id_his_academico" class="form-label">Historial Académico</label>
+                    <label for="id_his_academico" class="form-label required">Historial Académico</label>
                     <select class="form-control" id="id_his_academico" name="id_his_academico">
                         <option value="">Seleccione un historial académico</option>
                         <?php

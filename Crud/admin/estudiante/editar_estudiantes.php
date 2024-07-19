@@ -333,7 +333,7 @@ if (isset($conn)) {
             <div class="form-row">
                 <div class="form-col col-md-6">
                     <div class="form-group">
-                        <label for="telefono" class="form-label">Teléfono:</label>
+                        <label for="telefono" class="form-label required">Teléfono:</label>
                         <input type="text" id="telefono" name="telefono" class="form-control"
                             value="<?= htmlspecialchars($estudiante['telefono']); ?>">
                     </div>
@@ -341,7 +341,7 @@ if (isset($conn)) {
 
                 <div class="form-col col-md-6">
                     <div class="form-group">
-                        <label for="correo_electronico" class="form-label">Correo Electrónico:</label>
+                        <label for="correo_electronico" class="form-label required">Correo Electrónico:</label>
                         <input type="email" id="correo_electronico" name="correo_electronico" class="form-control"
                             value="<?= htmlspecialchars($estudiante['correo_electronico']); ?>">
                     </div>
@@ -388,6 +388,7 @@ if (isset($conn)) {
                     <div class="form-group">
                         <label for="discapacidad" class="form-label required">Discapacidad:</label>
                         <select id="discapacidad" name="discapacidad" class="form-control" required>
+                            <option value="">Seleccione discapacidad</option>
                             <option value="si" <?= $estudiante['discapacidad'] == 'si' ? 'selected' : ''; ?>>Sí</option>
                             <option value="no" <?= $estudiante['discapacidad'] == 'no' ? 'selected' : ''; ?>>No</option>
                         </select>
@@ -400,6 +401,7 @@ if (isset($conn)) {
                     <div class="form-group">
                         <label for="estado" class="form-label required">Estado:</label>
                         <select id="estado" name="estado" class="form-control" required>
+                            <option value="">Seleccione estado</option>
                             <option value="A" <?= $estudiante['estado'] == 'A' ? 'selected' : ''; ?>>Activo</option>
                             <option value="I" <?= $estudiante['estado'] == 'I' ? 'selected' : ''; ?>>Inactivo</option>
                         </select>
