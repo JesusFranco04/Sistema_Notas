@@ -173,9 +173,7 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            while ($fila = mysqli_fetch_assoc($resultado)) {
-                                ?>
+                        <?php while ($fila = $resultado->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $fila['id_materia']; ?></td>
                                 <td><?php echo $fila['nombre']; ?></td>
@@ -183,102 +181,99 @@ if (!$resultado) {
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <a href="../../Crud/niveles/editar_niveles.php ?id=<?php echo $fila['id_materia']; ?>"
-                                        class="btn btn-sm btn-primary">Editar</a>
-                                    <a href="../../Crud/niveles/eliminar_niveles.php ?id=<?php echo $fila['id_materia']; ?>"
-                                        class="btn btn-sm btn-danger">Eliminar</a>
+                                    <button class="btn btn-<?php echo $fila['estado'] == 'A' ? 'warning' : 'success'; ?>" 
+                                            data-id="<?php echo $fila['id_materia']; ?>" 
+                                            data-estado="<?php echo $fila['estado'] == 'A' ? 'inactivo' : 'activo'; ?>" 
+                                            onclick="mostrarModalCambioEstado(this)">
+                                        <?php echo $fila['estado'] == 'A' ? 'Inactivar' : 'Activar'; ?>
+                                    </button>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php endwhile; ?>
                         </tbody>
                     </table>
-                    <!-- Modal de Confirmación -->
-                    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p id="mensajeConfirmacion"></p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form id="formularioConfirmacion" method="POST"
-                                        action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
-                                        <input type="hidden" id="inputCedula" name="cedula" value="">
-                                        <input type="hidden" id="inputEstado" name="estado" value="">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" id="botonConfirmacion"
-                                            class="btn btn-primary">Confirmar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fin Modal de Confirmación -->
-
-                    <!-- Modal de Instrucciones -->
-                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
-                        aria-labelledby="modalInstrucciones1Label" aria-hidden="true">
-                        <div class="modal-dialog modal-xl" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema
-                                        de
-                                        Gestión
-                                        UEBF</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <embed src="Manual_de_Usuario.pdf" type="application/pdf" width="100%"
-                                        height="600px" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fin Modal de Instrucciones -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
+    <!-- Modal de Confirmación -->
+    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensajeConfirmacion"></p>
+                </div>
+                <div class="modal-footer">
+                    <form id="formularioConfirmacion" method="POST">
+                        <input type="hidden" id="inputIdMateria" name="id_materia" value="">
+                        <input type="hidden" id="inputEstado" name="estado" value="">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmarCambioEstado()">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de Confirmación -->
+
+    <!-- Bootstrap core JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript-->
+    <!-- Core plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <!-- SB Admin 2 JS-->
+    <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
     <!-- Script para mostrar modal de confirmación -->
     <script>
-    function mostrarModalCambioEstado(cedula, estado) {
-        var mensaje = '';
-        if (estado === 'A') {
-            mensaje = '¿Está seguro que desea eliminar este usuario?';
-        } else {
-            mensaje = '¿Está seguro que desea activar este usuario?';
-        }
-        $('#mensajeConfirmacion').text(mensaje);
-        $('#inputCedula').val(cedula);
-        $('#inputEstado').val(estado);
+    function mostrarModalCambioEstado(button) {
+        var id_materia = button.getAttribute('data-id');
+        var estado = button.getAttribute('data-estado');
+        var mensaje = estado === 'activo' ? '¿Está seguro que desea activar esta materia?' : '¿Está seguro que desea inactivar esta materia?';
+
+        document.getElementById('mensajeConfirmacion').textContent = mensaje;
+        document.getElementById('inputIdMateria').value = id_materia;
+        document.getElementById('inputEstado').value = estado;
+
         $('#modalConfirmacion').modal('show');
+    }
+
+    function confirmarCambioEstado() {
+        var formulario = document.getElementById('formularioConfirmacion');
+        var id_materia = document.getElementById('inputIdMateria').value;
+        var estado = document.getElementById('inputEstado').value;
+
+        $.ajax({
+            url: 'http://localhost/sistema_notas/Crud/admin/materia/inactivar_materia.php',
+            type: 'POST',
+            data: {
+                id_materia: id_materia,
+                estado: estado
+            },
+            success: function(response) {
+                $('#modalConfirmacion').modal('hide');
+                location.reload(); // Recargar la página para reflejar los cambios
+            },
+            error: function(xhr, status, error) {
+                alert('Error al cambiar el estado: ' + xhr.responseText);
+            }
+        });
     }
     </script>
 
 </body>
-
 </html>
 
 <?php
 // Liberar resultado
-mysqli_free_result($resultado);
+$resultado->free();
 
 // Cerrar conexión
 $conn->close();

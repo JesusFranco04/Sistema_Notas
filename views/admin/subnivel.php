@@ -6,14 +6,27 @@ include('../../Crud/config.php'); // Ruta absoluta
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
-// Consulta SQL para obtener los usuarios
-$sql = "SELECT * FROM subnivel";
+// Inicializar las variables de filtro
+$fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
+$estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+
+// Construir la consulta SQL con filtros si existen
+$sql = "SELECT * FROM subnivel WHERE 1=1";
+if (!empty($fecha)) {
+    $sql .= " AND DATE(fecha_ingreso) = '$fecha'";
+}
+if (!empty($estado)) {
+    $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
+    $sql .= " AND estado = '$estadoFiltro'";
+}
+
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -174,9 +187,7 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            while ($fila = mysqli_fetch_assoc($resultado)) {
-                                ?>
+                            <?php while ($fila = $resultado->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $fila['id_subnivel']; ?></td>
                                 <td><?php echo $fila['nombre']; ?></td>
@@ -185,92 +196,93 @@ if (!$resultado) {
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <a href="../../Crud/niveles/editar_niveles.php ?id=<?php echo $fila['id_subnivel']; ?>"
-                                        class="btn btn-sm btn-primary">Editar</a>
-                                    <a href="../../Crud/niveles/eliminar_niveles.php ?id=<?php echo $fila['id_subnivel']; ?>"
-                                        class="btn btn-sm btn-danger">Eliminar</a>
+                                    <button
+                                        class="btn btn-<?php echo $fila['estado'] == 'A' ? 'warning' : 'success'; ?>"
+                                        data-id="<?php echo $fila['id_subnivel']; ?>"
+                                        data-estado="<?php echo $fila['estado'] == 'A' ? 'inactivo' : 'activo'; ?>"
+                                        onclick="mostrarModalCambioEstado(this)">
+                                        <?php echo $fila['estado'] == 'A' ? 'Inactivar' : 'Activar'; ?>
+                                    </button>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php endwhile; ?>
                         </tbody>
                     </table>
-                    <!-- Modal de Confirmación -->
-                    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p id="mensajeConfirmacion"></p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form id="formularioConfirmacion" method="POST"
-                                        action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
-                                        <input type="hidden" id="inputCedula" name="cedula" value="">
-                                        <input type="hidden" id="inputEstado" name="estado" value="">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal">Cancelar</button>
-                                        <button type="submit" id="botonConfirmacion"
-                                            class="btn btn-primary">Confirmar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fin Modal de Confirmación -->
-
-                    <!-- Modal de Instrucciones -->
-                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
-                        aria-labelledby="modalInstrucciones1Label" aria-hidden="true">
-                        <div class="modal-dialog modal-xl" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema
-                                        de
-                                        Gestión
-                                        UEBF</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <embed src="Manual_de_Usuario.pdf" type="application/pdf" width="100%"
-                                        height="600px" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Fin Modal de Instrucciones -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
+    <!-- Modal de Confirmación -->
+    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="mensajeConfirmacion"></p>
+                </div>
+                <div class="modal-footer">
+                    <form id="formularioConfirmacion" method="POST">
+                        <input type="hidden" id="inputIdSubnivel" name="id_subnivel" value="">
+                        <input type="hidden" id="inputEstado" name="estado" value="">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary"
+                            onclick="confirmarCambioEstado()">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin Modal de Confirmación -->
+
+    <!-- Bootstrap core JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript-->
+    <!-- Core plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <!-- SB Admin 2 JS-->
+    <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
     <!-- Script para mostrar modal de confirmación -->
     <script>
-    function mostrarModalCambioEstado(cedula, estado) {
-        var mensaje = '';
-        if (estado === 'A') {
-            mensaje = '¿Está seguro que desea eliminar este usuario?';
-        } else {
-            mensaje = '¿Está seguro que desea activar este usuario?';
-        }
-        $('#mensajeConfirmacion').text(mensaje);
-        $('#inputCedula').val(cedula);
-        $('#inputEstado').val(estado);
+    function mostrarModalCambioEstado(button) {
+        var id_subnivel = button.getAttribute('data-id');
+        var estado = button.getAttribute('data-estado');
+        var mensaje = estado === 'activo' ? '¿Está seguro que desea activar este subnivel?' :
+            '¿Está seguro que desea inactivar este subnivel?';
+
+        document.getElementById('mensajeConfirmacion').textContent = mensaje;
+        document.getElementById('inputIdSubnivel').value = id_subnivel;
+        document.getElementById('inputEstado').value = estado;
+
         $('#modalConfirmacion').modal('show');
+    }
+
+    function confirmarCambioEstado() {
+        var formulario = document.getElementById('formularioConfirmacion');
+        var id_subnivel = document.getElementById('inputIdSubnivel').value;
+        var estado = document.getElementById('inputEstado').value;
+
+        $.ajax({
+            url: 'http://localhost/sistema_notas/Crud/admin/subnivel/inactivar_subnivel.php',
+            type: 'POST',
+            data: {
+                id_subnivel: id_subnivel,
+                estado: estado
+            },
+            success: function(response) {
+                $('#modalConfirmacion').modal('hide');
+                location.reload(); // Recargar la página para reflejar los cambios
+            },
+            error: function(xhr, status, error) {
+                alert('Error al cambiar el estado: ' + xhr.responseText);
+            }
+        });
     }
     </script>
 
@@ -280,7 +292,7 @@ if (!$resultado) {
 
 <?php
 // Liberar resultado
-mysqli_free_result($resultado);
+$resultado->free();
 
 // Cerrar conexión
 $conn->close();
