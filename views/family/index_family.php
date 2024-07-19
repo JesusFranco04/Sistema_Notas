@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -158,11 +162,18 @@
                 <i class='bx bx-help-circle'></i>FAQ
             </a>
             <div style="margin-left: auto; margin-right: 20px;">
-                <span style="font-size: 14px; color: #888;">Nombre Completo del Usuario</span>
-                <span style="margin-left: 20px;"></span> <!-- Espacio adicional -->
-                <button onclick="window.location.href='http://localhost/Sistema_Notas/login.php">Cerrar Sesión</button>
+                <span style="font-size: 14px; color: #888;">
+                    <?php
+                                // Verifica si las variables de sesión están establecidas
+                                if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
+                                    echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
+                                    echo "<i class='bx bx-user-circle' ></i>";
+                                }
+                                ?>
+                    <!-- Botón para cerrar sesión -->
+                    <button onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar
+                        Sesión</button>
             </div>
-        </div>
     </nav>
 
     <section>

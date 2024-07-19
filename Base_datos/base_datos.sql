@@ -166,20 +166,27 @@ CREATE TABLE estudiante (
 );
 
 
-
-CREATE TABLE curso ( -- En esta tabla se guardara los datos de la siguiente manera: Primer Bachillerato G BTI Electricidad
+CREATE TABLE curso (
     id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    id_profesor INT NOT NULL,
+    id_materia INT NOT NULL,
     id_nivel INT NOT NULL,
-	id_paralelo INT NOT NULL,
+    id_paralelo INT NOT NULL,
     id_subnivel INT NOT NULL,
     id_especialidad INT NOT NULL,
-	estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
+    id_jornada INT NOT NULL,
+    id_his_academico INT NOT NULL,
+    estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
+    usuario_ingreso VARCHAR(50) NOT NULL, -- Número de cédula del usuario que crea o modifica
     fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
+    FOREIGN KEY (id_profesor) REFERENCES profesor(id_profesor),
+    FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
     FOREIGN KEY (id_nivel) REFERENCES nivel(id_nivel),
-	FOREIGN KEY (id_paralelo) REFERENCES paralelo(id_paralelo),
+    FOREIGN KEY (id_paralelo) REFERENCES paralelo(id_paralelo),
     FOREIGN KEY (id_subnivel) REFERENCES subnivel(id_subnivel),
-    FOREIGN KEY (id_especialidad) REFERENCES especialidad(id_especialidad)
+    FOREIGN KEY (id_especialidad) REFERENCES especialidad(id_especialidad),
+    FOREIGN KEY (id_jornada) REFERENCES jornada(id_jornada),
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
 
@@ -259,191 +266,5 @@ CREATE TABLE Evalu_Estudiantes (
     FOREIGN KEY (id_evaluacion) REFERENCES Evaluacion(id_evaluacion),
     INDEX idx_estado (estado)
 );
-
-
-/* Triggers para administrador - AFTER INSERT*/
-DELIMITER //
-
-CREATE TRIGGER after_insert_administrador
-AFTER INSERT ON administrador
-FOR EACH ROW
-BEGIN
-    -- Insertar en la tabla de usuario
-    INSERT INTO usuario (cedula, contraseña, id_rol, estado, usuario_ingreso)
-    VALUES (NEW.cedula, NEW.contraseña, 1, NEW.estado, NEW.usuario_ingreso);
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para administrador - AFTER UPDATE*/
-DELIMITER //
-
-CREATE TRIGGER after_update_administrador
-AFTER UPDATE ON administrador
-FOR EACH ROW
-BEGIN
-    -- Actualizar en la tabla de usuario
-    UPDATE usuario
-    SET usuario_ingreso = NEW.usuario_ingreso, contraseña = NEW.contraseña
-    WHERE id_rol = 1 AND cedula = NEW.cedula;
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para administrador - AFTER DELETE*/
-DELIMITER //
-
-CREATE TRIGGER after_delete_administrador
-AFTER DELETE ON administrador
-FOR EACH ROW
-BEGIN
-    -- No se realiza eliminación, se puede implementar lógica para inactivar
-    -- UPDATE usuario SET estado = 'I' WHERE id_rol = 1 AND cedula = OLD.cedula;
-END;
-//
-
-DELIMITER ;
-
-
-
-/* Triggers para profesor - AFTER INSERT*/
-DELIMITER //
-
-CREATE TRIGGER after_insert_profesor
-AFTER INSERT ON profesor
-FOR EACH ROW
-BEGIN
-    -- Insertar en la tabla de usuario
-    INSERT INTO usuario (cedula, contraseña, id_rol, estado, usuario_ingreso)
-    VALUES (NEW.cedula, NEW.contraseña, 2, NEW.estado, NEW.usuario_ingreso);
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para profesor - AFTER UPDATE*/
-DELIMITER //
-
-CREATE TRIGGER after_update_profesor
-AFTER UPDATE ON profesor
-FOR EACH ROW
-BEGIN
-    -- Actualizar en la tabla de usuario
-    UPDATE usuario
-    SET usuario_ingreso = NEW.usuario_ingreso, contraseña = NEW.contraseña
-    WHERE id_rol = 2 AND cedula = NEW.cedula;
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para profesor - AFTER DELETE*/
-DELIMITER //
-
-CREATE TRIGGER after_delete_profesor
-AFTER DELETE ON profesor
-FOR EACH ROW
-BEGIN
-    -- No se realiza eliminación, se puede implementar lógica para inactivar
-    -- UPDATE usuario SET estado = 'I' WHERE id_rol = 2 AND cedula = OLD.cedula;
-END;
-//
-
-DELIMITER ;
-
-
-/*Triggers para padre - AFTER INSERT*/
-DELIMITER //
-
-CREATE TRIGGER after_insert_padre
-AFTER INSERT ON padre
-FOR EACH ROW
-BEGIN
-    -- Insertar en la tabla de usuario
-    INSERT INTO usuario (cedula, contraseña, id_rol, estado, usuario_ingreso)
-    VALUES (NEW.cedula, NEW.contraseña, 3, NEW.estado, NEW.usuario_ingreso);
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para padre - AFTER UPDATE*/
-DELIMITER //
-
-CREATE TRIGGER after_update_padre
-AFTER UPDATE ON padre
-FOR EACH ROW
-BEGIN
-    -- Actualizar en la tabla de usuario
-    UPDATE usuario
-    SET usuario_ingreso = NEW.usuario_ingreso, contraseña = NEW.contraseña
-    WHERE id_rol = 3 AND cedula = NEW.cedula;
-END;
-//
-
-DELIMITER ;
-
-/* Triggers para padre - AFTER DELETE*/
-DELIMITER //
-
-CREATE TRIGGER after_delete_padre
-AFTER DELETE ON padre
-FOR EACH ROW
-BEGIN
-    -- No se realiza eliminación, se puede implementar lógica para inactivar
-    -- UPDATE usuario SET estado = 'I' WHERE id_rol = 3 AND cedula = OLD.cedula;
-END;
-//
-
-DELIMITER ;
-
-
-/*Triggers para estudiante - AFTER INSERT*/
-DELIMITER //
-
-CREATE TRIGGER after_insert_estudiante
-AFTER INSERT ON estudiante
-FOR EACH ROW
-BEGIN
-    -- No se crea usuario para el estudiante, ya que será el padre quien tenga acceso
-    -- INSERT INTO usuario (cedula, contraseña, id_rol, estado, usuario_ingreso)
-    -- VALUES (NEW.cedula, NEW.contraseña, 12, NEW.estado, NEW.usuario_ingreso);
-END;
-//
-
-DELIMITER ;
-
-/*Triggers para estudiante - AFTER UPDATE*/
-DELIMITER //
-
-CREATE TRIGGER after_update_estudiante
-AFTER UPDATE ON estudiante
-FOR EACH ROW
-BEGIN
-    -- No se actualiza usuario para el estudiante, ya que será el padre quien tenga acceso
-    -- UPDATE usuario
-    -- SET usuario_ingreso = NEW.usuario_ingreso, contraseña = NEW.contraseña
-    -- WHERE id_rol = 12 AND cedula = NEW.cedula;
-END;
-//
-
-DELIMITER ;
-
-/*Triggers para estudiante - AFTER DELETE*/
-DELIMITER //
-
-CREATE TRIGGER after_delete_estudiante
-AFTER DELETE ON estudiante
-FOR EACH ROW
-BEGIN
-    -- No se realiza eliminación, se puede implementar lógica para inactivar
-    -- UPDATE usuario SET estado = 'I' WHERE id_rol = 12 AND cedula = OLD.cedula;
-END;
-//
-
-DELIMITER ;
-
 
 

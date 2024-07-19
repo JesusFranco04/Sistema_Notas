@@ -27,7 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     require 'Crud/config.php';
 
     // Validación de usuarios regulares
-    $sql = "SELECT id_usuario, cedula, contraseña, id_rol FROM usuario WHERE cedula = ?";
+    $sql = "SELECT u.id_usuario, u.cedula, u.contraseña, r.nombre AS nombre_rol 
+            FROM usuario u
+            JOIN rol r ON u.id_rol = r.id_rol
+            WHERE u.cedula = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $cedula);
     $stmt->execute();
@@ -37,15 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($user && $contraseña === $user['contraseña']) {
         session_start();
         $_SESSION['cedula'] = $user['cedula'];
-        $_SESSION['id_rol'] = $user['id_rol'];
-        switch ($user['id_rol']) {
-            case 1:
+        $_SESSION['rol'] = $user['nombre_rol'];
+        switch ($user['nombre_rol']) {
+            case 'Administrador':
                 header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
                 break;
-            case 2:
+            case 'Profesor':
                 header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
                 break;
-            case 3:
+            case 'Padre':
                 header("Location: http://localhost/sistema_notas/views/family/index_family.php");
                 break;
             default:

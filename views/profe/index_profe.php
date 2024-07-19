@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -449,9 +453,17 @@
                     </ul>
                 </li>
             </ul>
+            <!-- Información de la sesión -->
             <div class="session-info">
-                <span>{{Nombre del Profesor}}</span>
-                <button onclick="window.location.href='http://localhost/sistema_notas/login.php">Cerrar Sesión</button>
+                <?php
+                                // Verifica si las variables de sesión están establecidas
+                                if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
+                                    echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
+                                    echo "<i class='bx bx-user-circle' ></i>";
+                                }
+                                ?>
+                <!-- Botón para cerrar sesión -->
+                <button onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar Sesión</button>
             </div>
         </nav>
 

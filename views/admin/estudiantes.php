@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Incluir el archivo de conexión y verificar la conexión
 include '../../Crud/config.php';
 

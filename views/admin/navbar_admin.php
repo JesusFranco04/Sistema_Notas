@@ -114,6 +114,10 @@
                             href="http://localhost/sistema_notas/views/admin/calificacion_admin.php">
                             <i class='bx bx-file'></i> Calificaciones
                         </a>
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/views/admin/curso_admin.php">
+                            <i class='bx bxs-school'></i> Cursos
+                        </a>
                     </div>
                     <!-- Sección de Usuarios por Agregar -->
                     <div class="submenu-section">
@@ -175,27 +179,32 @@
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                <?php echo $_SESSION['rol']; ?> - <?php echo $_SESSION['cedula']; ?>
+                                <?php
+                                // Verifica si las variables de sesión están establecidas
+                                if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
+                                    echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
+                                    echo "<i class='bx bx-user-circle' ></i>";
+                                }
+                                ?>
                             </span>
                         </a>
 
-                        <!-- Menú desplegable - Contenido (Barra Superior) -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                            aria-labelledby="userDropdown">
-                            <a class="dropdown-item"
-                                href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
-                                <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;"></i>
-                                Perfil
-                            </a>
+                    <!-- Menú desplegable - Contenido (Barra Superior) -->
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                        aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
+                            <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;"></i>
+                            Perfil
+                        </a>
 
-                            <div class="dropdown-divider"></div>
+                        <div class="dropdown-divider"></div>
 
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;"></i>
-                                Cerrar Sesión
-                            </a>
-                        </div>
-                        <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;"></i>
+                            Cerrar Sesión
+                        </a>
+                    </div>
+                    <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
 
                     </li>
                     <!-- Fin del Ítem de la Barra de Navegación - Enlace de Uso Libre (Barra Superior) -->
