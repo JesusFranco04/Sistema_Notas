@@ -6,8 +6,17 @@ include('../../Crud/config.php'); // Ruta absoluta
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
-// Consulta SQL para obtener los usuarios
-$sql = "SELECT * FROM padre";
+// Obtener los filtros de búsqueda
+$cedulaFiltro = isset($_GET['cedula']) ? $_GET['cedula'] : '';
+$generoFiltro = isset($_GET['genero']) ? $_GET['genero'] : '';
+
+// Consulta SQL para obtener los usuarios con filtros
+$sql = "SELECT * FROM padre WHERE cedula LIKE '%$cedulaFiltro%'";
+
+if ($generoFiltro) {
+    $sql .= " AND genero = '$generoFiltro'";
+}
+
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
@@ -24,7 +33,7 @@ if (!$resultado) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Padres | Sistema de Gestión UEBF</title>
+    <title>Representantes | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
@@ -40,17 +49,7 @@ if (!$resultado) {
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
     <style>
-    /* Estilo para el contenedor de la tabla */
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    /* Estilo para separar los botones de acciones */
-    .action-buttons .btn {
-        margin-right: 20px;
-    }
-
+    /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
@@ -60,6 +59,7 @@ if (!$resultado) {
         padding: 20px;
     }
 
+    /* Estilo de la tarjeta */
     .card {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -67,25 +67,98 @@ if (!$resultado) {
     }
 
     .card-header {
-        background-color: #c42021;
-        /* Color de fondo rojo */
+        background-color: #28a745;
         color: white;
-        /* Color del texto */
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
         padding: 15px;
-        /* Espacio interno alrededor del contenido del encabezado */
+    }
+
+    /* Estilo de los botones de acción */
+    .action-buttons .btn {
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+
+    .btn-success {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-success:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    /* Estilo de la tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        border-collapse: separate;
+        border-spacing: 0;
     }
 
     .table thead th {
-        background-color: #dc3545;
+        background-color: #28a745;
         color: white;
         text-align: center;
+        font-weight: bold;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #d4edda;
+        /* Verde claro para filas impares */
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
+    }
+
+    .table tbody tr:hover {
+        background-color: #e2e6ea;
+        /* Color de fondo al pasar el ratón */
     }
 
     .table tbody td {
         text-align: center;
+        padding: 12px;
     }
+
+    /* Estilo para contenedor de tabla */
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
+    }
+
 
     .section-title {
         font-size: 1.2rem;
@@ -96,11 +169,6 @@ if (!$resultado) {
 
     .filter-icon {
         margin-right: 5px;
-    }
-
-    .table tbody .btn-action {
-        margin-bottom: 10px;
-        display: inline-block;
     }
 
     .filter-container {
@@ -122,19 +190,22 @@ if (!$resultado) {
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de
-                                Creación</label>
-                            <input type="date" class="form-control" id="searchFecha" name="fecha"
-                                value="<?php echo $fecha; ?>">
+                            <label for="searchCedula"><i class="fas fa-search filter-icon"></i>Búsqueda por
+                                Cédula</label>
+                            <input type="text" class="form-control" id="searchCedula" name="cedula"
+                                value="<?php echo htmlspecialchars($cedulaFiltro); ?>">
                         </div>
                         <div class="col-md-4">
-                            <label for="searchEstado"><i class="fas fa-filter filter-icon"></i>Estado</label>
-                            <select class="form-control" id="searchEstado" name="estado">
+                            <label for="searchGenero"><i class="fas fa-filter filter-icon"></i>Filtrar por
+                                Género</label>
+                            <select class="form-control" id="searchGenero" name="genero">
                                 <option value="">Todos</option>
-                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos
+                                <option value="femenino" <?php echo $generoFiltro == 'femenino' ? 'selected' : ''; ?>>
+                                    Femenino</option>
+                                <option value="masculino" <?php echo $generoFiltro == 'masculino' ? 'selected' : ''; ?>>
+                                    Masculino</option>
+                                <option value="otros" <?php echo $generoFiltro == 'otros' ? 'selected' : ''; ?>>Otros
                                 </option>
-                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>
-                                    Inactivos</option>
                             </select>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
@@ -214,7 +285,8 @@ if (!$resultado) {
                                     <p id="mensajeConfirmacion"></p>
                                 </div>
                                 <div class="modal-footer">
-                                    <form id="formularioConfirmacion" method="POST" action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
+                                    <form id="formularioConfirmacion" method="POST"
+                                        action="http://localhost/sistema_notas/Crud/admin/administrador/eliminar_admin.php">
                                         <input type="hidden" id="inputCedula" name="cedula" value="">
                                         <input type="hidden" id="inputEstado" name="estado" value="">
                                         <button type="button" class="btn btn-secondary"
@@ -234,7 +306,8 @@ if (!$resultado) {
                         <div class="modal-dialog modal-xl" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema de
+                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema
+                                        de
                                         Gestión
                                         UEBF</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">

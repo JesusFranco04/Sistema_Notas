@@ -1,7 +1,11 @@
 <?php
 session_start();
-?>
+// Incluir el archivo de conexión y verificar la conexión
+include('../../Crud/config.php'); // Ruta absoluta 
 
+// Configurar la zona horaria de Ecuador
+date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
+?>
 
 <!DOCTYPE html>
 <html lang="es">

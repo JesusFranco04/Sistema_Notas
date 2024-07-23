@@ -1,75 +1,28 @@
 <?php
-// Iniciar la sesión para obtener datos del usuario que está logueado
 session_start();
-
-// Incluir el archivo de configuración para conectarte a la base de datos
 include('../../config.php');
-date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
+date_default_timezone_set('America/Guayaquil');
 
-// Verifica si se ha enviado el ID del curso
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    die('Error: ID del curso no proporcionado.');
-}
+// Inicializar variables
+$profesores = [];
+$materias = [];
+$niveles = [];
+$paralelos = [];
+$subniveles = [];
+$especialidades = [];
+$jornadas = [];
+$historiales = [];
+$curso = [];
+$error = '';
+$success = '';
 
-// Recupera el ID del curso desde la URL
-$id_curso = $_GET['id'];
+// ID del curso a editar (debe ser pasado como parámetro GET)
+$id_curso = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-$error_message = '';
-$success_message = '';
-
-// Obtiene los datos actuales del curso desde la base de datos
-$sql = "SELECT * FROM curso WHERE id_curso = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_curso);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    die('Error: Curso no encontrado.');
-}
-
-$curso = $result->fetch_assoc();
-
-// Obtener nombres asociados con los IDs
-$tables = [
-    'profesor' => 'id_profesor',
-    'materia' => 'id_materia',
-    'nivel' => 'id_nivel',
-    'paralelo' => 'id_paralelo',
-    'subnivel' => 'id_subnivel',
-    'especialidad' => 'id_especialidad',
-    'jornada' => 'id_jornada',
-    'historial_academico' => 'id_his_academico'
-];
-
-$names = [];
-
-foreach ($tables as $table => $id_field) {
-    $column_name = 'nombre'; // Ajusta el nombre de la columna según tu esquema real
-
-    // Verificar si la columna existe en la tabla
-    $check_col_sql = "SHOW COLUMNS FROM {$table} LIKE '{$column_name}'";
-    $check_col_result = $conn->query($check_col_sql);
-    
-    if ($check_col_result->num_rows > 0) {
-        // La columna existe
-        $sql = "SELECT id_{$table}, {$column_name} FROM {$table} WHERE id_{$table} = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $curso[$id_field]);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $names[$table] = $result->fetch_assoc();
-    } else {
-        // Si la columna no existe, usa un valor predeterminado
-        $names[$table] = ['id_' . $table => $curso[$id_field], 'nombre' => 'No disponible'];
-    }
-}
-
-// Verifica si se ha enviado el formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recoge los datos del formulario
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recoger los valores del formulario
     $id_profesor = $_POST['id_profesor'];
-    $id_materia = $_POST['id_materia'];
+    $id_materias = $_POST['id_materias']; // Esto recogerá un array de materias seleccionadas
     $id_nivel = $_POST['id_nivel'];
     $id_paralelo = $_POST['id_paralelo'];
     $id_subnivel = $_POST['id_subnivel'];
@@ -77,40 +30,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_jornada = $_POST['id_jornada'];
     $id_his_academico = $_POST['id_his_academico'];
     $estado = $_POST['estado'];
-    $usuario_ingreso = $_POST['usuario_ingreso'];
-    $fecha_ingreso = $_POST['fecha_ingreso'];
+    $usuario_ingreso = $_SESSION['cedula'];
+    $fecha_ingreso = date('Y-m-d H:i:s');
 
-    // Iniciar una transacción
-    $conn->begin_transaction();
+    // Verificar si existe algún registro duplicado
+    $verificarConsulta = "SELECT * FROM curso WHERE id_profesor = ? AND id_materia = ? AND id_nivel = ? AND id_paralelo = ? AND id_subnivel = ? AND id_especialidad = ? AND id_jornada = ? AND id_his_academico = ? AND estado = ? AND id_curso <> ?";
 
-    try {
-        // Actualiza el registro en la base de datos
-        $sql = "UPDATE curso SET id_profesor = ?, id_materia = ?, id_nivel = ?, id_paralelo = ?, id_subnivel = ?, id_especialidad = ?, id_jornada = ?, id_his_academico = ?, estado = ?, usuario_ingreso = ?, fecha_ingreso = ? WHERE id_curso = ?";
-        $stmt = $conn->prepare($sql);
+    if ($verificarStmt = $conn->prepare($verificarConsulta)) {
+        $existeRegistro = false;
+        $todosInsertados = true;
 
-        // Verifica si la preparación de la consulta fue exitosa
-        if ($stmt === false) {
-            throw new Exception('Error: Fallo en la preparación de la consulta.');
+        foreach ($id_materias as $materia) {
+            $verificarStmt->bind_param("iiiiiiissi", $id_profesor, $materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $id_curso);
+
+            $verificarStmt->execute();
+            $result = $verificarStmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $existeRegistro = true;
+                break;
+            }
         }
 
-        // Vincula los parámetros con la consulta
-        $stmt->bind_param("iiiiiiiisssi", $id_profesor, $id_materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso, $id_curso);
-
-        // Ejecuta la consulta
-        if ($stmt->execute()) {
-            // Confirmar la transacción
-            $conn->commit();
-            $success_message = "Curso actualizado exitosamente.";
+        if ($existeRegistro) {
+            $error = "Uno o más cursos ya están registrados para las materias seleccionadas.";
         } else {
-            throw new Exception('Error al actualizar el curso: ' . $stmt->error);
+            // Actualizar los datos en la base de datos
+            $consulta = "UPDATE curso SET id_profesor = ?, id_nivel = ?, id_paralelo = ?, id_subnivel = ?, id_especialidad = ?, id_jornada = ?, id_his_academico = ?, estado = ?, usuario_ingreso = ?, fecha_ingreso = ? WHERE id_curso = ?";
+
+            if ($stmt = $conn->prepare($consulta)) {
+                $stmt->bind_param("iiiiiiisssi", $id_profesor, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso, $id_curso);
+
+                if ($stmt->execute()) {
+                    $success = "Curso actualizado con éxito.";
+                } else {
+                    $error = "Error al actualizar el curso: " . $stmt->error;
+                }
+
+                $stmt->close();
+            } else {
+                $error = "Error al preparar la consulta de actualización: " . $conn->error;
+            }
         }
-    } catch (Exception $e) {
-        // Revertir la transacción en caso de error
-        $conn->rollback();
-        $error_message = $e->getMessage();
+
+        $verificarStmt->close();
+    } else {
+        $error = "Error al preparar la consulta de verificación: " . $conn->error;
     }
 }
+
+// Obtener los datos del curso a editar
+if ($id_curso > 0) {
+    $consulta = "SELECT * FROM curso WHERE id_curso = ?";
+    if ($stmt = $conn->prepare($consulta)) {
+        $stmt->bind_param("i", $id_curso);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $curso = $result->fetch_assoc();
+        }
+        $stmt->close();
+    } else {
+        $error = "Error al preparar la consulta para obtener el curso: " . $conn->error;
+    }
+}
+
+// Obtener los datos para las listas desplegables
+try {
+    // Profesores
+    $result = $conn->query("SELECT id_profesor, CONCAT(nombres, ' ', apellidos) AS nombre_completo FROM profesor");
+    if ($result->num_rows > 0) {
+        $profesores = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Materias
+    $result = $conn->query("SELECT id_materia, nombre FROM materia");
+    if ($result->num_rows > 0) {
+        $materias = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Niveles
+    $result = $conn->query("SELECT id_nivel, nombre FROM nivel");
+    if ($result->num_rows > 0) {
+        $niveles = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Paralelos
+    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo");
+    if ($result->num_rows > 0) {
+        $paralelos = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Subniveles
+    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel");
+    if ($result->num_rows > 0) {
+        $subniveles = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Especialidades
+    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad");
+    if ($result->num_rows > 0) {
+        $especialidades = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Jornadas
+    $result = $conn->query("SELECT id_jornada, nombre FROM jornada");
+    if ($result->num_rows > 0) {
+        $jornadas = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Historiales
+    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico");
+    if ($result->num_rows > 0) {
+        $historiales = $result->fetch_all(MYSQLI_ASSOC);
+    }
+} catch (Exception $e) {
+    $error = "Error al obtener los datos: " . $e->getMessage();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -119,9 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Curso | Sistema de Gestión UEBF</title>
-    <!-- Bootstrap CSS -->
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <style>
     body {
@@ -142,13 +179,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin: 0;
         font-size: 24px;
     }
-
-    .required {
-        color: red;
-        /* Color rojo para los campos obligatorios */
-        margin-left: 5px;
-    }
-
 
     .container {
         max-width: 800px;
@@ -210,15 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border-color: #c1121f;
     }
 
-    .optional-text {
-        font-size: 12px;
-        /* Tamaño pequeño de la letra */
-        color: #999;
-        /* Color gris */
-        margin-left: 5px;
-    }
-
-
     footer {
         background-color: #c1121f;
         color: #fff;
@@ -247,6 +268,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .success-message {
         background-color: #d4edda;
         color: #155724;
+    }
+
+    .row.align-items-center {
+        align-items: center;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        align-items: center;
     }
 
     /* Alinear el grupo de botones a la derecha */
@@ -327,167 +359,253 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .btn i {
         margin-right: 8px;
     }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .form-control {
+        height: 38px;
+        /* Ajusta la altura del campo de selección */
+        border-radius: 6px;
+        /* Bordes redondeados */
+    }
+
+    .materia-container {
+        max-height: 300px;
+        /* Ajusta la altura según sea necesario */
+        overflow-y: auto;
+        /* Añade scrollbar vertical si el contenido es más grande que el contenedor */
+        border: 1px solid #ced4da;
+        /* Añade borde para mejor visualización */
+        padding: 10px;
+        /* Añade padding para separar el contenido del borde */
+        border-radius: 5px;
+        /* Bordes redondeados */
+        background-color: #f8f9fa;
+        /* Fondo claro */
+    }
+
+    .materia-container .form-check {
+        margin-bottom: 10px;
+        /* Espacio entre los checkboxes */
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        /* Espacio entre el checkbox y la etiqueta */
+    }
+
+    .form-check-label {
+        font-size: 14px;
+        /* Tamaño de fuente más pequeño para una mejor presentación */
+    }
     </style>
 </head>
 
 <body>
-    <div class="header-banner">
+    <header class="header-banner">
         <h1>Formulario de Edición de Cursos | Sistema de Gestión UEBF</h1>
-    </div>
+    </header>
+
     <div class="container">
-        <h2><i class='bx bxs-folder'></i>Editar Curso</h2>
-        <!-- Mostrar mensaje de error o éxito -->
-        <?php if ($error_message): ?>
-        <div class="error-message"><?php echo $error_message; ?></div>
-        <?php elseif ($success_message): ?>
-        <div class="success-message"><?php echo $success_message; ?></div>
+        <h2><i class='bx bxs-folder'></i> Editar Curso</h2>
+
+        <?php if ($error): ?>
+        <div class="error-message">
+            <?= htmlspecialchars($error) ?>
+        </div>
         <?php endif; ?>
 
-        <form method="POST" action="" onsubmit="return validarFormulario()">
-            <input type="hidden" name="id_curso" value="<?php echo htmlspecialchars($curso['id_curso']); ?>">
+        <?php if ($success): ?>
+        <div class="success-message">
+            <?= htmlspecialchars($success) ?>
+        </div>
+        <?php endif; ?>
 
+        <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>?id=<?= htmlspecialchars($id_curso) ?>"
+            method="POST">
             <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="id_profesor" class="form-label required">Profesor</label>
-                    <select class="form-control" id="id_profesor" name="id_profesor" required>
-                        <option value="">Seleccione un profesor</option>
-                        <?php
-                        $sql = "SELECT id_profesor, CONCAT(nombres, ' ', apellidos) AS nombre_completo FROM profesor";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_profesor'] == $row['id_profesor']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_profesor']}\" {$selected}>{$row['nombre_completo']}</option>";
-                        }
-                        ?>
-                    </select>
+                <!-- Columna 1 -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_profesor">Profesor: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-user'></i></div>
+                            </div>
+                            <select class="form-control" id="id_profesor" name="id_profesor" required>
+                                <option value="" disabled>Selecciona Profesor</option>
+                                <?php foreach ($profesores as $profesor): ?>
+                                <option value="<?= htmlspecialchars($profesor['id_profesor']) ?>"
+                                    <?= ($curso['id_profesor'] == $profesor['id_profesor']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($profesor['nombre_completo']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_materias">Materias: <span class="text-danger">*</span></label>
+                        <div class="materia-container">
+                            <?php foreach ($materias as $materia): ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="id_materias[]"
+                                    value="<?= htmlspecialchars($materia['id_materia']) ?>"
+                                    <?= in_array($materia['id_materia'], explode(',', $curso['id_materia'])) ? 'checked' : '' ?>>
+                                <label class="form-check-label"><?= htmlspecialchars($materia['nombre']) ?></label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_nivel">Nivel: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-layer'></i></div>
+                            </div>
+                            <select class="form-control" id="id_nivel" name="id_nivel" required>
+                                <option value="" disabled>Selecciona Nivel</option>
+                                <?php foreach ($niveles as $nivel): ?>
+                                <option value="<?= htmlspecialchars($nivel['id_nivel']) ?>"
+                                    <?= ($curso['id_nivel'] == $nivel['id_nivel']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($nivel['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_paralelo">Paralelo: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-grid'></i></div>
+                            </div>
+                            <select class="form-control" id="id_paralelo" name="id_paralelo" required>
+                                <option value="" disabled>Selecciona Paralelo</option>
+                                <?php foreach ($paralelos as $paralelo): ?>
+                                <option value="<?= htmlspecialchars($paralelo['id_paralelo']) ?>"
+                                    <?= ($curso['id_paralelo'] == $paralelo['id_paralelo']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($paralelo['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_subnivel">Subnivel: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-layer'></i></div>
+                            </div>
+                            <select class="form-control" id="id_subnivel" name="id_subnivel" required>
+                                <option value="" disabled>Selecciona Subnivel</option>
+                                <?php foreach ($subniveles as $subnivel): ?>
+                                <option value="<?= htmlspecialchars($subnivel['id_subnivel']) ?>"
+                                    <?= ($curso['id_subnivel'] == $subnivel['id_subnivel']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($subnivel['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_materia" class="form-label required">Materia</label>
-                    <select class="form-control" id="id_materia" name="id_materia" required>
-                        <option value="">Seleccione una materia</option>
-                        <?php
-                        $sql = "SELECT id_materia, nombre FROM materia";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_materia'] == $row['id_materia']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_materia']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                <!-- Columna 2 -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_especialidad">Especialidad: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-briefcase'></i></div>
+                            </div>
+                            <select class="form-control" id="id_especialidad" name="id_especialidad" required>
+                                <option value="" disabled>Selecciona Especialidad</option>
+                                <?php foreach ($especialidades as $especialidad): ?>
+                                <option value="<?= htmlspecialchars($especialidad['id_especialidad']) ?>"
+                                    <?= ($curso['id_especialidad'] == $especialidad['id_especialidad']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($especialidad['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_nivel" class="form-label required">Nivel</label>
-                    <select class="form-control" id="id_nivel" name="id_nivel" required>
-                        <option value="">Seleccione un nivel</option>
-                        <?php
-                        $sql = "SELECT id_nivel, nombre FROM nivel";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_nivel'] == $row['id_nivel']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_nivel']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="id_jornada">Jornada: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-time'></i></div>
+                            </div>
+                            <select class="form-control" id="id_jornada" name="id_jornada" required>
+                                <option value="" disabled>Selecciona Jornada</option>
+                                <?php foreach ($jornadas as $jornada): ?>
+                                <option value="<?= htmlspecialchars($jornada['id_jornada']) ?>"
+                                    <?= ($curso['id_jornada'] == $jornada['id_jornada']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($jornada['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_paralelo" class="form-label required">Paralelo</label>
-                    <select class="form-control" id="id_paralelo" name="id_paralelo" required>
-                        <option value="">Seleccione un paralelo</option>
-                        <?php
-                        $sql = "SELECT id_paralelo, nombre FROM paralelo";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_paralelo'] == $row['id_paralelo']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_paralelo']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="id_his_academico">Historial Académico: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-bookmark'></i></div>
+                            </div>
+                            <select class="form-control" id="id_his_academico" name="id_his_academico" required>
+                                <option value="" disabled>Selecciona Historial Académico</option>
+                                <?php foreach ($historiales as $historial): ?>
+                                <option value="<?= htmlspecialchars($historial['id_his_academico']) ?>"
+                                    <?= ($curso['id_his_academico'] == $historial['id_his_academico']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($historial['año']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_subnivel" class="form-label required">Subnivel</label>
-                    <select class="form-control" id="id_subnivel" name="id_subnivel" required>
-                        <option value="">Seleccione un subnivel</option>
-                        <?php
-                        $sql = "SELECT id_subnivel, nombre FROM subnivel";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_subnivel'] == $row['id_subnivel']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_subnivel']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="estado">Estado: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-checkbox-checked'></i></div>
+                            </div>
+                            <select class="form-control" id="estado" name="estado" required>
+                                <option value="" disabled>Selecciona Estado</option>
+                                <option value="A" <?= ($curso['estado'] == 'A') ? 'selected' : '' ?>>Activo
+                                </option>
+                                <option value="I" <?= ($curso['estado'] == 'I') ? 'selected' : '' ?>>Inactivo
+                                </option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_especialidad" class="form-label required">Especialidad</label>
-                    <select class="form-control" id="id_especialidad" name="id_especialidad">
-                        <option value="">Seleccione una especialidad</option>
-                        <?php
-                        $sql = "SELECT id_especialidad, nombre FROM especialidad";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_especialidad'] == $row['id_especialidad']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_especialidad']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="usuario_ingreso" class="form-label required">Usuario de Ingreso</label>
+                        <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
+                            value="<?php echo htmlspecialchars($curso['usuario_ingreso']); ?>" readonly disabled>
+                    </div>
 
-                <div class="col-md-6 form-group">
-                    <label for="id_jornada" class="form-label required">Jornada</label>
-                    <select class="form-control" id="id_jornada" name="id_jornada">
-                        <option value="">Seleccione una jornada</option>
-                        <?php
-                        $sql = "SELECT id_jornada, nombre FROM jornada";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_jornada'] == $row['id_jornada']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_jornada']}\" {$selected}>{$row['nombre']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="col-md-6 form-group">
-                    <label for="id_his_academico" class="form-label required">Historial Académico</label>
-                    <select class="form-control" id="id_his_academico" name="id_his_academico">
-                        <option value="">Seleccione un historial académico</option>
-                        <?php
-                        $sql = "SELECT id_his_academico, año FROM historial_academico";
-                        $result = $conn->query($sql);
-                        while ($row = $result->fetch_assoc()) {
-                            $selected = ($curso['id_his_academico'] == $row['id_his_academico']) ? 'selected' : '';
-                            echo "<option value=\"{$row['id_his_academico']}\" {$selected}>{$row['año']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="col-md-6 form-group">
-                    <label for="estado" class="form-label required">Estado</label>
-                    <select class="form-control" id="estado" name="estado" required>
-                        <option value="">Seleccione un estado</option>
-                        <option value="A" <?php echo ($curso['estado'] == 'activo') ? 'selected' : ''; ?>>Activo
-                        </option>
-                        <option value="I" <?php echo ($curso['estado'] == 'inactivo') ? 'selected' : ''; ?>>
-                            Inactivo</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6 form-group">
-                    <label for="usuario_ingreso" class="form-label required">Usuario de Ingreso</label>
-                    <input type="text" class="form-control" id="usuario_ingreso" name="usuario_ingreso"
-                        value="<?php echo htmlspecialchars($curso['usuario_ingreso']); ?>" required>
-                </div>
-
-                <div class="col-md-6 form-group">
-                    <label for="fecha_ingreso" class="form-label required">Fecha de Ingreso</label>
-                    <input type="texto" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
-                        value="<?php echo htmlspecialchars($curso['fecha_ingreso']); ?>" required>
+                    <div class="form-group">
+                        <label for="fecha_ingreso" class="form-label required">Fecha de Ingreso</label>
+                        <input type="text" class="form-control" id="fecha_ingreso" name="fecha_ingreso"
+                            value="<?php echo htmlspecialchars($curso['fecha_ingreso']); ?>" readonly disabled>
+                    </div>
                 </div>
             </div>
 

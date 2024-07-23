@@ -3,75 +3,114 @@ session_start();
 include('../../config.php');
 date_default_timezone_set('America/Guayaquil');
 
+// Habilitar informes de errores para depuración
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 $mensaje = array();
 
-// Verificar que se ha pasado el parámetro cedula
-if (!isset($_GET['cedula']) || empty($_GET['cedula'])) {
-    $mensaje = array(
-        'texto' => 'ID de estudiante no proporcionado.',
-        'clase' => 'alert-danger'
-    );
-} else {
-    $id_estudiante = $_GET['cedula'];
+// Consulta para niveles, paralelos, jornadas y historial académico
+$sql_nivel = "SELECT id_nivel, nombre FROM nivel";
+$result_nivel = $conn->query($sql_nivel);
+$niveles = $result_nivel->fetch_all(MYSQLI_ASSOC);
 
-    // Consultar los datos del estudiante
+$sql_paralelo = "SELECT id_paralelo, nombre FROM paralelo";
+$result_paralelo = $conn->query($sql_paralelo);
+$paralelos = $result_paralelo->fetch_all(MYSQLI_ASSOC);
+
+$sql_jornada = "SELECT id_jornada, nombre FROM jornada";
+$result_jornada = $conn->query($sql_jornada);
+$jornadas = $result_jornada->fetch_all(MYSQLI_ASSOC);
+
+$sql_historial = "SELECT id_his_academico, año FROM historial_academico";
+$result_historial = $conn->query($sql_historial);
+$historiales = $result_historial->fetch_all(MYSQLI_ASSOC);
+
+if (isset($_GET['cedula'])) {
+    $cedula = $_GET['cedula'];
+
     $sql = "SELECT * FROM estudiante WHERE cedula = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $id_estudiante);
+    $stmt->bind_param("s", $cedula);
     $stmt->execute();
     $result = $stmt->get_result();
-
-    if ($result->num_rows === 0) {
+    
+    if ($result->num_rows > 0) {
+        $estudiante = $result->fetch_assoc();
+    } else {
         $mensaje = array(
-            'texto' => 'No se encontró el estudiante con la cédula proporcionada.',
+            'texto' => 'No se encontró el estudiante con esta cédula.',
             'clase' => 'alert-danger'
         );
-    } else {
-        $estudiante = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
 
-        // Procesar el formulario cuando se envía
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $nombres = trim($_POST['nombres']);
-            $apellidos = trim($_POST['apellidos']);
-            $telefono = !empty(trim($_POST['telefono'])) ? trim($_POST['telefono']) : null;
-            $correo_electronico = !empty(trim($_POST['correo_electronico'])) ? trim($_POST['correo_electronico']) : null;
-            $direccion = trim($_POST['direccion']);
-            $fecha_nacimiento = trim($_POST['fecha_nacimiento']);
-            $genero = $_POST['genero'];
-            $discapacidad = $_POST['discapacidad'];
-            $estado = $_POST['estado'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nombres = isset($_POST['nombres']) ? trim($_POST['nombres']) : '';
+    $apellidos = isset($_POST['apellidos']) ? trim($_POST['apellidos']) : '';
+    $cedula = isset($_POST['cedula']) ? trim($_POST['cedula']) : '';
+    $telefono = isset($_POST['telefono']) ? trim($_POST['telefono']) : null;
+    $correo_electronico = isset($_POST['correo_electronico']) ? trim($_POST['correo_electronico']) : null;
+    $direccion = isset($_POST['direccion']) ? trim($_POST['direccion']) : '';
+    $fecha_nacimiento = isset($_POST['fecha_nacimiento']) ? trim($_POST['fecha_nacimiento']) : '';
+    $genero = isset($_POST['genero']) ? $_POST['genero'] : '';
+    $discapacidad = isset($_POST['discapacidad']) ? trim($_POST['discapacidad']) : '';
+    $estado_calificacion = isset($_POST['estado_calificacion']) ? $_POST['estado_calificacion'] : '';
+    $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
+    $id_nivel = isset($_POST['id_nivel']) ? (int)$_POST['id_nivel'] : 0;
+    $id_paralelo = isset($_POST['id_paralelo']) ? (int)$_POST['id_paralelo'] : 0;
+    $id_jornada = isset($_POST['id_jornada']) ? (int)$_POST['id_jornada'] : 0;
+    $id_his_academico = isset($_POST['id_his_academico']) ? (int)$_POST['id_his_academico'] : 0;
+    $fecha_ingreso = date('Y-m-d H:i:s');
 
-            // Capturar valores de usuario_ingreso y fecha_modificacion
-            $usuario_ingreso = isset($_SESSION['cedula']) ? $_SESSION['cedula'] : 'admin'; // Valor por defecto si no está disponible
-            $fecha_ingreso = date('Y-m-d H:i:s');
+    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado_calificacion) && !empty($estado) && !empty($id_nivel) && !empty($id_paralelo) && !empty($id_jornada) && !empty($id_his_academico)) {
+        $sql_update = "UPDATE estudiante SET nombres = ?, apellidos = ?, telefono = ?, correo_electronico = ?, direccion = ?, fecha_nacimiento = ?, genero = ?, discapacidad = ?, estado_calificacion = ?, estado = ?, id_nivel = ?, id_paralelo = ?, id_jornada = ?, id_his_academico = ?, fecha_ingreso = ? WHERE cedula = ?";
+        
+        $stmt_update = $conn->prepare($sql_update);
+        if ($stmt_update) {
+            $stmt_update->bind_param(
+                "sssssssssssiiiss",
+                $nombres,
+                $apellidos,
+                $telefono,
+                $correo_electronico,
+                $direccion,
+                $fecha_nacimiento,
+                $genero,
+                $discapacidad,
+                $estado_calificacion,
+                $estado,
+                $id_nivel,
+                $id_paralelo,
+                $id_jornada,
+                $id_his_academico,
+                $fecha_ingreso,
+                $cedula
+            );
 
-            // Construir la consulta de actualización
-            $sql_update = "UPDATE estudiante SET nombres = ?, apellidos = ?, telefono = ?, correo_electronico = ?, direccion = ?, fecha_nacimiento = ?, genero = ?, discapacidad = ?, estado = ?, usuario_ingreso = ?, fecha_ingreso = ? WHERE cedula = ?";
-            
-            $stmt_update = $conn->prepare($sql_update);
-            if ($stmt_update) {
-                $stmt_update->bind_param("ssssssssssss", $nombres, $apellidos, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $estado, $usuario_ingreso, $fecha_ingreso, $id_estudiante);
-
-                if ($stmt_update->execute()) {
-                    $mensaje = array(
-                        'texto' => 'Estudiante actualizado correctamente.',
-                        'clase' => 'alert-success'
-                    );
-                } else {
-                    $mensaje = array(
-                        'texto' => 'Error al actualizar el estudiante. Inténtalo nuevamente.',
-                        'clase' => 'alert-danger'
-                    );
-                }
-
-                $stmt_update->close();
+            if ($stmt_update->execute()) {
+                $mensaje = array(
+                    'texto' => 'Estudiante actualizado correctamente.',
+                    'clase' => 'alert-success'
+                );
             } else {
                 $mensaje = array(
-                    'texto' => 'Error al preparar la consulta para actualización.',
+                    'texto' => 'Error al actualizar el estudiante. Inténtalo nuevamente.',
                     'clase' => 'alert-danger'
                 );
             }
+            $stmt_update->close();
+        } else {
+            $mensaje = array(
+                'texto' => 'Error al preparar la consulta para actualización.',
+                'clase' => 'alert-danger'
+            );
         }
+    } else {
+        $mensaje = array(
+            'texto' => 'Por favor, complete todos los campos obligatorios.',
+            'clase' => 'alert-danger'
+        );
     }
 }
 
@@ -109,13 +148,6 @@ if (isset($conn)) {
         margin: 0;
         font-size: 24px;
     }
-
-    .required {
-        color: red;
-        /* Color rojo para los campos obligatorios */
-        margin-left: 5px;
-    }
-
 
     .container {
         max-width: 800px;
@@ -179,12 +211,9 @@ if (isset($conn)) {
 
     .optional-text {
         font-size: 12px;
-        /* Tamaño pequeño de la letra */
         color: #999;
-        /* Color gris */
         margin-left: 5px;
     }
-
 
     footer {
         background-color: #c1121f;
@@ -203,7 +232,7 @@ if (isset($conn)) {
         margin: 10px 0;
         padding: 10px;
         border-radius: 5px;
-        text-align: center;
+        font-weight: bold;
     }
 
     .error-message {
@@ -298,117 +327,156 @@ if (isset($conn)) {
 </head>
 
 <body>
-    <header class="header-banner">
+    <div class="header-banner">
         <h1>Formulario de Edición de Estudiantes | Sistema de Gestión UEBF</h1>
-    </header>
-
+    </div>
     <div class="container">
         <h2><i class='bx bx-user-pin'></i>Editar Estudiante</h2>
-        <?php if (!empty($mensaje)) : ?>
-        <div class="alert <?= $mensaje['clase']; ?>" role="alert">
-            <?= htmlspecialchars($mensaje['texto']); ?>
+        <div class="card-body">
+        <?php if (!empty($mensaje)): ?>
+        <div class="alert <?= $mensaje['clase'] ?>">
+            <?= $mensaje['texto'] ?>
         </div>
         <?php endif; ?>
 
-        <?php if (isset($estudiante)) : ?>
-        <form method="POST" onsubmit="return validarFormulario()">
+        <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post">
             <div class="form-row">
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="nombres" class="form-label required">Nombres:</label>
-                        <input type="text" id="nombres" name="nombres" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['nombres']); ?>" required>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="nombres" class="form-label required"><i class='bx bxs-user'></i> Nombre:</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres"
+                        value="<?= htmlspecialchars($estudiante['nombres'] ?? '') ?>" required>
                 </div>
-
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="apellidos" class="form-label required">Apellidos:</label>
-                        <input type="text" id="apellidos" name="apellidos" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['apellidos']); ?>" required>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="apellidos" class="form-label required"><i class='bx bxs-user-detail'></i> Apellidos:</label>
+                    <input type="text" class="form-control" id="apellidos" name="apellidos"
+                        value="<?= htmlspecialchars($estudiante['apellidos'] ?? '') ?>" required>
                 </div>
             </div>
-
             <div class="form-row">
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="telefono" class="form-label required">Teléfono:</label>
-                        <input type="text" id="telefono" name="telefono" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['telefono']); ?>">
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="cedula" class="form-label required"><i class='bx bxs-id-card'></i> Cédula:</label>
+                    <input type="text" class="form-control" id="cedula" name="cedula"
+                        value="<?= htmlspecialchars($estudiante['cedula'] ?? '') ?>" required readonly>
                 </div>
-
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="correo_electronico" class="form-label required">Correo Electrónico:</label>
-                        <input type="email" id="correo_electronico" name="correo_electronico" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['correo_electronico']); ?>">
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="telefono" class="form-label"><i class='bx bxs-phone'></i> Teléfono: <span class="optional-text">(Opcional)</span></label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono"
+                        value="<?= htmlspecialchars($estudiante['telefono'] ?? '') ?>">
                 </div>
             </div>
-
             <div class="form-row">
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="direccion" class="form-label required">Dirección:</label>
-                        <input type="text" id="direccion" name="direccion" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['direccion']); ?>" required>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="correo_electronico" class="form-label"><i class='bx bxs-envelope'></i> Correo Electrónico: <span class="optional-text">(Opcional)</span></label>
+                    <input type="email" class="form-control" id="correo_electronico" name="correo_electronico"
+                        value="<?= htmlspecialchars($estudiante['correo_electronico'] ?? '') ?>">
                 </div>
-
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="fecha_nacimiento" class="form-label required">Fecha de Nacimiento:</label>
-                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-control"
-                            value="<?= htmlspecialchars($estudiante['fecha_nacimiento']); ?>" required>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="direccion" class="form-label required"><i class='bx bxs-location-plus'></i> Dirección:</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion"
+                        value="<?= htmlspecialchars($estudiante['direccion'] ?? '') ?>" required>
                 </div>
             </div>
-
             <div class="form-row">
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="genero" class="form-label required">Género:</label>
-                        <select id="genero" name="genero" class="form-control" required>
-                            <option value="">Seleccione género</option>
-                            <option value="masculino" <?= $estudiante['genero'] == 'masculino' ? 'selected' : ''; ?>>
-                                Masculino
-                            </option>
-                            <option value="femenino" <?= $estudiante['genero'] == 'femenino' ? 'selected' : ''; ?>>
-                                Femenino
-                            </option>
-                            <option value="otros" <?= $estudiante['genero'] == 'otros' ? 'selected' : ''; ?>>Otros
-                            </option>
-                        </select>
-                    </div>
+                <div class="form-group col-md-6">
+                <label for="fecha_nacimiento" class="form-label required"><i class='bx bxs-calendar'></i> Fecha de Nacimiento:</label>
+                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento"
+                        value="<?= htmlspecialchars($estudiante['fecha_nacimiento'] ?? '') ?>" required>
                 </div>
-
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="discapacidad" class="form-label required">Discapacidad:</label>
-                        <select id="discapacidad" name="discapacidad" class="form-control" required>
-                            <option value="">Seleccione discapacidad</option>
-                            <option value="si" <?= $estudiante['discapacidad'] == 'si' ? 'selected' : ''; ?>>Sí</option>
-                            <option value="no" <?= $estudiante['discapacidad'] == 'no' ? 'selected' : ''; ?>>No</option>
-                        </select>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="genero" class="form-label required"><i class='bx bx-female-sign'></i> Género:</label>
+                    <select class="form-control" id="genero" name="genero" required>
+                        <option value="Masculino"
+                            <?= isset($estudiante['genero']) && $estudiante['genero'] == 'Masculino' ? 'selected' : '' ?>>
+                            Masculino</option>
+                        <option value="Femenino"
+                            <?= isset($estudiante['genero']) && $estudiante['genero'] == 'Femenino' ? 'selected' : '' ?>>
+                            Femenino</option>
+                        <option value="Otro"
+                            <?= isset($estudiante['genero']) && $estudiante['genero'] == 'Otro' ? 'selected' : '' ?>>
+                            Otro</option>
+                    </select>
                 </div>
             </div>
-
             <div class="form-row">
-                <div class="form-col col-md-6">
-                    <div class="form-group">
-                        <label for="estado" class="form-label required">Estado:</label>
-                        <select id="estado" name="estado" class="form-control" required>
-                            <option value="">Seleccione estado</option>
-                            <option value="A" <?= $estudiante['estado'] == 'A' ? 'selected' : ''; ?>>Activo</option>
-                            <option value="I" <?= $estudiante['estado'] == 'I' ? 'selected' : ''; ?>>Inactivo</option>
-                        </select>
-                    </div>
+                <div class="form-group col-md-6">
+                    <label for="discapacidad" class="form-label required"><i class='bx bx-handicap'></i> Discapacidad:</label>
+                    <input type="text" class="form-control" id="discapacidad" name="discapacidad"
+                        value="<?= htmlspecialchars($estudiante['discapacidad'] ?? '') ?>">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="estado_calificacion" class="form-label required"><i class='bx bxs-check-shield'></i> Estado de Calificación:</label>
+                    <select class="form-control" id="estado_calificacion" name="estado_calificacion" required>
+                        <option value="">Seleccionar Estado de la Calificación</option>
+                        <option value="A"
+                            <?= isset($estudiante['estado_calificacion']) && $estudiante['estado_calificacion'] == 'A' ? 'selected' : '' ?>>
+                            Aprobado</option>
+                        <option value="R"
+                            <?= isset($estudiante['estado_calificacion']) && $estudiante['estado_calificacion'] == 'R' ? 'selected' : '' ?>>
+                            Reprobado</option>
+                        <option value="P"
+                            <?= isset($estudiante['estado_calificacion']) && $estudiante['estado_calificacion'] == 'P' ? 'selected' : '' ?>>
+                            Pendiente</option>
+                    </select>
                 </div>
             </div>
-
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="estado" class="form-label required"><i class='bx bxs-check-square'></i> Estado:</label>
+                    <select class="form-control" id="estado" name="estado" required>
+                        <option value="">Seleccionar estado</option>
+                        <option value="A"
+                            <?= isset($estudiante['estado']) && $estudiante['estado'] == 'A' ? 'selected' : '' ?>>Activo
+                        </option>
+                        <option value="I"
+                            <?= isset($estudiante['estado']) && $estudiante['estado'] == 'I' ? 'selected' : '' ?>>
+                            Inactivo</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="id_nivel" class="form-label required"><i class='bx bxs-school'></i> Nivel:</label>
+                    <select class="form-control" id="id_nivel" name="id_nivel" required>
+                        <?php foreach ($niveles as $nivel): ?>
+                        <option value="<?= $nivel['id_nivel'] ?>"
+                            <?= isset($estudiante['id_nivel']) && $estudiante['id_nivel'] == $nivel['id_nivel'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($nivel['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="id_paralelo" class="form-label required"><i class='bx bxs-user-check'></i> Paralelo:</label>
+                    <select class="form-control" id="id_paralelo" name="id_paralelo" required>
+                        <?php foreach ($paralelos as $paralelo): ?>
+                        <option value="<?= $paralelo['id_paralelo'] ?>"
+                            <?= isset($estudiante['id_paralelo']) && $estudiante['id_paralelo'] == $paralelo['id_paralelo'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($paralelo['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="id_jornada" class="form-label required"><i class='bx bxs-calendar-week'></i> Jornada:</label>
+                    <select class="form-control" id="id_jornada" name="id_jornada" required>
+                        <?php foreach ($jornadas as $jornada): ?>
+                        <option value="<?= $jornada['id_jornada'] ?>"
+                            <?= isset($estudiante['id_jornada']) && $estudiante['id_jornada'] == $jornada['id_jornada'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($jornada['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="id_his_academico" class="form-label required"><i class='bx bxs-time'></i> Historial Académico:</label>
+                    <select class="form-control" id="id_his_academico" name="id_his_academico" required>
+                        <?php foreach ($historiales as $historial): ?>
+                        <option value="<?= $historial['id_his_academico'] ?>"
+                            <?= isset($estudiante['id_his_academico']) && $estudiante['id_his_academico'] == $historial['id_his_academico'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($historial['año']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
             <div class="button-group mt-4">
                 <button type="button" class="btn btn-regresar"
                     onclick="location.href='http://localhost/sistema_notas/views/admin/estudiantes.php';">
@@ -419,52 +487,12 @@ if (isset($conn)) {
                 </button>
             </div>
         </form>
-        <?php endif; ?>
+    </div>
     </div>
 
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
             Zambrano. Todos los derechos reservados.</p>
     </footer>
-
-
-    <script>
-    function validarFormulario() {
-        var fechaNacimiento = document.getElementById('fecha_nacimiento').value.trim();
-        var hoy = new Date();
-        var fechaNac = new Date(fechaNacimiento);
-        var edad = hoy.getFullYear() - fechaNac.getFullYear();
-        var mes = hoy.getMonth() - fechaNac.getMonth();
-
-        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-            edad--;
-        }
-
-        // Validar edad entre 11 y 18 años
-        if (edad < 11 || edad > 18) {
-            alert('La fecha de nacimiento no es válida. Debe tener entre 11 y 18 años.');
-            return false;
-        }
-
-
-        var nombres = document.getElementById('nombres').value;
-        var apellidos = document.getElementById('apellidos').value;
-        var telefono = document.getElementById('telefono').value;
-        var correo_electronico = document.getElementById('correo_electronico').value;
-        var direccion = document.getElementById('direccion').value;
-        var genero = document.getElementById('genero').value;
-        var discapacidad = document.getElementById('discapacidad').value;
-        var estado = document.getElementById('estado').value;
-
-        if (nombres.trim() === '' || apellidos.trim() === '' || direccion.trim() === '' || fecha_nacimiento.trim() ===
-            '' || genero.trim() === '' || discapacidad.trim() === '' || estado.trim() === '') {
-            alert('Por favor, complete todos los campos obligatorios.');
-            return false;
-        }
-
-        return true;
-    }
-    </script>
-</body>
 
 </html>

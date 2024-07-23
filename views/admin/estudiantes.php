@@ -6,15 +6,19 @@ include '../../Crud/config.php';
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
 
-// Consulta SQL para obtener los profesores
-$sql = "SELECT * FROM estudiante";
+// Consulta SQL para obtener los estudiantes con los nombres de las tablas relacionadas
+$sql = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula, e.telefono, e.correo_electronico, e.direccion, e.fecha_nacimiento, e.genero, e.discapacidad, e.estado_calificacion, e.estado, n.nombre AS nivel, p.nombre AS paralelo, j.nombre AS jornada, h.año AS historial_academico, e.fecha_ingreso
+        FROM estudiante e
+        LEFT JOIN nivel n ON e.id_nivel = n.id_nivel
+        LEFT JOIN paralelo p ON e.id_paralelo = p.id_paralelo
+        LEFT JOIN jornada j ON e.id_jornada = j.id_jornada
+        LEFT JOIN historial_academico h ON e.id_his_academico = h.id_his_academico";
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -28,11 +32,8 @@ if (!$resultado) {
     <title>Estudiantes | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
-        type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- SB Admin 2 CSS -->
@@ -40,72 +41,133 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
-        /* Estilo para el contenedor de la tabla */
-        .table-container {
-            max-height: 500px;
-            overflow-y: auto;
-        }
+    <style>
+    /* Estilo general del cuerpo */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+    }
 
-        /* Estilo para separar los botones de acciones */
-        .action-buttons .btn {
-            margin-right: 20px;
-        }
+    .container-fluid {
+        padding: 20px;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
+    /* Estilo de la tarjeta */
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
 
-        .container-fluid {
-            padding: 20px;
-        }
+    .card-header {
+        background-color: #28a745;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 15px;
+    }
 
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
+    /* Estilo de los botones de acción */
+    .action-buttons .btn {
+        margin-right: 10px;
+    }
 
-        .card-header {
-            background-color: #c42021; /* Color de fondo rojo */
-            color: white; /* Color del texto */
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            padding: 15px; /* Espacio interno alrededor del contenido del encabezado */
-        }
+    .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
 
-        .table thead th {
-            background-color: #dc3545;
-            color: white;
-            text-align: center;
-        }
+    .btn-primary:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
 
-        .table tbody td {
-            text-align: center;
-        }
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
 
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
 
-        .filter-icon {
-            margin-right: 5px;
-        }
-        
-        .table tbody .btn-action {
-            margin-bottom: 10px;
-            display: inline-block;
-        }
+    .btn-success {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-success:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    /* Estilo de la tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background-color: #28a745;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #d4edda;
+        /* Verde claro para filas impares */
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
+    }
+
+    .table tbody tr:hover {
+        background-color: #e2e6ea;
+        /* Color de fondo al pasar el ratón */
+    }
+
+    .table tbody td {
+        text-align: center;
+        padding: 12px;
+    }
+
+    /* Estilo para contenedor de tabla */
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
+    }
 
 
-        .filter-container {
-            margin-bottom: 1rem;
-        }
-</style>
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-icon {
+        margin-right: 5px;
+    }
+
+    .filter-container {
+        margin-bottom: 1rem;
+    }
+    </style>
 </head>
 
 <body>
@@ -120,19 +182,15 @@ if (!$resultado) {
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de
-                                Creación</label>
-                            <input type="date" class="form-control" id="searchFecha" name="fecha"
-                                value="<?php echo $fecha; ?>">
+                            <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de Creación</label>
+                            <input type="date" class="form-control" id="searchFecha" name="fecha" value="<?php echo $fecha; ?>">
                         </div>
                         <div class="col-md-4">
                             <label for="searchEstado"><i class="fas fa-filter filter-icon"></i>Estado</label>
                             <select class="form-control" id="searchEstado" name="estado">
                                 <option value="">Todos</option>
-                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos
-                                </option>
-                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>
-                                    Inactivos</option>
+                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos</option>
+                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>Inactivos</option>
                             </select>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
@@ -145,8 +203,7 @@ if (!$resultado) {
                                 <a href="http://localhost/sistema_notas/Crud/admin/estudiante/agregar_estudiante.php" class="btn btn-primary">Agregar Estudiante</a>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
+                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                             </div>
                             <div class="col-auto">
                                 <a href="reporte_estudiante.php" class="btn btn-success">Generar reportes</a>
@@ -169,8 +226,12 @@ if (!$resultado) {
                                 <th>Fecha de Nacimiento</th>
                                 <th>Género</th>
                                 <th>Discapacidad</th>
+                                <th>Estado de la Calificación</th>
                                 <th>Estado</th>
-                                <th>Usuario de Ingreso</th>
+                                <th>Nivel</th>
+                                <th>Paralelo</th>
+                                <th>Jornada</th>
+                                <th>Historial Académico</th>
                                 <th>Fecha de Creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -188,12 +249,15 @@ if (!$resultado) {
                                 <td><?php echo $fila['fecha_nacimiento']; ?></td>
                                 <td><?php echo $fila['genero']; ?></td>
                                 <td><?php echo $fila['discapacidad']; ?></td>
+                                <td><?php echo $fila['estado_calificacion']; ?></td>
                                 <td><?php echo $fila['estado']; ?></td>
-                                <td><?php echo $fila['usuario_ingreso']; ?></td>
+                                <td><?php echo $fila['nivel']; ?></td>
+                                <td><?php echo $fila['paralelo']; ?></td>
+                                <td><?php echo $fila['jornada']; ?></td>
+                                <td><?php echo $fila['historial_academico']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <a href="http://localhost/sistema_notas/Crud/admin/estudiante/editar_estudiantes.php?cedula=<?php echo $fila['cedula']; ?>"
-                                        class="btn btn-warning btn-action">Editar</a>
+                                    <a href="http://localhost/sistema_notas/Crud/admin/estudiante/editar_estudiantes.php?cedula=<?php echo $fila['cedula']; ?>" class="btn btn-warning btn-action">Editar</a>
                                 </td>
                             </tr>
                             <?php } ?>

@@ -1,47 +1,78 @@
 <?php
 session_start();
 include('../../config.php');
-date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
+date_default_timezone_set('America/Guayaquil');
 
 $error = ''; // Variable para almacenar mensajes de error
 $success = ''; // Variable para almacenar mensajes de éxito
 
-// Función para obtener opciones de una tabla
-function getOptions($conn, $table, $id_field, $name_field) {
-    // Verificar si la tabla tiene la columna 'estado'
-    $check_column_query = "SHOW COLUMNS FROM $table LIKE 'estado'";
-    $check_result = $conn->query($check_column_query);
-    
-    if ($check_result && $check_result->num_rows > 0) {
-        $query = "SELECT $id_field, $name_field FROM $table WHERE estado = 'A'";
-    } else {
-        $query = "SELECT $id_field, $name_field FROM $table";
+// Inicializar variables
+$profesores = [];
+$materias = [];
+$niveles = [];
+$paralelos = [];
+$subniveles = [];
+$especialidades = [];
+$jornadas = [];
+$historiales = [];
+
+// Obtener datos de la base de datos
+try {
+    // Profesores
+    $result = $conn->query("SELECT id_profesor, CONCAT(nombres, ' ', apellidos) AS nombre_completo FROM profesor");
+    if ($result->num_rows > 0) {
+        $profesores = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    $result = $conn->query($query);
-    if (!$result) {
-        die("Error en la consulta a la tabla $table: " . $conn->error);
+    // Materias
+    $result = $conn->query("SELECT id_materia, nombre FROM materia");
+    if ($result->num_rows > 0) {
+        $materias = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    $options = [];
-    while ($row = $result->fetch_assoc()) {
-        $options[] = $row;
+    // Niveles
+    $result = $conn->query("SELECT id_nivel, nombre FROM nivel");
+    if ($result->num_rows > 0) {
+        $niveles = $result->fetch_all(MYSQLI_ASSOC);
     }
-    return $options;
+
+    // Paralelos
+    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo");
+    if ($result->num_rows > 0) {
+        $paralelos = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Subniveles
+    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel");
+    if ($result->num_rows > 0) {
+        $subniveles = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Especialidades
+    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad");
+    if ($result->num_rows > 0) {
+        $especialidades = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Jornadas
+    $result = $conn->query("SELECT id_jornada, nombre FROM jornada");
+    if ($result->num_rows > 0) {
+        $jornadas = $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Historiales
+    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico");
+    if ($result->num_rows > 0) {
+        $historiales = $result->fetch_all(MYSQLI_ASSOC);
+    }
+} catch (Exception $e) {
+    $error = "Error al obtener los datos: " . $e->getMessage();
 }
 
-$profesores = getOptions($conn, 'profesor', 'id_profesor', 'nombres');
-$materias = getOptions($conn, 'materia', 'id_materia', 'nombre');
-$niveles = getOptions($conn, 'nivel', 'id_nivel', 'nombre');
-$paralelos = getOptions($conn, 'paralelo', 'id_paralelo', 'nombre');
-$subniveles = getOptions($conn, 'subnivel', 'id_subnivel', 'nombre');
-$especialidades = getOptions($conn, 'especialidad', 'id_especialidad', 'nombre');
-$jornadas = getOptions($conn, 'jornada', 'id_jornada', 'nombre');
-$historicos = getOptions($conn, 'historial_academico', 'id_his_academico', 'año');
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recoger los valores del formulario
     $id_profesor = $_POST['id_profesor'];
-    $id_materia = $_POST['id_materia'];
+    $id_materias = $_POST['id_materias']; // Esto recogerá un array de materias seleccionadas
     $id_nivel = $_POST['id_nivel'];
     $id_paralelo = $_POST['id_paralelo'];
     $id_subnivel = $_POST['id_subnivel'];
@@ -52,41 +83,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario_ingreso = $_SESSION['cedula'];
     $fecha_ingreso = date('Y-m-d H:i:s');
 
-    // Verificar si el registro ya existe
-    $check_query = "SELECT * FROM curso WHERE id_profesor = ? AND id_materia = ? AND id_nivel = ? AND id_paralelo = ? AND id_subnivel = ? AND id_especialidad = ? AND id_jornada = ? AND id_his_academico = ?";
-    $stmt_check = $conn->prepare($check_query);
-    $stmt_check->bind_param("iiiiiiii", $id_profesor, $id_materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico);
-    $stmt_check->execute();
-    $result_check = $stmt_check->get_result();
+    // Crear la consulta SQL para verificar si el registro ya existe
+    $verificarConsulta = "SELECT * FROM curso WHERE id_profesor = ? AND id_materia = ? AND id_nivel = ? AND id_paralelo = ? AND id_subnivel = ? AND id_especialidad = ? AND id_jornada = ? AND id_his_academico = ? AND estado = ?";
+    
+    // Preparar la declaración (statement) para la verificación
+    if ($verificarStmt = $conn->prepare($verificarConsulta)) {
+        $existeRegistro = false;
+        $todosInsertados = true;
+        
+        foreach ($id_materias as $materia) {
+            // Vincular los parámetros para la verificación
+            $verificarStmt->bind_param("iiiiiiiss", $id_profesor, $materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado);
 
-    if ($result_check->num_rows > 0) {
-        // Si el registro ya existe, mostrar mensaje de error
-        $error = "El curso ya está registrado en la base de datos.";
-    } else {
-        // Si el registro no existe, proceder con la inserción
-        $sql = "INSERT INTO curso (id_profesor, id_materia, id_nivel, id_paralelo, id_subnivel, id_especialidad, id_jornada, id_his_academico, estado, usuario_ingreso, fecha_ingreso)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            die("Error en la preparación de la consulta: " . $conn->error);
+            // Ejecutar la verificación
+            $verificarStmt->execute();
+            $result = $verificarStmt->get_result();
+            
+            // Si el registro ya existe
+            if ($result->num_rows > 0) {
+                $existeRegistro = true;
+                break; // No necesitamos verificar más, ya que sabemos que al menos uno ya existe
+            }
         }
 
-        $stmt->bind_param("iiiiiiissss", $id_profesor, $id_materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
-
-        if ($stmt->execute()) {
-            $success = "Curso guardado exitosamente";
+        if ($existeRegistro) {
+            $error = "Uno o más cursos ya están registrados para las materias seleccionadas.";
         } else {
-            $error = "Error en la ejecución de la consulta: " . $stmt->error;
+            // Si no hay registros duplicados, proceder a insertar los datos
+            $consulta = "INSERT INTO curso (id_profesor, id_materia, id_nivel, id_paralelo, id_subnivel, id_especialidad, id_jornada, id_his_academico, estado, usuario_ingreso, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            // Preparar la declaración (statement) para la inserción
+            if ($stmt = $conn->prepare($consulta)) {
+                // Iterar sobre cada materia seleccionada y realizar la inserción
+                foreach ($id_materias as $materia) {
+                    // Vincular los parámetros
+                    $stmt->bind_param("iiiiiiissss", $id_profesor, $materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
+
+                    // Ejecutar la declaración
+                    if ($stmt->execute()) {
+                        // Si la inserción es exitosa
+                        $success = "Todos los cursos han sido registrados con éxito.";
+                    } else {
+                        // Si hay un error al insertar
+                        $error = "Error al registrar uno o más cursos: " . $stmt->error;
+                        break; // No necesitamos seguir insertando si ocurre un error
+                    }
+                }
+
+                // Cerrar la declaración
+                $stmt->close();
+            } else {
+                $error = "Error al preparar la consulta de inserción: " . $conn->error;
+            }
         }
 
-        $stmt->close();
+        // Cerrar la declaración de verificación
+        $verificarStmt->close();
+    } else {
+        $error = "Error al preparar la consulta de verificación: " . $conn->error;
     }
-
-    $stmt_check->close();
-    $conn->close();
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -209,10 +267,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         color: #155724;
     }
 
-    /* Estilos para alinear verticalmente los elementos en una fila */
     .row.align-items-center {
         align-items: center;
-        /* Alinea verticalmente los elementos */
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        align-items: center;
     }
 
     /* Alinear el grupo de botones a la derecha */
@@ -221,8 +284,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         justify-content: flex-end;
         gap: 10px;
         /* Espacio entre los botones */
-        align-items: center;
-        /* Alinea verticalmente los botones con los campos */
     }
 
     /* Estilos generales para los botones */
@@ -295,211 +356,257 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     .btn i {
         margin-right: 8px;
     }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .form-control {
+        height: 38px;
+        /* Ajusta la altura del campo de selección */
+        border-radius: 6px;
+        /* Bordes redondeados */
+    }
+
+    .materia-container {
+        max-height: 300px;
+        /* Ajusta la altura según sea necesario */
+        overflow-y: auto;
+        /* Añade scrollbar vertical si el contenido es más grande que el contenedor */
+        border: 1px solid #ced4da;
+        /* Añade borde para mejor visualización */
+        padding: 10px;
+        /* Añade padding para separar el contenido del borde */
+        border-radius: 5px;
+        /* Bordes redondeados */
+        background-color: #f8f9fa;
+        /* Fondo claro */
+    }
+
+    .materia-container .form-check {
+        margin-bottom: 10px;
+        /* Espacio entre los checkboxes */
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        /* Espacio entre el checkbox y la etiqueta */
+    }
+
+    .form-check-label {
+        font-size: 14px;
+        /* Tamaño de fuente más pequeño para una mejor presentación */
+    }
     </style>
 </head>
 
 <body>
-    <div class="header-banner">
+    <header class="header-banner">
         <h1>Formulario de Registro de Cursos | Sistema de Gestión UEBF</h1>
-    </div>
+    </header>
+
     <div class="container">
         <h2><i class='bx bxs-folder-plus'></i> Registro de Curso</h2>
-        <div class="card-body">
-            <?php
-        // Mostrar mensajes de éxito o error si están presentes
-        if (!empty($error)) {
-            echo '<div class="alert alert-danger">' . $error . '</div>';
-        }
-        if (!empty($success)) {
-            echo '<div class="alert alert-success">' . $success . '</div>';
-        }
-        ?>
-            <form action="agregar_curso.php" method="POST">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_profesor">Profesor: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-user'></i></div>
-                                </div>
-                                <select class="form-control" id="id_profesor" name="id_profesor" required>
-                                    <option value="" disabled selected>Selecciona Profesor</option>
-                                    <?php foreach ($profesores as $profesor): ?>
-                                    <option value="<?= $profesor['id_profesor'] ?>"><?= $profesor['nombres'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_materia">Materia: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-book'></i></div>
-                                </div>
-                                <select class="form-control" id="id_materia" name="id_materia" required>
-                                    <option value="" disabled selected>Selecciona Materia</option>
-                                    <?php foreach ($materias as $materia): ?>
-                                    <option value="<?= $materia['id_materia'] ?>"><?= $materia['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_nivel">Nivel: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-layer'></i></div>
-                                </div>
-                                <select class="form-control" id="id_nivel" name="id_nivel" required>
-                                    <option value="" disabled selected>Selecciona Nivel</option>
-                                    <?php foreach ($niveles as $nivel): ?>
-                                    <option value="<?= $nivel['id_nivel'] ?>"><?= $nivel['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_paralelo">Paralelo: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-group'></i></div>
-                                </div>
-                                <select class="form-control" id="id_paralelo" name="id_paralelo" required>
-                                    <option value="" disabled selected>Selecciona Paralelo</option>
-                                    <?php foreach ($paralelos as $paralelo): ?>
-                                    <option value="<?= $paralelo['id_paralelo'] ?>"><?= $paralelo['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_subnivel">Subnivel: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-chalkboard'></i></div>
-                                </div>
-                                <select class="form-control" id="id_subnivel" name="id_subnivel" required>
-                                    <option value="" disabled selected>Selecciona Subnivel</option>
-                                    <?php foreach ($subniveles as $subnivel): ?>
-                                    <option value="<?= $subnivel['id_subnivel'] ?>"><?= $subnivel['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_especialidad">Especialidad: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-bookmark-alt'></i></div>
-                                </div>
-                                <select class="form-control" id="id_especialidad" name="id_especialidad" required>
-                                    <option value="" disabled selected>Selecciona Especialidad</option>
-                                    <?php foreach ($especialidades as $especialidad): ?>
-                                    <option value="<?= $especialidad['id_especialidad'] ?>">
-                                        <?= $especialidad['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_jornada">Jornada: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-time'></i></div>
-                                </div>
-                                <select class="form-control" id="id_jornada" name="id_jornada" required>
-                                    <option value="" disabled selected>Selecciona Jornada</option>
-                                    <?php foreach ($jornadas as $jornada): ?>
-                                    <option value="<?= $jornada['id_jornada'] ?>"><?= $jornada['nombre'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="id_his_academico">Año Lectivo: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-calendar'></i></div>
-                                </div>
-                                <select class="form-control" id="id_his_academico" name="id_his_academico" required>
-                                    <option value="" disabled selected>Selecciona Año Lectivo</option>
-                                    <?php foreach ($historicos as $historico): ?>
-                                    <option value="<?= $historico['id_his_academico'] ?>"><?= $historico['año'] ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="estado">Estado: <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class='bx bxs-check-square'></i></div>
-                                </div>
-                                <select class="form-control" id="estado" name="estado" required>
-                                    <option value="" disabled selected>Selecciona Estado</option>
-                                    <option value="A">Activo</option>
-                                    <option value="I">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="button-group">
-                            <button type="button" class="btn btn-regresar"
-                                onclick="location.href='http://localhost/sistema_notas/views/admin/curso_admin.php';">
-                                <i class='bx bx-arrow-back'></i> Regresar
-                            </button>
-                            <button type="submit" class="btn btn-crear-usuario">
-                                <i class='bx bx-save'></i> Crear Curso
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+        <?php if ($error): ?>
+        <div class="error-message">
+            <?= htmlspecialchars($error) ?>
         </div>
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+        <div class="success-message">
+            <?= htmlspecialchars($success) ?>
+        </div>
+        <?php endif; ?>
+
+        <form action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="POST">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_profesor">Profesor: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-user'></i></div>
+                            </div>
+                            <select class="form-control" id="id_profesor" name="id_profesor" required>
+                                <option value="" disabled selected>Selecciona Profesor</option>
+                                <?php foreach ($profesores as $profesor): ?>
+                                <option value="<?= htmlspecialchars($profesor['id_profesor']) ?>">
+                                    <?= htmlspecialchars($profesor['nombre_completo']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="id_materias">Materias: <span class="text-danger">*</span></label>
+                        <div class="materia-container">
+                            <?php foreach ($materias as $materia): ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    id="materia_<?= htmlspecialchars($materia['id_materia']) ?>" name="id_materias[]"
+                                    value="<?= htmlspecialchars($materia['id_materia']) ?>">
+                                <label class="form-check-label"
+                                    for="materia_<?= htmlspecialchars($materia['id_materia']) ?>">
+                                    <?= htmlspecialchars($materia['nombre']) ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_nivel">Nivel: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-layer'></i></div>
+                            </div>
+                            <select class="form-control" id="id_nivel" name="id_nivel" required>
+                                <option value="" disabled selected>Selecciona Nivel</option>
+                                <?php foreach ($niveles as $nivel): ?>
+                                <option value="<?= htmlspecialchars($nivel['id_nivel']) ?>">
+                                    <?= htmlspecialchars($nivel['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_paralelo">Paralelo: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-grid'></i></div>
+                            </div>
+                            <select class="form-control" id="id_paralelo" name="id_paralelo" required>
+                                <option value="" disabled selected>Selecciona Paralelo</option>
+                                <?php foreach ($paralelos as $paralelo): ?>
+                                <option value="<?= htmlspecialchars($paralelo['id_paralelo']) ?>">
+                                    <?= htmlspecialchars($paralelo['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_subnivel">Subnivel: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-layer'></i></div>
+                            </div>
+                            <select class="form-control" id="id_subnivel" name="id_subnivel" required>
+                                <option value="" disabled selected>Selecciona Subnivel</option>
+                                <?php foreach ($subniveles as $subnivel): ?>
+                                <option value="<?= htmlspecialchars($subnivel['id_subnivel']) ?>">
+                                    <?= htmlspecialchars($subnivel['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_especialidad">Especialidad: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-briefcase'></i></div>
+                            </div>
+                            <select class="form-control" id="id_especialidad" name="id_especialidad">
+                                <option value="" disabled selected>Selecciona Especialidad</option>
+                                <?php foreach ($especialidades as $especialidad): ?>
+                                <option value="<?= htmlspecialchars($especialidad['id_especialidad']) ?>">
+                                    <?= htmlspecialchars($especialidad['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_jornada">Jornada: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-time'></i></div>
+                            </div>
+                            <select class="form-control" id="id_jornada" name="id_jornada">
+                                <option value="" disabled selected>Selecciona Jornada</option>
+                                <?php foreach ($jornadas as $jornada): ?>
+                                <option value="<?= htmlspecialchars($jornada['id_jornada']) ?>">
+                                    <?= htmlspecialchars($jornada['nombre']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="id_his_academico">Histórico Académico: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-bookmark'></i></div>
+                            </div>
+                            <select class="form-control" id="id_his_academico" name="id_his_academico">
+                                <option value="" disabled selected>Selecciona Histórico Académico</option>
+                                <?php foreach ($historiales as $historial): ?>
+                                <option value="<?= htmlspecialchars($historial['id_his_academico']) ?>">
+                                    <?= htmlspecialchars($historial['año']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estado">Estado: <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class='bx bxs-checkbox-checked'></i></div>
+                            </div>
+                            <select class="form-control" id="estado" name="estado" required>
+                                <option value="" disabled selected>Selecciona Estado</option>
+                                <option value="A">Activo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="button-group mt-4">
+                        <button type="button" class="btn btn-regresar"
+                            onclick="location.href='http://localhost/sistema_notas/views/admin/curso_admin.php';">
+                            <i class='bx bx-arrow-back'></i> Regresar
+                        </button>
+                        <button type="submit" class="btn btn-crear-usuario">
+                            <i class='bx bx-save'></i> Crear Curso
+                        </button>
+                    </div>
+                </div>
+        </form>
     </div>
-
-    <input type="hidden" name="usuario_ingreso" value="<?= $_SESSION['cedula'] ?>">
-    <input type="hidden" name="fecha_ingreso" value="<?= date('Y-m-d H:i:s') ?>">
-
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-            Zambrano.
-            Todos los derechos reservados.</p>
+            Zambrano. Todos los derechos reservados.</p>
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 

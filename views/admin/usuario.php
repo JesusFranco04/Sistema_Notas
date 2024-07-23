@@ -9,6 +9,15 @@ date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecu
 // Inicializar las variables de filtro
 $fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
 $estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+$rol = isset($_GET['rol']) ? $_GET['rol'] : '';
+
+// Obtener roles de la base de datos
+$sql_roles = "SELECT id_rol, nombre FROM rol WHERE estado = 'A'";
+$resultado_roles = $conn->query($sql_roles);
+
+if (!$resultado_roles) {
+    die("Error al obtener roles: " . $conn->error);
+}
 
 // Construir la consulta SQL con filtros si existen
 $sql = "SELECT * FROM usuario WHERE 1=1";
@@ -18,6 +27,9 @@ if (!empty($fecha)) {
 if (!empty($estado)) {
     $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
     $sql .= " AND estado = '$estadoFiltro'";
+}
+if (!empty($rol)) {
+    $sql .= " AND id_rol = '$rol'";
 }
 
 $resultado = $conn->query($sql);
@@ -50,19 +62,11 @@ if (!$resultado) {
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <!-- Estilos personalizados -->
     <style>
-    /* Estilo para el contenedor de la tabla */
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    /* Estilo para separar los botones de acciones */
-    .action-buttons .btn {
-        margin-right: 20px;
-    }
-
+    /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
@@ -72,6 +76,7 @@ if (!$resultado) {
         padding: 20px;
     }
 
+    /* Estilo de la tarjeta */
     .card {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -79,24 +84,93 @@ if (!$resultado) {
     }
 
     .card-header {
-        background-color: #c42021;
-        /* Color de fondo rojo */
+        background-color: #28a745;
         color: white;
-        /* Color del texto */
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
         padding: 15px;
-        /* Espacio interno alrededor del contenido del encabezado */
+    }
+
+    /* Estilo de los botones de acción */
+    .action-buttons .btn {
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+
+    .btn-success {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-success:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    /* Estilo de la tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        border-collapse: separate;
+        border-spacing: 0;
     }
 
     .table thead th {
-        background-color: #dc3545;
+        background-color: #28a745;
         color: white;
         text-align: center;
+        font-weight: bold;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #d4edda;
+        /* Verde claro para filas impares */
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
+    }
+
+    .table tbody tr:hover {
+        background-color: #e2e6ea;
+        /* Color de fondo al pasar el ratón */
     }
 
     .table tbody td {
         text-align: center;
+        padding: 12px;
+    }
+
+    /* Estilo para contenedor de tabla */
+    .table-container {
+        max-height: 500px;
+        overflow-y: auto;
     }
 
     .section-title {
@@ -110,20 +184,19 @@ if (!$resultado) {
         margin-right: 5px;
     }
 
-    .table tbody .btn-action {
-        margin-bottom: 10px;
-        display: inline-block;
-    }
-
     .filter-container {
         margin-bottom: 1rem;
     }
     </style>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js">
+    </script>
 </head>
 
 <body>
     <?php include_once 'navbar_admin.php'; ?>
-
 
     <div class="container-fluid">
         <div class="card">
@@ -132,14 +205,14 @@ if (!$resultado) {
             </div>
             <div class="card-body">
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-                    <div class="row mb-4">
-                        <div class="col-md-4">
+                    <div class="row mb-4 align-items-end">
+                        <div class="col-md-3">
                             <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de
                                 Creación</label>
                             <input type="date" class="form-control" id="searchFecha" name="fecha"
                                 value="<?php echo $fecha; ?>">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="searchEstado"><i class="fas fa-filter filter-icon"></i>Estado</label>
                             <select class="form-control" id="searchEstado" name="estado">
                                 <option value="">Todos</option>
@@ -149,7 +222,20 @@ if (!$resultado) {
                                     Inactivos</option>
                             </select>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
+                        <div class="col-md-3">
+                            <label for="searchRol"><i class="fas fa-user-tag filter-icon"></i>Rol</label>
+                            <select class="form-control" id="searchRol" name="rol">
+                                <option value="">Todos</option>
+                                <?php while ($rol_row = $resultado_roles->fetch_assoc()): ?>
+                                <option value="<?php echo $rol_row['id_rol']; ?>"
+                                    <?php echo $rol == $rol_row['id_rol'] ? 'selected' : ''; ?>>
+                                    <?php echo $rol_row['nombre']; ?>
+                                </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <!-- Mantener el tamaño normal del botón -->
                             <button type="submit" class="btn btn-primary">Filtrar</button>
                         </div>
                     </div>
@@ -157,8 +243,7 @@ if (!$resultado) {
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
-                                    class="btn btn-primary">Agregar
-                                    Usuario</a>
+                                    class="btn btn-primary">Agregar Usuario</a>
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="btn btn-info" data-toggle="modal"
@@ -196,14 +281,8 @@ if (!$resultado) {
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <!-- Botón de edición -->
                                     <a href="http://localhost/sistema_notas/Crud/admin/usuario/editar_usuario.php?cedula=<?php echo $fila['cedula']; ?>"
-                                        class="btn btn-info ml-2">
-                                        Editar
-                                    </a>
-                                    <!-- Espaciado entre botones -->
-                                    <span> </span>
-                                    <!-- Botón para activar/inactivar -->
+                                        class="btn btn-info ml-2">Editar</a>
                                     <button
                                         class="btn btn-<?php echo $fila['estado'] == 'A' ? 'warning' : 'success'; ?>"
                                         data-id="<?php echo $fila['id_usuario']; ?>"
@@ -212,7 +291,6 @@ if (!$resultado) {
                                         <?php echo $fila['estado'] == 'A' ? 'Inactivar' : 'Activar'; ?>
                                     </button>
                                 </td>
-
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -249,51 +327,53 @@ if (!$resultado) {
     </div>
     <!-- Fin Modal de Confirmación -->
 
-    <!-- Bootstrap core JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <!-- SB Admin 2 JS -->
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+</html>
 
-    <!-- Script para mostrar modal de confirmación -->
-    <script>
-    function mostrarModalCambioEstado(button) {
-        var id_usuario = button.getAttribute('data-id');
-        var estado = button.getAttribute('data-estado');
-        var mensaje = estado === 'activo' ? '¿Está seguro que desea activar este usuario?' :
-            '¿Está seguro que desea inactivar este usuario?';
+<!-- Bootstrap core JavaScript -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<!-- Core plugin JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+<!-- SB Admin 2 JS -->
+<script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
-        document.getElementById('mensajeConfirmacion').textContent = mensaje;
-        document.getElementById('inputIdUsuario').value = id_usuario;
-        document.getElementById('inputEstado').value = estado;
+<!-- Script para mostrar modal de confirmación -->
+<script>
+function mostrarModalCambioEstado(button) {
+    var id_usuario = button.getAttribute('data-id');
+    var estado = button.getAttribute('data-estado');
+    var mensaje = estado === 'activo' ? '¿Está seguro que desea activar este usuario?' :
+        '¿Está seguro que desea inactivar este usuario?';
 
-        $('#modalConfirmacion').modal('show');
-    }
+    document.getElementById('mensajeConfirmacion').textContent = mensaje;
+    document.getElementById('inputIdUsuario').value = id_usuario;
+    document.getElementById('inputEstado').value = estado;
 
-    function confirmarCambioEstado() {
-        var formulario = document.getElementById('formularioConfirmacion');
-        var id_usuario = document.getElementById('inputIdUsuario').value;
-        var estado = document.getElementById('inputEstado').value;
+    $('#modalConfirmacion').modal('show');
+}
 
-        $.ajax({
-            url: 'http://localhost/sistema_notas/Crud/admin/usuario/inactivar_usuario.php',
-            type: 'POST',
-            data: {
-                id_usuario: id_usuario,
-                estado: estado
-            },
-            success: function(response) {
-                $('#modalConfirmacion').modal('hide');
-                location.reload(); // Recargar la página para reflejar los cambios
-            },
-            error: function(xhr, status, error) {
-                alert('Error al cambiar el estado: ' + xhr.responseText);
-            }
-        });
-    }
-    </script>
+function confirmarCambioEstado() {
+    var formulario = document.getElementById('formularioConfirmacion');
+    var id_usuario = document.getElementById('inputIdUsuario').value;
+    var estado = document.getElementById('inputEstado').value;
+
+    $.ajax({
+        url: 'http://localhost/sistema_notas/Crud/admin/usuario/inactivar_usuario.php',
+        type: 'POST',
+        data: {
+            id_usuario: id_usuario,
+            estado: estado
+        },
+        success: function(response) {
+            $('#modalConfirmacion').modal('hide');
+            location.reload(); // Recargar la página para reflejar los cambios
+        },
+        error: function(xhr, status, error) {
+            alert('Error al cambiar el estado: ' + xhr.responseText);
+        }
+    });
+}
+</script>
 
 </body>
 
