@@ -26,39 +26,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validación de usuarios regulares
     require 'Crud/config.php';
 
-    // Validación de usuarios regulares
-    $sql = "SELECT u.id_usuario, u.cedula, u.contraseña, r.nombre AS nombre_rol 
-            FROM usuario u
-            JOIN rol r ON u.id_rol = r.id_rol
-            WHERE u.cedula = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $cedula);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+// Validación de usuarios regulares
+$sql = "SELECT u.id_usuario, u.cedula, u.contraseña, r.nombre AS nombre_rol 
+        FROM usuario u
+        JOIN rol r ON u.id_rol = r.id_rol
+        WHERE u.cedula = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('s', $cedula);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
-    if ($user && $contraseña === $user['contraseña']) {
-        session_start();
-        $_SESSION['cedula'] = $user['cedula'];
-        $_SESSION['rol'] = $user['nombre_rol'];
-        switch ($user['nombre_rol']) {
-            case 'Administrador':
-                header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
-                break;
-            case 'Profesor':
-                header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
-                break;
-            case 'Padre':
-                header("Location: http://localhost/sistema_notas/views/family/index_family.php");
-                break;
-            default:
-                header("Location: http://localhost/sistema_notas/login.php");
-                break;
+if ($user && $contraseña === $user['contraseña']) {
+    session_start();
+    $_SESSION['cedula'] = $user['cedula'];
+    $_SESSION['rol'] = $user['nombre_rol'];
+
+    // Obtener id_profesor si el rol es 'Profesor'
+    if ($user['nombre_rol'] === 'Profesor') {
+        $sql_profesor = "SELECT id_profesor FROM profesor WHERE id_usuario = ?";
+        $stmt_profesor = $conn->prepare($sql_profesor);
+        $stmt_profesor->bind_param('i', $user['id_usuario']);
+        $stmt_profesor->execute();
+        $result_profesor = $stmt_profesor->get_result();
+        $profesor = $result_profesor->fetch_assoc();
+
+        if ($profesor) {
+            $_SESSION['id_profesor'] = $profesor['id_profesor'];
+        } else {
+            echo "No se encontró el ID del profesor.";
+            exit();
         }
-        exit();
-    } else {
-        $error_message = "Cédula o contraseña incorrecta";
     }
+
+    switch ($user['nombre_rol']) {
+        case 'Administrador':
+            header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
+            break;
+        case 'Profesor':
+            header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
+            break;
+        case 'Padre':
+            header("Location: http://localhost/sistema_notas/views/family/index_family.php");
+            break;
+        default:
+            header("Location: http://localhost/sistema_notas/login.php");
+            break;
+    }
+    exit();
+} else {
+    $error_message = "Cédula o contraseña incorrecta";
+}
+
 }
 ?>
 

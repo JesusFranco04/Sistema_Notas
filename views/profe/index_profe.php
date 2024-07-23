@@ -423,7 +423,7 @@ session_start();
                 <!-- Lista de elementos del menú -->
                 <li><a href="http://localhost/sistema_notas/views/profe/index_profe.php">Inicio</a></li>
                 <!-- Enlace a la página de inicio -->
-                <li><a href="http://localhost/sistema_notas/views/profe/registronota_profe.php">Registro de
+                <li><a href="http://localhost/sistema_notas/views/profe/curso_profe.php">Registro de
                         Calificaciones</a></li>
                 <!-- Enlace a la página de registro de calificaciones -->
                 <li class="dropdown">

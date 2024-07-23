@@ -199,91 +199,34 @@ CREATE TABLE curso (
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
-CREATE TABLE curso_materia (
-    id_curso_materia INT AUTO_INCREMENT PRIMARY KEY,
-    id_curso INT NOT NULL,
-    id_materia INT NOT NULL,
-    FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
-    FOREIGN KEY (id_materia) REFERENCES materia(id_materia)
-);
-
-
-
-CREATE TABLE asignacion_estudiante ( -- Asignación de Estudiantes a Cursos
-    id_asig_estudiante INT AUTO_INCREMENT PRIMARY KEY,
-    id_estudiante INT NOT NULL,
-    id_curso INT NOT NULL,
-    id_jornada INT NOT NULL,
-    id_his_academico INT NOT NULL,
-	estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
-    FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
-    FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
-    FOREIGN KEY (id_jornada) REFERENCES jornada(id_jornada),
-    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
-);
-
--- Tabla Tipos_Examen
-CREATE TABLE Tipos_Examen (
-    id_examen INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    habilitado BOOLEAN DEFAULT FALSE,
-	id_periodo INT,
-    estado CHAR(1) NOT NULL CHECK (estado IN ('A', 'I')), -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL,
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
-    INDEX idx_estado (estado)
-);
-
--- Tabla Tipos_Evaluacion
-CREATE TABLE Tipos_Evaluacion (
-    id_tipo_evalu INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    estado CHAR(1) NOT NULL CHECK (estado IN ('A', 'I')), -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL,
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_estado (estado)
-);
-
--- Tabla Evaluaciones
-CREATE TABLE Evaluacion (
-    id_evaluacion INT AUTO_INCREMENT PRIMARY KEY,
-    id_materia INT,
-    id_examen INT,
-    id_tipo_evalu INT,
-    porcentaje INT CHECK (porcentaje > 0 AND porcentaje <= 100),
-    estado CHAR(1) NOT NULL CHECK (estado IN ('A', 'I')), -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL,
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_materia) REFERENCES Materia(id_materia),
-    FOREIGN KEY (id_examen) REFERENCES Tipos_Examen(id_examen),
-    FOREIGN KEY (id_tipo_evalu) REFERENCES Tipos_Evaluacion(id_tipo_evalu),
-    INDEX idx_estado (estado)
-);
-
--- Tabla Evalu_Estudiantes
-CREATE TABLE Evalu_Estudiantes (
+CREATE TABLE registro_nota (
     id_curso INT,
-    id_materia INT,
-    id_jornada INT,
+    id_estudiante INT,
     id_his_academico INT,
-    id_evaluacion INT,
-    nota DECIMAL(5,2),
-    nota_porcentaje DECIMAL(5,2),
-    supletorio DECIMAL(5,2) DEFAULT NULL,
-    resultado CHAR(1) DEFAULT NULL,
-    estado CHAR(1) NOT NULL CHECK (estado IN ('A', 'I')), -- A: Activo, I: Inactivo
-    usuario_ingreso VARCHAR(50) NOT NULL,
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_curso, id_materia, id_jornada, id_his_academico, id_evaluacion),
-    FOREIGN KEY (id_curso) REFERENCES Curso(id_curso),
-    FOREIGN KEY (id_materia) REFERENCES Materia(id_materia),
-    FOREIGN KEY (id_jornada) REFERENCES Jornada(id_jornada),
-    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico),
-    FOREIGN KEY (id_evaluacion) REFERENCES Evaluacion(id_evaluacion),
-    INDEX idx_estado (estado)
+    id_periodo INT,
+    nota1_primer_parcial DECIMAL(5,2),
+    nota2_primer_parcial DECIMAL(5,2),
+    examen_primer_parcial DECIMAL(5,2),
+    nota1_segundo_parcial DECIMAL(5,2),
+    nota2_segundo_parcial DECIMAL(5,2),
+    examen_segundo_parcial DECIMAL(5,2),
+    PRIMARY KEY (id_curso, id_estudiante, id_his_academico, id_periodo),
+    FOREIGN KEY (id_curso) REFERENCES curso(id_curso) ON DELETE CASCADE,
+    FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante) ON DELETE CASCADE,
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico) ON DELETE CASCADE,
+    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo) ON DELETE CASCADE
 );
+
+CREATE TABLE calificacion (
+    id_calificacion INT AUTO_INCREMENT PRIMARY KEY,
+    Id_estudiante INT,
+    promedio_primer_quimestre DECIMAL(5,1),
+    promedio_segundo_quimestre DECIMAL(5,1),
+    nota_final DECIMAL(5,1),
+    supletorio DECIMAL(5,1),
+    estado_calificacion CHAR(1),
+    FOREIGN KEY (Id_estudiante) REFERENCES estudiante(id_estudiante)
+);
+
 
 
