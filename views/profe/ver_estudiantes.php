@@ -70,7 +70,7 @@ $año_academico = $curso['año_academico'];
 
             // Manejo del botón regresar
             $('#btn-regresar').click(function() {
-                window.location.href = 'http://localhost/sistema_notas/views/profe/curso_profe.php'; // Cambia esta URL si es necesario
+                window.location.href = 'curso_profe.php'; // Cambia esta URL si es necesario
             });
             
             // Manejo del botón calificar
@@ -83,7 +83,6 @@ $año_academico = $curso['año_academico'];
 </head>
 <body>
     <div class="container mt-5">
-    
         <div id="resultado">
             <!-- Aquí se mostrará la lista de estudiantes -->
         </div>

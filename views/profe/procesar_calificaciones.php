@@ -169,7 +169,7 @@ function guardarCalificacionesPeriodo3($id_estudiante, $id_his_academico, $id_pe
  * @param mysqli $conn
  */
 function calcularYActualizar($id_estudiante, $id_his_academico, $conn) {
-    // Calcular promedios
+    // Calcular promedios de los quimestres
     $sql_calculate = "SELECT
         AVG((nota1_primer_parcial * 0.35) + (nota2_primer_parcial * 0.35) + (examen_primer_parcial * 0.30)) AS promedio_primer_quimestre,
         AVG((nota1_segundo_parcial * 0.35) + (nota2_segundo_parcial * 0.35) + (examen_segundo_parcial * 0.30)) AS promedio_segundo_quimestre

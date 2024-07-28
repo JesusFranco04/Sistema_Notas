@@ -174,7 +174,13 @@ CREATE TABLE estudiante (
     FOREIGN KEY (id_historial_academico) REFERENCES historial_academico(id_his_academico)
 );
 
-
+CREATE TABLE padre_x_estudiante (
+    id_padre INT,
+    id_estudiante INT,
+    PRIMARY KEY (id_padre, id_estudiante),
+    FOREIGN KEY (id_padre) REFERENCES padre(id_padre),
+    FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante)
+);
 
 CREATE TABLE curso (
     id_curso INT AUTO_INCREMENT PRIMARY KEY,

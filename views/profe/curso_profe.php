@@ -21,30 +21,50 @@ if (!isset($_SESSION['id_profesor'])) {
 
 $id_profesor = $_SESSION['id_profesor'];
 
-// Consulta para obtener los cursos del profesor con información detallada
-$sql = "SELECT 
-            c.id_curso, 
-            m.nombre AS nombre_materia, 
-            n.nombre AS nombre_nivel, 
-            p.nombre AS nombre_paralelo, 
-            s.nombre AS nombre_subnivel, 
-            e.nombre AS nombre_especialidad, 
-            j.nombre AS nombre_jornada, 
-            h.año AS año_academico
-        FROM curso c
-        JOIN materia m ON c.id_materia = m.id_materia
-        JOIN nivel n ON c.id_nivel = n.id_nivel
-        JOIN paralelo p ON c.id_paralelo = p.id_paralelo
-        JOIN subnivel s ON c.id_subnivel = s.id_subnivel
-        JOIN especialidad e ON c.id_especialidad = e.id_especialidad
-        JOIN jornada j ON c.id_jornada = j.id_jornada
-        JOIN historial_academico h ON c.id_his_academico = h.id_his_academico
-        WHERE c.id_profesor = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('i', $id_profesor);
-$stmt->execute();
-$result = $stmt->get_result();
-$cursos = $result->fetch_all(MYSQLI_ASSOC);
+// Obtener el año académico seleccionado de la URL, o usar el actual si no está especificado
+$año_academico = isset($_GET['año_academico']) ? intval($_GET['año_academico']) : date('Y');
+
+// Consulta para obtener los años académicos disponibles
+$sql_años = "SELECT DISTINCT h.año AS año_academico
+             FROM historial_academico h
+             JOIN curso c ON h.id_his_academico = c.id_his_academico
+             WHERE c.id_profesor = ?
+             ORDER BY h.año DESC";
+$stmt_años = $conn->prepare($sql_años);
+$stmt_años->bind_param('i', $id_profesor);
+$stmt_años->execute();
+$result_años = $stmt_años->get_result();
+$años_academicos = $result_años->fetch_all(MYSQLI_ASSOC);
+
+// Consulta para obtener los cursos del profesor en el año académico seleccionado
+$sql_cursos = "SELECT 
+                    c.id_curso, 
+                    m.nombre AS nombre_materia, 
+                    n.nombre AS nombre_nivel, 
+                    p.nombre AS nombre_paralelo, 
+                    s.nombre AS nombre_subnivel, 
+                    e.nombre AS nombre_especialidad, 
+                    j.nombre AS nombre_jornada, 
+                    h.año AS año_academico
+                FROM curso c
+                JOIN materia m ON c.id_materia = m.id_materia
+                JOIN nivel n ON c.id_nivel = n.id_nivel
+                JOIN paralelo p ON c.id_paralelo = p.id_paralelo
+                JOIN subnivel s ON c.id_subnivel = s.id_subnivel
+                JOIN especialidad e ON c.id_especialidad = e.id_especialidad
+                JOIN jornada j ON c.id_jornada = j.id_jornada
+                JOIN historial_academico h ON c.id_his_academico = h.id_his_academico
+                WHERE c.id_profesor = ? AND h.año = ?
+                ORDER BY c.id_curso ASC"; // Ordenar por id_curso
+$stmt_cursos = $conn->prepare($sql_cursos);
+$stmt_cursos->bind_param('ii', $id_profesor, $año_academico);
+$stmt_cursos->execute();
+$result_cursos = $stmt_cursos->get_result();
+$cursos = $result_cursos->fetch_all(MYSQLI_ASSOC);
+
+$stmt_años->close();
+$stmt_cursos->close();
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -60,6 +80,11 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
             background-color: #f5f5f5;
             color: #333;
             padding: 20px;
+            margin: 0;
+        }
+        .navbar {
+            margin-bottom: 20px;
+            width: 100%;
         }
         .card {
             border: none;
@@ -74,7 +99,7 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
             transform: translateY(-10px);
         }
         .card-header {
-            background-color: #c1121f; /* Rojo bonito */
+            background-color: #c1121f;
             color: #fff;
             font-size: 1.2em;
             border-top-left-radius: 10px;
@@ -90,7 +115,7 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
             justify-content: space-between;
         }
         .course-id {
-            background-color: #27ae60; /* Verde bonito */
+            background-color: #27ae60;
             color: #fff;
             border-radius: 50%;
             width: 40px;
@@ -123,9 +148,39 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
             text-align: center;
             color: #333;
         }
+        @media (max-width: 768px) {
+            .navbar .navbar-brand {
+                font-size: 1.2em;
+            }
+            .card-header {
+                font-size: 1em;
+            }
+            .container h1 {
+                font-size: 1.5em;
+            }
+        }
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Sistema de Calificaciones</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Año Académico: <?php echo htmlspecialchars($año_academico); ?>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="?año_academico=<?php echo date('Y'); ?>">Año Actual (<?php echo date('Y'); ?>)</a></li>
+                        <?php foreach ($años_academicos as $año): ?>
+                            <li><a class="dropdown-item" href="?año_academico=<?php echo urlencode($año['año_academico']); ?>"><?php echo htmlspecialchars($año['año_academico']); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container mt-5">
         <h1>Mis Cursos</h1>
         <div class="row g-4">
@@ -138,12 +193,12 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
                                 <div class="course-id"><?php echo htmlspecialchars($curso['id_curso']); ?></div>
                             </div>
                             <div class="card-body">
-                                <p>Nivel: <?php echo htmlspecialchars($curso['nombre_nivel']); ?></p>
-                                <p>Paralelo: <?php echo htmlspecialchars($curso['nombre_paralelo']); ?></p>
-                                <p>Subnivel: <?php echo htmlspecialchars($curso['nombre_subnivel']); ?></p>
-                                <p>Especialidad: <?php echo htmlspecialchars($curso['nombre_especialidad']); ?></p>
-                                <p>Jornada: <?php echo htmlspecialchars($curso['nombre_jornada']); ?></p>
-                                <p>Año Académico: <?php echo htmlspecialchars($curso['año_academico']); ?></p>
+                                <p><strong>Nivel:</strong> <?php echo htmlspecialchars($curso['nombre_nivel']); ?></p>
+                                <p><strong>Paralelo:</strong> <?php echo htmlspecialchars($curso['nombre_paralelo']); ?></p>
+                                <p><strong>Subnivel:</strong> <?php echo htmlspecialchars($curso['nombre_subnivel']); ?></p>
+                                <p><strong>Especialidad:</strong> <?php echo htmlspecialchars($curso['nombre_especialidad']); ?></p>
+                                <p><strong>Jornada:</strong> <?php echo htmlspecialchars($curso['nombre_jornada']); ?></p>
+                                <p><strong>Año Académico:</strong> <?php echo htmlspecialchars($curso['año_academico']); ?></p>
                             </div>
                             <div class="card-footer">
                                 <a href="ver_estudiantes.php?id_curso=<?php echo urlencode($curso['id_curso']); ?>" class="btn btn-view-students">Ver Estudiantes</a>
@@ -152,7 +207,7 @@ $cursos = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p>No tiene cursos asignados.</p>
+                <p>No tiene cursos asignados en el año académico seleccionado.</p>
             <?php endif; ?>
         </div>
     </div>
