@@ -17,7 +17,9 @@ if ($id_curso <= 0 || empty($año)) {
 }
 
 // Obtener los detalles del curso
-$sql_detalles = "SELECT id_nivel, id_paralelo, id_jornada FROM curso WHERE id_curso = ? AND id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = ?)";
+$sql_detalles = "SELECT id_nivel, id_paralelo, id_jornada 
+                 FROM curso 
+                 WHERE id_curso = ? AND id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = ?)";
 $stmt_detalles = $conn->prepare($sql_detalles);
 $stmt_detalles->bind_param("is", $id_curso, $año);
 $stmt_detalles->execute();
@@ -30,7 +32,8 @@ if ($curso) {
     $sql_estudiantes = "SELECT e.id_estudiante, e.cedula, e.nombres, e.apellidos, e.fecha_nacimiento, e.genero, e.discapacidad, 
                         p.cedula AS cedula_padre, p.nombres AS nombres_padre, p.apellidos AS apellidos_padre, p.parentesco
                         FROM estudiante e
-                        LEFT JOIN padre p ON e.id_estudiante = p.id_padre
+                        LEFT JOIN padre_x_estudiante pe ON e.id_estudiante = pe.id_estudiante
+                        LEFT JOIN padre p ON pe.id_padre = p.id_padre
                         WHERE e.id_nivel = ? AND e.id_paralelo = ? AND e.id_jornada = ? AND e.id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = ?)
                         ORDER BY e.apellidos ASC";
     $stmt_estudiantes = $conn->prepare($sql_estudiantes);
