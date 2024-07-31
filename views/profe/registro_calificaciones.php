@@ -9,11 +9,10 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
 }
 
 // Asegúrate de que id_curso esté definido en la URL
-if (!isset($_GET['id_curso'])) {
-    echo "ID de curso no definido.";
+if (!isset($_GET['id_curso']) || !filter_var($_GET['id_curso'], FILTER_VALIDATE_INT)) {
+    echo "ID de curso no válido.";
     exit();
 }
-
 $id_curso = intval($_GET['id_curso']);
 
 // Obtener los detalles del curso
@@ -22,16 +21,19 @@ $sql_curso = "SELECT c.id_curso, h.id_his_academico, h.año AS año_academico, c
               JOIN historial_academico h ON c.id_his_academico = h.id_his_academico
               WHERE c.id_curso = ?";
 $stmt_curso = $conn->prepare($sql_curso);
+if (!$stmt_curso) {
+    error_log("Error en prepare: " . $conn->error);
+    die("Error en la consulta de curso.");
+}
 $stmt_curso->bind_param("i", $id_curso);
 $stmt_curso->execute();
 $result_curso = $stmt_curso->get_result();
+if (!$result_curso) {
+    error_log("Error en get_result: " . $stmt_curso->error);
+    die("Error en la obtención de resultados del curso.");
+}
 $curso = $result_curso->fetch_assoc();
 $stmt_curso->close();
-
-if (!$curso) {
-    echo "Curso no encontrado.";
-    exit();
-}
 
 // Obtener el nombre de la materia
 $id_materia = $curso['id_materia'];
@@ -49,7 +51,8 @@ $nombre_materia = $materia ? htmlspecialchars($materia['nombre']) : 'Materia no 
 $id_his_academico = $curso['id_his_academico'];
 $sql_estudiantes = "SELECT id_estudiante, nombres, apellidos
                     FROM estudiante
-                    WHERE id_his_academico = ?";
+                    WHERE id_his_academico = ?
+                    ORDER BY apellidos ASC";
 $stmt_estudiantes = $conn->prepare($sql_estudiantes);
 $stmt_estudiantes->bind_param("i", $id_his_academico);
 $stmt_estudiantes->execute();
@@ -71,34 +74,21 @@ function obtenerPeriodosAcademicos($conn) {
 
 $periodos = obtenerPeriodosAcademicos($conn);
 
-
-$sql_calificaciones = "SELECT c.id_estudiante, c.promedio_primer_quimestre, c.promedio_segundo_quimestre, c.nota_final, c.supletorio, c.estado_calificacion
-    FROM calificacion c
-    JOIN estudiante e ON c.id_estudiante = e.id_estudiante
-    WHERE e.id_his_academico = ?";
-
-$stmt = $conn->prepare($sql_calificaciones);
-$stmt->bind_param("i", $id_his_academico);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$calificaciones = [];
-while ($row = $result->fetch_assoc()) {
-    $calificaciones[$row['id_estudiante']] = $row;
-}
-
-
 // Cerrar la conexión
 $conn->close();
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Calificaciones</title>
-    <link rel="stylesheet" href="path/to/your/bootstrap.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <style>
     .tabcontent {
         display: none;
@@ -108,80 +98,38 @@ $conn->close();
         display: block;
     }
 
-    .centered-input input {
-        text-align: center;
-    }
-
-    .small-text {
-        font-size: 0.75em;
-        color: #666;
-    }
-
-    .partial-header {
-        text-align: center;
-    }
-
     .tabs-container {
-        text-align: right;
         margin-bottom: 20px;
     }
 
     .tabs {
-        display: inline-block;
+        list-style-type: none;
         padding: 0;
-        margin: 0;
-        list-style: none;
     }
 
     .tabs li {
         display: inline;
+        margin-right: 10px;
     }
 
-    .tabs button {
-        padding: 10px 15px;
-        margin-left: 5px;
+    .tablink {
+        background-color: #f1f1f1;
         border: none;
         cursor: pointer;
-    }
-
-    .tabs button.active {
-        background-color: #ccc;
-        font-weight: bold;
-    }
-
-    .tabs button.disabled {
-        background-color: #e0e0e0;
-        cursor: not-allowed;
-    }
-
-    .tabcontent {
-        display: none;
-    }
-
-    .tabcontent.active {
-        display: block;
-    }
-
-    .small-text {
-        font-size: 0.8em;
-        color: #666;
-    }
-
-    .first-partial .small-text {
-        color: #007bff;
-        /* Color para el primer parcial */
-    }
-
-    .second-partial .small-text {
-        color: #28a745;
-        /* Color para el segundo parcial */
-    }
-
-    .partial-header {
+        padding: 10px 20px;
         text-align: center;
     }
 
-    .centered-input {
+    .tablink.active {
+        background-color: #ddd;
+    }
+
+    .small-text {
+        font-size: 0.75rem;
+        color: #888;
+    }
+
+    .centered-input input {
         text-align: center;
     }
     </style>
@@ -189,7 +137,16 @@ $conn->close();
 
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Calificaciones de estudiantes de <?php echo $nombre_materia; ?></h1>
+        <h1 class="text-center">Calificaciones de estudiantes de <?php echo htmlspecialchars($nombre_materia); ?></h1>
+        <?php if (isset($_GET['mensaje'])): ?>
+        <?php if ($_GET['mensaje'] == 'exito'): ?>
+        <div class="alert alert-success">Se guardaron las notas exitosamente</div>
+        <?php elseif ($_GET['mensaje'] == 'error'): ?>
+        <div class="alert alert-danger">No se guardaron las calificaciones</div>
+        <?php elseif ($_GET['mensaje'] == 'faltan_datos'): ?>
+        <div class="alert alert-warning">Debe llenar todos los campos</div>
+        <?php endif; ?>
+        <?php endif; ?>
 
         <div class="tabs-container">
             <ul class="tabs">
@@ -209,11 +166,12 @@ $conn->close();
             class="tabcontent <?php echo $periodo['estado'] == '1' ? 'active' : ''; ?>">
             <h2><?php echo htmlspecialchars($periodo['nombre']); ?></h2>
 
-            <?php if ($periodo['id_periodo'] == 1 || $periodo['id_periodo'] == 2): ?>
-            <form action="procesar_calificaciones.php" method="POST">
+            <?php if ($periodo['id_periodo'] == 1): ?>
+            <form method="POST" action="procesar_calificaciones.php">
+                <input type="hidden" name="accion" value="guardar">
                 <input type="hidden" name="id_curso" value="<?php echo htmlspecialchars($id_curso); ?>">
-                <input type="hidden" name="id_his_academico"
-                    value="<?php echo htmlspecialchars($curso['id_his_academico']); ?>">
+                <input type="hidden" name="id_materia" value="<?php echo htmlspecialchars($id_materia); ?>">
+                <input type="hidden" name="id_his_academico" value="<?php echo htmlspecialchars($curso['id_his_academico']); ?>">
                 <input type="hidden" name="id_periodo" value="<?php echo htmlspecialchars($periodo['id_periodo']); ?>">
                 <table class="table table-bordered">
                     <thead>
@@ -262,24 +220,35 @@ $conn->close();
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-primary">Guardar Calificaciones</button>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back();">Regresar</button>
+                    <button type="submit" class="btn btn-primary" name="accion" value="guardar">Guardar</button>
+                    <button type="submit" class="btn btn-danger" name="accion" value="eliminar">Eliminar</button>
+                </div>
             </form>
-            <?php elseif ($periodo['id_periodo'] == 3): ?>
+            <?php elseif ($periodo['id_periodo'] == 2): ?>
             <form action="procesar_calificaciones.php" method="POST">
                 <input type="hidden" name="id_curso" value="<?php echo htmlspecialchars($id_curso); ?>">
-                <input type="hidden" name="id_his_academico"
-                    value="<?php echo htmlspecialchars($curso['id_his_academico']); ?>">
+                <input type="hidden" name="id_materia" value="<?php echo htmlspecialchars($id_materia); ?>">
+                <input type="hidden" name="id_his_academico" value="<?php echo htmlspecialchars($curso['id_his_academico']); ?>">
                 <input type="hidden" name="id_periodo" value="<?php echo htmlspecialchars($periodo['id_periodo']); ?>">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Nombre del Estudiante</th>
-                            <th class="text-center">Promedio Primer Quimestre</th>
-                            <th class="text-center">Promedio Segundo Quimestre</th>
-                            <th class="text-center">Nota Final</th>
-                            <th class="text-center">Supletorio</th>
-                            <th class="text-center">Estado de Calificación</th>
+                            <th colspan="3" class="partial-header">Primer Parcial</th>
+                            <th colspan="3" class="partial-header">Segundo Parcial</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Nota 1 <span class="small-text">(35%)</span></th>
+                            <th>Nota 2 <span class="small-text">(35%)</span></th>
+                            <th>Examen <span class="small-text">(30%)</span></th>
+                            <th>Nota 1 <span class="small-text">(35%)</span></th>
+                            <th>Nota 2 <span class="small-text">(35%)</span></th>
+                            <th>Examen <span class="small-text">(30%)</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -288,51 +257,102 @@ $conn->close();
                             <td><?php echo $index + 1; ?></td>
                             <td><?php echo htmlspecialchars($estudiante['nombres'] . ' ' . $estudiante['apellidos']); ?>
                             </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    name="promedio_primer_quimestre[<?php echo $estudiante['id_estudiante']; ?>]"
-                                    min="0" max="100" step="0.1"
-                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]['promedio_primer_quimestre']) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['promedio_primer_quimestre']) : ''; ?>">
-                            </td>
-                            <td class="text-center">
-                                <input type="number"
-                                    name="promedio_segundo_quimestre[<?php echo $estudiante['id_estudiante']; ?>]"
-                                    min="0" max="100" step="0.1"
-                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]['promedio_segundo_quimestre']) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['promedio_segundo_quimestre']) : ''; ?>">
-                            </td>
-                            <td class="text-center">
-                                <input type="number" name="nota_final[<?php echo $estudiante['id_estudiante']; ?>]"
-                                    min="0" max="100" step="0.1"
-                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]['nota_final']) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['nota_final']) : ''; ?>">
-                            </td>
-                            <td class="text-center">
-                                <input type="number" name="supletorio[<?php echo $estudiante['id_estudiante']; ?>]"
-                                    min="0" max="100" step="0.1" <?php
-                        // Obtener el estado de calificación
-                        $estado_calificacion = isset($calificaciones[$estudiante['id_estudiante']]['estado_calificacion']) ? $calificaciones[$estudiante['id_estudiante']]['estado_calificacion'] : '';
-
-                        // Habilitar el campo supletorio solo si el estado es 'R'
-                        if ($estado_calificacion === 'R') {
-                            echo 'value="' . (isset($calificaciones[$estudiante['id_estudiante']]['supletorio']) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['supletorio']) : '') . '"';
-                        } else {
-                            echo 'disabled';
-                        }
-                        ?>>
-                            </td>
-                            <td class="text-center">
-                                <!-- Mostrar el estado de calificación como texto -->
-                                <?php echo isset($calificaciones[$estudiante['id_estudiante']]['estado_calificacion']) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['estado_calificacion']) : 'No asignado'; ?>
-                            </td>
+                            <td class="centered-input"><input type="number"
+                                    name="nota1_primer_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
+                            <td class="centered-input"><input type="number"
+                                    name="nota2_primer_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
+                            <td class="centered-input"><input type="number"
+                                    name="examen_primer_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
+                            <td class="centered-input"><input type="number"
+                                    name="nota1_segundo_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
+                            <td class="centered-input"><input type="number"
+                                    name="nota2_segundo_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
+                            <td class="centered-input"><input type="number"
+                                    name="examen_segundo_parcial[<?php echo $estudiante['id_estudiante']; ?>]" min="0"
+                                    max="100" step="0.1"></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-primary">Guardar Calificaciones</button>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="accion" value="guardar">Guardar</button>
+                    <button type="submit" class="btn btn-danger" name="accion" value="eliminar">Eliminar</button>
+                </div>
+            </form>
+            <?php elseif ($periodo['id_periodo'] == 3): ?>
+            <form action="procesar_calificaciones.php" method="POST">
+                <input type="hidden" name="id_curso" value="<?php echo htmlspecialchars($id_curso); ?>">
+                <input type="hidden" name="id_materia" value="<?php echo htmlspecialchars($id_materia); ?>">
+                <input type="hidden" name="id_his_academico" value="<?php echo htmlspecialchars($curso['id_his_academico']); ?>">
+                <input type="hidden" name="id_periodo" value="<?php echo htmlspecialchars($periodo['id_periodo']); ?>">
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre del Estudiante</th>
+                            <th>Promedio Primer Quimestre</th>
+                            <th>Promedio Segundo Quimestre</th>
+                            <th>Nota Final</th>
+                            <th>Supletorio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($estudiantes as $index => $estudiante): ?>
+                        <tr>
+                            <td><?php echo $index + 1; ?></td>
+                            <td><?php echo htmlspecialchars($estudiante['nombres'] . ' ' . $estudiante['apellidos']); ?>
+                            </td>
+                            <td class="centered-input"><input type="number"
+                                    name="promedio_primer_quimestre[<?php echo $estudiante['id_estudiante']; ?>]"
+                                    min="0" max="100" step="0.1"
+                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['promedio_primer_quimestre']) : ''; ?>">
+                            </td>
+                            <td class="centered-input"><input type="number"
+                                    name="promedio_segundo_quimestre[<?php echo $estudiante['id_estudiante']; ?>]"
+                                    min="0" max="100" step="0.1"
+                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['promedio_segundo_quimestre']) : ''; ?>">
+                            </td>
+                            <td class="centered-input"><input type="number"
+                                    name="nota_final[<?php echo $estudiante['id_estudiante']; ?>]" min="0" max="100"
+                                    step="0.1"
+                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['nota_final']) : ''; ?>">
+                            </td>
+                            <td class="centered-input"><input type="number"
+                                    name="supletorio[<?php echo $estudiante['id_estudiante']; ?>]" min="0" max="100"
+                                    step="0.1"
+                                    value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['supletorio']) : ''; ?>">
+                            </td>
+                            <td class="centered-input">
+                                <?php
+                                if (isset($calificaciones[$estudiante['id_estudiante']])) {
+                                    $estado = $calificaciones[$estudiante['id_estudiante']]['estado_calificacion'];
+                                    // Verifica si el estado está vacío o no está definido
+                                    echo empty($estado) ? 'Pendiente' : ($estado == 'A' ? 'Aprobado' : ($estado == 'R' ? 'Reprobado' : 'Pendiente'));
+                                } else {
+                                    echo 'Pendiente';
+                                }
+                                ?>
+                            </td>
+
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="accion" value="guardar">Guardar</button>
+                    <button type="submit" class="btn btn-danger" name="accion" value="eliminar">Eliminar</button>
+                </div>
             </form>
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
-
     </div>
 
     <script>
