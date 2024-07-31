@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     foreach ($notas as $key => $value) {
         foreach ($value as $estudiante_id => $nota) {
             if (empty($nota)) {
-                $notas[$key][$estudiante_id] = null; // Permitir valor nulo
+                $notas[$key][$estudiante_id] = 0; // Permitir valor nulo
                 continue;
             }
             $nota = floatval($nota); // Convertir a número decimal
