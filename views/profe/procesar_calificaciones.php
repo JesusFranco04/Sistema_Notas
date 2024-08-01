@@ -2,136 +2,167 @@
 session_start();
 include('../../Crud/config.php');
 
-// Verifica si el usuario es un profesor
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
-    header("Location: ../../login.php");
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $accion = $_POST['accion'];
-    $id_curso = intval($_POST['id_curso']);
-    $id_materia = intval($_POST['id_materia']);
-    $id_his_academico = intval($_POST['id_his_academico']);
-    $id_periodo = intval($_POST['id_periodo']);
-
-    // Verifica que se ha enviado el id_his_academico
-    if (!isset($_POST['id_his_academico']) || !filter_var($_POST['id_his_academico'], FILTER_VALIDATE_INT)) {
-        $_SESSION['mensaje'] = "ID de historial académico no válido.";
-        $_SESSION['tipo_mensaje'] = "error";
-        header("Location: registro_calificaciones.php?id_curso=$id_curso");
+try {
+    if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
+        header("Location: ../../login.php");
         exit();
     }
 
-    // Obtener detalles del historial académico
-    $sql_historial = "SELECT * FROM historial_academico WHERE id_his_academico = ?";
-    $stmt_historial = $conn->prepare($sql_historial);
-    $stmt_historial->bind_param("i", $id_his_academico);
-    $stmt_historial->execute();
-    $result_historial = $stmt_historial->get_result();
-    $historial = $result_historial->fetch_assoc();
-    $stmt_historial->close();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $accion = $_POST['accion'];
+        $id_curso = intval($_POST['id_curso']);
+        $id_materia = intval($_POST['id_materia']);
+        $id_periodo = intval($_POST['id_periodo']);
+        $id_his_academico = intval($_POST['id_his_academico']);
 
-    if (!$historial) {
-        $_SESSION['mensaje'] = "Historial académico no encontrado.";
-        $_SESSION['tipo_mensaje'] = "error";
-        header("Location: registro_calificaciones.php?id_curso=$id_curso");
-        exit();
-    }
-
-    // Obtener las calificaciones desde el formulario
-    $notas = [
-        'nota1_primer_parcial' => $_POST['nota1_primer_parcial'],
-        'nota2_primer_parcial' => $_POST['nota2_primer_parcial'],
-        'examen_primer_parcial' => $_POST['examen_primer_parcial'],
-        'nota1_segundo_parcial' => $_POST['nota1_segundo_parcial'],
-        'nota2_segundo_parcial' => $_POST['nota2_segundo_parcial'],
-        'examen_segundo_parcial' => $_POST['examen_segundo_parcial']
-    ];
-
-    // Validar notas
-    foreach ($notas as $key => $value) {
-        foreach ($value as $estudiante_id => $nota) {
-            if (empty($nota)) {
-                $notas[$key][$estudiante_id] = 0; // Permitir valor nulo
-                continue;
-            }
-            $nota = floatval($nota); // Convertir a número decimal
-            if (!is_numeric($nota) || $nota < 0 || $nota > 100) {
-                $_SESSION['mensaje'] = "Las notas deben estar entre 0 y 100.";
-                $_SESSION['tipo_mensaje'] = "error";
-                header("Location: registro_calificaciones.php?id_curso=$id_curso");
-                exit();
-            }
-            $notas[$key][$estudiante_id] = $nota; // Actualizar el array con el valor decimal
-        }
-    }
-
-    // Función para ejecutar consultas de guardado o modificación
-    function ejecutarConsulta($conn, $sql, $params, $id_curso) {
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(...$params);
-        if (!$stmt->execute()) {
-            error_log("Error en execute: " . $stmt->error);
-            $_SESSION['mensaje'] = "Error en la operación.";
+        if (!filter_var($id_his_academico, FILTER_VALIDATE_INT)) {
+            $_SESSION['mensaje'] = "ID de historial académico no válido.";
             $_SESSION['tipo_mensaje'] = "error";
             header("Location: registro_calificaciones.php?id_curso=$id_curso");
             exit();
         }
-    }
 
-    $conn->begin_transaction(); // Iniciar transacción
+        $sql_historial = "SELECT * FROM historial_academico WHERE id_his_academico = ?";
+        $stmt_historial = $conn->prepare($sql_historial);
+        $stmt_historial->bind_param("i", $id_his_academico);
+        $stmt_historial->execute();
+        $result_historial = $stmt_historial->get_result();
+        $historial = $result_historial->fetch_assoc();
+        $stmt_historial->close();
 
-    try {
-        if ($accion == 'guardar' || $accion == 'modificar') {
-            foreach ($notas['nota1_primer_parcial'] as $estudiante_id => $nota1_primer_parcial) {
-                // Obtener valores actuales de las notas si existen
-                $sql_check = "SELECT * FROM registro_nota WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
-                $stmt_check = $conn->prepare($sql_check);
-                $stmt_check->bind_param("iiiii", $estudiante_id, $id_curso, $id_materia, $id_periodo, $id_his_academico);
-                $stmt_check->execute();
-                $result_check = $stmt_check->get_result();
-                $registro_actual = $result_check->fetch_assoc();
-                $stmt_check->close();
-            
-                // Asignar valores actuales para campos no enviados
-                $nota1_primer_parcial = $notas['nota1_primer_parcial'][$estudiante_id] ?? $registro_actual['nota1_primer_parcial'];
-                $nota2_primer_parcial = $notas['nota2_primer_parcial'][$estudiante_id] ?? $registro_actual['nota2_primer_parcial'];
-                $examen_primer_parcial = $notas['examen_primer_parcial'][$estudiante_id] ?? $registro_actual['examen_primer_parcial'];
-                $nota1_segundo_parcial = $notas['nota1_segundo_parcial'][$estudiante_id] ?? $registro_actual['nota1_segundo_parcial'];
-                $nota2_segundo_parcial = $notas['nota2_segundo_parcial'][$estudiante_id] ?? $registro_actual['nota2_segundo_parcial'];
-                $examen_segundo_parcial = $notas['examen_segundo_parcial'][$estudiante_id] ?? $registro_actual['examen_segundo_parcial'];
-            
-                if ($result_check->num_rows > 0) {
-                    // Registro existe, actualizar
-                    $sql = "UPDATE registro_nota SET nota1_primer_parcial = ?, nota2_primer_parcial = ?, examen_primer_parcial = ?, nota1_segundo_parcial = ?, nota2_segundo_parcial = ?, examen_segundo_parcial = ? WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
-                    $params = ["ddddddiiiii", $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial, $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial, $estudiante_id, $id_curso, $id_materia, $id_periodo, $id_his_academico];
-                } else {
-                    // Registro no existe, insertar
-                    $sql = "INSERT INTO registro_nota (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico, nota1_primer_parcial, nota2_primer_parcial, examen_primer_parcial, nota1_segundo_parcial, nota2_segundo_parcial, examen_segundo_parcial) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $params = ["iiiiiiddddd", $estudiante_id, $id_curso, $id_materia, $id_periodo, $id_his_academico, $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial, $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial];
-                }
-            
-                ejecutarConsulta($conn, $sql, $params, $id_curso);
-            }
-        } elseif ($accion == 'eliminar') {
-            $sql = "DELETE FROM registro_nota WHERE id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
-            $params = ["iiii", $id_curso, $id_materia, $id_periodo, $id_his_academico];
-            ejecutarConsulta($conn, $sql, $params, $id_curso);
+        if (!$historial) {
+            $_SESSION['mensaje'] = "Historial académico no encontrado.";
+            $_SESSION['tipo_mensaje'] = "error";
+            header("Location: registro_calificaciones.php?id_curso=$id_curso");
+            exit();
         }
 
-        $conn->commit(); // Confirmar transacción
-        $_SESSION['mensaje'] = "Operación realizada con éxito.";
-        $_SESSION['tipo_mensaje'] = "exito";
-        header("Location: registro_calificaciones.php?id_curso=$id_curso");
-        exit();
-    } catch (Exception $e) {
-        $conn->rollback(); // Revertir transacción en caso de error
-        error_log("Error en transacción: " . $e->getMessage());
-        $_SESSION['mensaje'] = "Error en la operación.";
-        $_SESSION['tipo_mensaje'] = "error";
-        header("Location: registro_calificaciones.php?id_curso=$id_curso");
-        exit();
+        if (isset($_POST['notas']) && is_array($_POST['notas'])) {
+            $notas = $_POST['notas'];
+
+            foreach ($notas as $key => $value) {
+                foreach ($value as $estudiante_id => $nota) {
+                    $notas[$key][$estudiante_id] = ($nota === "" ? 0 : floatval($nota));
+
+                    if (!is_numeric($notas[$key][$estudiante_id]) || $notas[$key][$estudiante_id] < 0 || $notas[$key][$estudiante_id] > 100) {
+                        $_SESSION['mensaje'] = "Las notas deben estar entre 0 y 100.";
+                        $_SESSION['tipo_mensaje'] = "error";
+                        header("Location: registro_calificaciones.php?id_curso=$id_curso");
+                        exit();
+                    }
+                }
+            }
+
+            if ($accion === 'guardar' || $accion === 'modificar') {
+                foreach ($notas as $id_estudiante => $notas_estudiante) {
+                    $nota1_primer_parcial = $notas_estudiante['nota1_primer_parcial'] ?? 0;
+                    $nota2_primer_parcial = $notas_estudiante['nota2_primer_parcial'] ?? 0;
+                    $examen_primer_parcial = $notas_estudiante['examen_primer_parcial'] ?? 0;
+                    $nota1_segundo_parcial = $notas_estudiante['nota1_segundo_parcial'] ?? 0;
+                    $nota2_segundo_parcial = $notas_estudiante['nota2_segundo_parcial'] ?? 0;
+                    $examen_segundo_parcial = $notas_estudiante['examen_segundo_parcial'] ?? 0;
+
+                    $query_registro_nota = "
+                        INSERT INTO registro_nota (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico, nota1_primer_parcial, nota2_primer_parcial, examen_primer_parcial, nota1_segundo_parcial, nota2_segundo_parcial, examen_segundo_parcial) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                            nota1_primer_parcial = VALUES(nota1_primer_parcial), 
+                            nota2_primer_parcial = VALUES(nota2_primer_parcial), 
+                            examen_primer_parcial = VALUES(examen_primer_parcial), 
+                            nota1_segundo_parcial = VALUES(nota1_segundo_parcial), 
+                            nota2_segundo_parcial = VALUES(nota2_segundo_parcial), 
+                            examen_segundo_parcial = VALUES(examen_segundo_parcial)
+                    ";
+                    $stmt_registro_nota = $conn->prepare($query_registro_nota);
+                    $stmt_registro_nota->bind_param(
+                        "iiiiidddddd",
+                        $id_estudiante, $id_curso, $id_materia, $id_periodo, $id_his_academico,
+                        $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial,
+                        $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial
+                    );
+
+                    if (!$stmt_registro_nota->execute()) {
+                        error_log("Error en la ejecución de la consulta de registro_nota: " . $stmt_registro_nota->error);
+                        $_SESSION['mensaje'] = "Error al guardar las calificaciones.";
+                        $_SESSION['tipo_mensaje'] = "error";
+                        header("Location: registro_calificaciones.php?id_curso=$id_curso");
+                        exit();
+                    }
+                    $stmt_registro_nota->close();
+
+                    $promedio_primer_quimestre = ($nota1_primer_parcial * 0.35) + ($nota2_primer_parcial * 0.35) + ($examen_primer_parcial * 0.30);
+                    $promedio_segundo_quimestre = ($nota1_segundo_parcial * 0.35) + ($nota2_segundo_parcial * 0.35) + ($examen_segundo_parcial * 0.30);
+                    $nota_final = ($promedio_primer_quimestre + $promedio_segundo_quimestre) / 2;
+
+                    $estado_calificacion = 'R';
+
+                    if ($estado_calificacion == 'R') {
+                        $supletorio = isset($_POST['supletorio'][$id_estudiante]) ? floatval($_POST['supletorio'][$id_estudiante]) : 0;
+
+                        if ($supletorio < 0) {
+                            $supletorio = 0;
+                        }
+
+                        $nota_ajustada = min(($nota_final + $supletorio) / 2, 10);
+
+                        if ($nota_ajustada >= 7) {
+                            $estado_calificacion = 'A';
+                        }
+                    }
+
+                    $query_calificacion = "
+                        INSERT INTO calificacion (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico, promedio_primer_quimestre, promedio_segundo_quimestre, nota_final, supletorio, estado_calificacion)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE 
+                            promedio_primer_quimestre = VALUES(promedio_primer_quimestre),
+                            promedio_segundo_quimestre = VALUES(promedio_segundo_quimestre),
+                            nota_final = VALUES(nota_final),
+                            supletorio = VALUES(supletorio),
+                            estado_calificacion = VALUES(estado_calificacion)
+                    ";
+                    $stmt_calificacion = $conn->prepare($query_calificacion);
+                    $stmt_calificacion->bind_param(
+                        "iiiiidddds",
+                        $id_estudiante, $id_curso, $id_materia, $id_periodo, $id_his_academico,
+                        $promedio_primer_quimestre, $promedio_segundo_quimestre,
+                        $nota_final, $supletorio, $estado_calificacion
+                    );
+
+                    if (!$stmt_calificacion->execute()) {
+                        error_log("Error en la ejecución de la consulta de calificacion: " . $stmt_calificacion->error);
+                        $_SESSION['mensaje'] = "Error al guardar las calificaciones.";
+                        $_SESSION['tipo_mensaje'] = "error";
+                        header("Location: registro_calificaciones.php?id_curso=$id_curso");
+                        exit();
+                    }
+                    $stmt_calificacion->close();
+                }
+                $_SESSION['mensaje'] = "Calificaciones guardadas exitosamente.";
+                $_SESSION['tipo_mensaje'] = "success";
+
+                if ($accion === 'eliminar') {
+                    $sql_eliminar = "DELETE FROM registro_nota WHERE id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
+                    $stmt_eliminar = $conn->prepare($sql_eliminar);
+                    $stmt_eliminar->bind_param("iiii", $id_curso, $id_materia, $id_periodo, $id_his_academico);
+
+                    if (!$stmt_eliminar->execute()) {
+                        error_log("Error en la ejecución de la consulta de eliminación: " . $stmt_eliminar->error);
+                        $_SESSION['mensaje'] = "Error al eliminar las calificaciones.";
+                        $_SESSION['tipo_mensaje'] = "error";
+                        header("Location: registro_calificaciones.php?id_curso=$id_curso");
+                        exit();
+                    }
+                    $stmt_eliminar->close();
+                }
+            }
+        }
     }
+} catch (Exception $e) {
+    error_log("Error en el procesamiento de calificaciones: " . $e->getMessage());
+    $_SESSION['mensaje'] = "Error en el procesamiento de calificaciones.";
+    $_SESSION['tipo_mensaje'] = "error";
+} finally {
+    $conn->close();
+    header("Location: registro_calificaciones.php?id_curso=$id_curso");
 }
 ?>

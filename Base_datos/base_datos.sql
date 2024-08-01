@@ -206,40 +206,42 @@ CREATE TABLE curso (
 );
 
 CREATE TABLE registro_nota (
-    id_his_academico INT,
-    id_estudiante INT,
-    id_curso INT,
-    id_materia INT,
-    id_periodo INT,
-    nota1_primer_parcial DECIMAL(5, 2),
-    nota2_primer_parcial DECIMAL(5, 2),
-    examen_primer_parcial DECIMAL(5, 2),
-    nota1_segundo_parcial DECIMAL(5, 2),
-    nota2_segundo_parcial DECIMAL(5, 2),
-    examen_segundo_parcial DECIMAL(5, 2),
-    PRIMARY KEY (id_his_academico, id_estudiante, id_curso, id_materia, id_periodo),
+    id_estudiante INT NOT NULL,
+    id_curso INT NOT NULL,
+    id_materia INT NOT NULL,
+    id_periodo INT NOT NULL,
+    id_his_academico INT NOT NULL,
+    nota1_primer_parcial FLOAT,
+    nota2_primer_parcial FLOAT,
+    examen_primer_parcial FLOAT,
+    nota1_segundo_parcial FLOAT,
+    nota2_segundo_parcial FLOAT,
+    examen_segundo_parcial FLOAT,
+    PRIMARY KEY (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico),
     FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
     FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
-    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo)
+    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
-
 
 CREATE TABLE calificacion (
     id_estudiante INT NOT NULL,
     id_curso INT NOT NULL,
     id_materia INT NOT NULL,
-    id_periodo INT,
-    promedio_primer_quimestre DECIMAL(5,2),
-    promedio_segundo_quimestre DECIMAL(5,2),
-    nota_final DECIMAL(5,2),
-    supletorio DECIMAL(5,2),
+    id_periodo INT NOT NULL,
+    id_his_academico INT NOT NULL,
+    promedio_primer_quimestre FLOAT,
+    promedio_segundo_quimestre FLOAT,
+    nota_final FLOAT,
+    supletorio FLOAT,
     estado_calificacion CHAR(1),
-    PRIMARY KEY (id_estudiante, id_curso, id_materia, id_periodo),
+    PRIMARY KEY (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico),
     FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
     FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
-	FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo)
+    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
 
