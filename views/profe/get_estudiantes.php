@@ -9,6 +9,7 @@ if (!isset($_POST['id_curso']) || !isset($_POST['año'])) {
 
 $id_curso = intval($_POST['id_curso']);
 $año = $_POST['año']; // Aquí 'año' es un varchar, no entero
+$query = isset($_POST['query']) ? $_POST['query'] : ''; // Obtener el término de búsqueda
 
 // Validar los datos
 if ($id_curso <= 0 || empty($año)) {
@@ -28,16 +29,19 @@ $curso = $result_detalles->fetch_assoc();
 $stmt_detalles->close();
 
 if ($curso) {
-    // Obtener estudiantes que coincidan con el curso, ordenados por apellidos
-    $sql_estudiantes = "SELECT e.id_estudiante, e.cedula, e.nombres, e.apellidos, e.fecha_nacimiento, e.genero, e.discapacidad, 
-                        p.cedula AS cedula_padre, p.nombres AS nombres_padre, p.apellidos AS apellidos_padre, p.parentesco
-                        FROM estudiante e
-                        LEFT JOIN padre_x_estudiante pe ON e.id_estudiante = pe.id_estudiante
-                        LEFT JOIN padre p ON pe.id_padre = p.id_padre
-                        WHERE e.id_nivel = ? AND e.id_paralelo = ? AND e.id_jornada = ? AND e.id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = ?)
-                        ORDER BY e.apellidos ASC";
+    // Obtener estudiantes que coincidan con el curso y la búsqueda, ordenados por apellidos
+    $sql_estudiantes = "SELECT DISTINCT e.id_estudiante, e.cedula, e.nombres, e.apellidos, e.fecha_nacimiento, e.genero, e.discapacidad, 
+    p.cedula AS cedula_padre, p.nombres AS nombres_padre, p.apellidos AS apellidos_padre, p.parentesco
+    FROM estudiante e
+    LEFT JOIN padre_x_estudiante pe ON e.id_estudiante = pe.id_estudiante
+    LEFT JOIN padre p ON pe.id_padre = p.id_padre
+    WHERE e.id_nivel = ? AND e.id_paralelo = ? AND e.id_jornada = ? AND e.id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = ?)
+    AND (e.cedula LIKE ? OR e.nombres LIKE ? OR e.apellidos LIKE ?)
+    ORDER BY e.apellidos ASC";
+
+    $searchTerm = "%$query%";
     $stmt_estudiantes = $conn->prepare($sql_estudiantes);
-    $stmt_estudiantes->bind_param("iiis", $curso['id_nivel'], $curso['id_paralelo'], $curso['id_jornada'], $año);
+    $stmt_estudiantes->bind_param("iiissss", $curso['id_nivel'], $curso['id_paralelo'], $curso['id_jornada'], $año, $searchTerm, $searchTerm, $searchTerm);
     $stmt_estudiantes->execute();
     $result_estudiantes = $stmt_estudiantes->get_result();
 
@@ -55,23 +59,24 @@ if ($curso) {
     echo "<h3>Lista de Estudiantes</h3>";
     echo "<p><strong>Total de Estudiantes:</strong> {$total_estudiantes}</p>";
     if (!empty($estudiantes)) {
-        echo "<table class='table table-striped'>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Cédula</th>
-                        <th>Nombres</th>
-                        <th>Apellidos</th>
-                        <th>Edad</th>
-                        <th>Género</th>
-                        <th>Discapacidad</th>
-                        <th>Cédula Padre</th>
-                        <th>Nombre Padre</th>
-                        <th>Apellido Padre</th>
-                        <th>Parentesco</th>
-                    </tr>
-                </thead>
-                <tbody>";
+        echo "<div class='table-wrapper'>
+                <table class='table table-striped'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Cédula</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Edad</th>
+                            <th>Género</th>
+                            <th>Discapacidad</th>
+                            <th>Cédula Padre</th>
+                            <th>Nombre Padre</th>
+                            <th>Apellido Padre</th>
+                            <th>Parentesco</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
         $num = 1;
         foreach ($estudiantes as $estudiante) {
             echo "<tr>
@@ -90,7 +95,8 @@ if ($curso) {
             $num++;
         }
         echo "</tbody>
-            </table>";
+            </table>
+        </div>";
     } else {
         echo "No hay estudiantes para este curso.";
     }

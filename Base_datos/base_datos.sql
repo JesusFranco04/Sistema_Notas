@@ -96,8 +96,35 @@ CREATE TABLE historial_academico ( -- En esta tabla se guardara los datos de los
 	año VARCHAR(40) NOT NULL,
     estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
     usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
-    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- Fecha y hora de registro
+    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
+    fecha_cierre_programada DATETIME NULL
 );
+
+-- Crear la tabla de registro event_log
+CREATE TABLE IF NOT EXISTS event_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER //
+
+-- Crear el nuevo evento con el registro en event_log
+CREATE EVENT IF NOT EXISTS evento_actualizar_estado
+ON SCHEDULE EVERY 1 HOUR
+DO
+BEGIN
+    INSERT INTO event_log (message) VALUES ('Evento ejecutado');
+    UPDATE historial_academico
+    SET estado = 'I'
+    WHERE fecha_cierre_programada <= NOW() AND estado = 'A';
+END //
+
+DELIMITER ;
+
+-- Activar el event_scheduler
+SET GLOBAL event_scheduler = ON;
+
 
 CREATE TABLE administrador (
     id_administrador INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,6 +140,41 @@ CREATE TABLE administrador (
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
+
+
+CREATE TABLE notas_administrador (
+    id_notas INT AUTO_INCREMENT PRIMARY KEY,
+    id_administrador INT NOT NULL,
+    id_estudiante INT NOT NULL,
+    id_curso INT NOT NULL,
+    id_materia INT NOT NULL,
+    id_his_academico INT NOT NULL,
+    id_periodo INT NOT NULL,
+    cedula_profesor VARCHAR(10) NOT NULL,
+    nota1_primer_parcial FLOAT NULL,
+    nota2_primer_parcial FLOAT NULL,
+    examen_primer_parcial FLOAT NULL,
+    nota1_segundo_parcial FLOAT NULL,
+    nota2_segundo_parcial FLOAT NULL,
+    examen_segundo_parcial FLOAT NULL,
+    promedio_primer_quimestre FLOAT NULL,
+    promedio_segundo_quimestre FLOAT NULL,
+    nota_final FLOAT NULL,
+    estado_calificacion CHAR(1) NULL,
+    UNIQUE KEY unique_notas (id_estudiante, id_curso, id_materia, id_his_academico, id_periodo, cedula_profesor),
+    KEY idx_estudiante (id_estudiante),
+    KEY idx_curso (id_curso),
+    KEY idx_materia (id_materia),
+    KEY idx_his_academico (id_his_academico),
+    KEY idx_periodo (id_periodo),
+    KEY idx_cedula_profesor (cedula_profesor),
+    FOREIGN KEY (id_administrador) REFERENCES administrador(id_administrador) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_curso) REFERENCES curso(id_curso) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_materia) REFERENCES materia(id_materia) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE profesor (
@@ -211,38 +273,38 @@ CREATE TABLE registro_nota (
     id_materia INT NOT NULL,
     id_periodo INT NOT NULL,
     id_his_academico INT NOT NULL,
-    nota1_primer_parcial FLOAT,
-    nota2_primer_parcial FLOAT,
-    examen_primer_parcial FLOAT,
-    nota1_segundo_parcial FLOAT,
-    nota2_segundo_parcial FLOAT,
-    examen_segundo_parcial FLOAT,
+    nota1_primer_parcial FLOAT DEFAULT NULL,
+    nota2_primer_parcial FLOAT DEFAULT NULL,
+    examen_primer_parcial FLOAT DEFAULT NULL,
+    nota1_segundo_parcial FLOAT DEFAULT NULL,
+    nota2_segundo_parcial FLOAT DEFAULT NULL,
+    examen_segundo_parcial FLOAT DEFAULT NULL,
     PRIMARY KEY (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico),
     FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
     FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
-    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
+
 
 CREATE TABLE calificacion (
     id_estudiante INT NOT NULL,
     id_curso INT NOT NULL,
     id_materia INT NOT NULL,
-    id_periodo INT NOT NULL,
     id_his_academico INT NOT NULL,
     promedio_primer_quimestre FLOAT,
     promedio_segundo_quimestre FLOAT,
     nota_final FLOAT,
     supletorio FLOAT,
     estado_calificacion CHAR(1),
-    PRIMARY KEY (id_estudiante, id_curso, id_materia, id_periodo, id_his_academico),
+    PRIMARY KEY (id_estudiante, id_curso, id_materia, id_his_academico),
     FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
     FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
-    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
+
+
 
 
 

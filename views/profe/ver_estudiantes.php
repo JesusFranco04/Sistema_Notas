@@ -50,44 +50,131 @@ $año_academico = $curso['año_academico'];
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        $(document).ready(function() {
-            // Llamada AJAX para obtener la lista de estudiantes
-            $.ajax({
-                url: 'get_estudiantes.php',
-                type: 'POST',
+$(document).ready(function() {
+    // Llamada AJAX para obtener la lista de estudiantes
+    function loadEstudiantes(query = '') {
+        $.ajax({
+            url: 'get_estudiantes.php',
+            type: 'POST',
+            data: {
+                id_curso: <?php echo json_encode($id_curso); ?>,
+                año: '<?php echo $año_academico; ?>',
+                query: query
+            },
+            success: function(response) {
+                $('#resultado').html(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error en la solicitud AJAX para estudiantes:', status, error);
+            }
+        });
+    }
+
+    // Cargar la lista de estudiantes al cargar la página
+    loadEstudiantes();
+
+    // Manejo de la búsqueda
+    $('#searchForm').submit(function(e) {
+        e.preventDefault();
+        var query = $('#searchQuery').val();
+        loadEstudiantes(query);
+    });
+
+    // Manejo del botón regresar
+    $('#btn-regresar').click(function() {
+        window.location.href = 'curso_profe.php'; // Cambia esta URL si es necesario
+    });
+
+    // Manejo del botón calificar
+    $('#btn-calificar').click(function() {
+        // Redirigir a la página de calificación masiva
+        window.location.href = 'registro_calificaciones.php?id_curso=<?php echo $id_curso; ?>';
+    });
+
+    // Manejo del botón exportar
+    $('#btn-exportar').click(function() {
+        window.location.href = 'exportar_estudiantes.php?id_curso=<?php echo $id_curso; ?>&año=<?php echo $año_academico; ?>';
+    });
+
+    // Llamada AJAX para obtener estadísticas
+    $.ajax({
+        url: 'get_estadisticas.php',
+        type: 'POST',
+        data: {
+            id_curso: <?php echo json_encode($id_curso); ?>,
+            año: '<?php echo $año_academico; ?>'
+        },
+        success: function(response) {
+            var data = JSON.parse(response);
+
+            var ctx = document.getElementById('chartEstudiantes').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    id_curso: <?php echo json_encode($id_curso); ?>,  // Datos de curso
-                    año: '<?php echo $año_academico; ?>'              // Año académico
+                    labels: Object.keys(data.edades), // Etiquetas para el gráfico
+                    datasets: [{
+                        label: 'Número de Estudiantes por Edad',
+                        data: Object.values(data.edades), // Datos para el gráfico
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                success: function(response) {
-                    $('#resultado').html(response);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error en la solicitud AJAX:', status, error);
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
             });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error en la solicitud AJAX:', status, error);
+        }
+    });
+});
 
-            // Manejo del botón regresar
-            $('#btn-regresar').click(function() {
-                window.location.href = 'curso_profe.php'; // Cambia esta URL si es necesario
-            });
-            
-            // Manejo del botón calificar
-            $('#btn-calificar').click(function() {
-                // Redirigir a la página de calificación masiva
-                window.location.href = 'registro_calificaciones.php?id_curso=<?php echo $id_curso; ?>';
-            });
-        });
-    </script>
+</script>
+<style>
+    .table-wrapper {
+        max-height: 400px; /* Ajusta según el diseño deseado */
+        overflow-y: auto;
+        overflow-x: hidden; /* Evita el scrollbar horizontal */
+    }
+
+    table {
+        width: 100%; /* Asegura que la tabla use todo el ancho del contenedor */
+        border-collapse: collapse; /* Elimina el espacio entre celdas */
+    }
+
+    /* Estilo para el gráfico */
+    #chartEstudiantes {
+        max-width: 100%;
+        margin-top: 20px;
+    }
+</style>
+
+
 </head>
 <body>
-    <div class="container mt-5">
+<div class="container mt-5">
+    <form id="searchForm" class="mb-3">
+        <div class="input-group">
+            <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por cédula, apellido o nombre">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
         <div id="resultado">
             <!-- Aquí se mostrará la lista de estudiantes -->
         </div>
-        <button id="btn-regresar" class="btn btn-secondary">Regresar</button>
-        <button id="btn-calificar" class="btn btn-primary">Calificar</button>
-    </div>
+    <canvas id="chartEstudiantes" width="400" height="200"></canvas>
+    <button id="btn-regresar" class="btn btn-secondary">Regresar</button>
+    <button id="btn-calificar" class="btn btn-primary">Calificar</button>
+    <button id="btn-exportar" class="btn btn-success">Exportar a CSV</button>
+</div>
 </body>
 </html>
+
