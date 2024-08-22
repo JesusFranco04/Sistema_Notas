@@ -84,7 +84,7 @@ if (!$resultado) {
     }
 
     .card-header {
-        background-color: #28a745;
+        background-color: #E62433;
         color: white;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
@@ -97,13 +97,13 @@ if (!$resultado) {
     }
 
     .btn-primary {
-        background-color: #28a745;
-        border-color: #28a745;
+        background-color: #E62433;
+        border-color: #E62433;
     }
 
     .btn-primary:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
+        background-color: #DE112D;
+        border-color: #DE112D;
     }
 
     .btn-info {
@@ -136,7 +136,7 @@ if (!$resultado) {
     }
 
     .table thead th {
-        background-color: #28a745;
+        background-color: #E62433;
         color: white;
         text-align: center;
         font-weight: bold;
@@ -148,8 +148,8 @@ if (!$resultado) {
     }
 
     .table tbody tr:nth-child(odd) {
-        background-color: #d4edda;
-        /* Verde claro para filas impares */
+        background-color: #fcccce;
+        /* Rojo claro para filas impares */
     }
 
     .table tbody tr:nth-child(even) {
@@ -158,8 +158,8 @@ if (!$resultado) {
     }
 
     .table tbody tr:hover {
-        background-color: #e2e6ea;
-        /* Color de fondo al pasar el ratón */
+        background-color: #f8a9ad; /* Rojo bonito */
+        color: #0a0a0a; /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -170,8 +170,10 @@ if (!$resultado) {
     /* Estilo para contenedor de tabla */
     .table-container {
         max-height: 500px;
-        overflow-y: auto;
+        overflow-y: auto; /* Barra de desplazamiento vertical */
+        overflow-x: auto; /* Barra de desplazamiento horizontal */
     }
+
 
     .section-title {
         font-size: 1.2rem;
@@ -187,7 +189,20 @@ if (!$resultado) {
     .filter-container {
         margin-bottom: 1rem;
     }
-    </style>
+
+    footer {
+    background-color: white; /* Color de fondo blanco */
+    color: #737373; /* Color del texto en gris oscuro */
+    text-align: center; /* Centrar el texto */
+    padding: 20px 0; /* Espaciado interno vertical */
+    width: 100%; /* Ancho completo */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0; /* Eliminar el margen de los párrafos */
+    }
+</style>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <!-- DataTables JS -->
@@ -326,7 +341,10 @@ if (!$resultado) {
         </div>
     </div>
     <!-- Fin Modal de Confirmación -->
-
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
+    </footer>
 </html>
 
 <!-- Bootstrap core JavaScript -->
@@ -374,9 +392,7 @@ function confirmarCambioEstado() {
     });
 }
 </script>
-
 </body>
-
 </html>
 
 <?php

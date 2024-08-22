@@ -30,29 +30,32 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
 <html>
 
 <head>
-    <title>Gestión Académica</title>
+    <title>Administración de Ciclos Académicos | Sistema de Gestión UEBF</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
     }
 
     .container {
-        margin-top: 50px;
+        margin-top: 30px;
     }
 
     .section {
         background: #fff;
         padding: 20px;
         margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    h1, h2 {
-        color: #333;
+    h1, h2, h3 {
+        color: #d32f2f; /* Rojo intenso */
     }
 
     table {
@@ -61,51 +64,142 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
     }
 
     th, td {
-        padding: 10px;
+        padding: 12px;
         text-align: left;
         border-bottom: 1px solid #ddd;
     }
 
     th {
-        background-color: #f8f8f8;
+        background-color: #E62433; /* Rojo claro para encabezados */
+        color: white; /* Color de texto rojo oscuro */
+        text-align: center; /* Centramos el texto en el encabezado */
+    }
+
+    td {
+        text-align: center; /* Centramos el texto en las celdas */
     }
 
     .btn-primary {
+        background-color: #E62433; /* Rojo intenso */
+        border-color: #d32f2f;
         margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #E62433; /* Rojo más oscuro para hover */
+        border-color: #c62828;
     }
 
     .alert {
         margin-top: 20px;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda; /* Verde claro para éxito */
+        color: #155724; /* Color de texto verde oscuro */
+    }
+
+    .alert-danger {
+        background-color: #f8d7da; /* Rojo claro para errores */
+        color: #721c24; /* Color de texto rojo oscuro */
     }
 
     .table-container {
         max-height: 400px;
         overflow: auto;
         border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff; /* Asegura que el fondo de la tabla sea blanco */
     }
 
     .form-group {
         margin-bottom: 15px;
     }
+
+    .form-control {
+        border: 1px solid #d32f2f;
+    }
+
+    .form-control:focus {
+        border-color: #c62828;
+        box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.25);
+    }
+
+    .btn-danger {
+        background-color: #E62433; /* Rojo oscuro */
+        border-color: #c62828;
+    }
+
+    .btn-danger:hover {
+        background-color: #b71c1c; /* Rojo más oscuro para hover */
+        border-color: #b71c1c;
+    }
+
+    /* Estilo para alinear los botones a la derecha */
+    .text-right {
+        text-align: right;
+    }
+
+    .btn-container {
+        margin-top: 15px;
+    }
+
+    /* Estilo para centrar los botones en su columna respectiva */
+    .btn-center {
+        display: flex;
+        justify-content: center;
+    }
+
+        /* Estilo para la tabla */
+        table {
+        width: 100%;
+        border-collapse: separate; /* Permitir bordes separados para redondeo */
+        border-spacing: 0; /* Eliminar el espaciado entre celdas */
+        border-radius: 10px; /* Bordes redondeados en la tabla */
+        overflow: hidden; /* Asegurar que los bordes redondeados se apliquen */
+    }
+
+    /* Estilo para el encabezado de la tabla */
+    th {
+        background-color: #E62433; /* Color de fondo del encabezado */
+        color: white; /* Color del texto del encabezado */
+        text-align: center; /* Alinear texto al centro */
+        padding: 12px; /* Espaciado interno en celdas de encabezado */
+        border: 1px solid #dee2e6; /* Borde de las celdas del encabezado */
+    }
+
+    footer {
+    background-color: white; /* Color de fondo blanco */
+    color: #737373; /* Color del texto en gris oscuro */
+    text-align: center; /* Centrar el texto */
+    padding: 20px 0; /* Espaciado interno vertical */
+    width: 100%; /* Ancho completo */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0; /* Eliminar el margen de los párrafos */
+    }
     </style>
 </head>
 
 <body>
+    <?php include_once 'navbar_admin.php'; ?>
     <div class="container">
-
-    <?php
+        <?php
         // Mostrar mensajes de alerta si existen parámetros en la URL
-    if (isset($_GET['mensaje']) && isset($_GET['tipo'])) {
-        $mensaje = htmlspecialchars($_GET['mensaje']);
-        $tipo = htmlspecialchars($_GET['tipo']);
-        $alertClass = $tipo === 'error' ? 'alert-danger' : 'alert-success';
-        echo "<div class='alert $alertClass' role='alert'>$mensaje</div>";
-    }
-    ?>
+        if (isset($_GET['mensaje']) && isset($_GET['tipo'])) {
+            $mensaje = htmlspecialchars($_GET['mensaje']);
+            $tipo = htmlspecialchars($_GET['tipo']);
+            $alertClass = $tipo === 'error' ? 'alert-danger' : 'alert-success';
+            echo "<div class='alert $alertClass' role='alert'>$mensaje</div>";
+        }
+        ?>
 
         <!-- Habilitación/Deshabilitación de Períodos -->
         <div class="section">
-            <h2>Habilitación/Deshabilitación de Períodos</h2>
+            <h2>Gestión de Períodos Académicos</h2>
             <form id="form_periodos">
                 <table>
                     <tr>
@@ -129,13 +223,15 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                     </tr>
                     <?php } ?>
                 </table>
-                <button type="button" class="btn btn-primary" onclick="actualizarPeriodos()">Actualizar Períodos</button>
+                <div class="text-right btn-container">
+                    <button type="button" class="btn btn-primary" onclick="actualizarPeriodos()">Actualizar Período</button>
+                </div>
             </form>
         </div>
 
         <!-- Programar Cierre de Período -->
         <div class="section mt-4">
-            <h3>Programar Cierre de Período</h3>
+            <h3>Programación de Cierre de Año Escolar</h3>
             <form id="form_cierre" method="post" action="http://localhost/sistema_notas/Crud/admin/año_lectivo/programar_cierre.php" onsubmit="return validateDate()">
                 <div class="form-group">
                     <label for="id_periodo">Año Lectivo:</label>
@@ -154,7 +250,9 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                     <label for="fecha_cierre">Fecha y Hora de Cierre Programada:</label>
                     <input type="datetime-local" class="form-control" id="fecha_cierre" name="fecha_cierre" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Programar Cierre</button>
+                <div class="text-right btn-container">
+                    <button type="submit" class="btn btn-primary">Programar Cierre</button>
+                </div>
             </form>
         </div>
 
@@ -184,11 +282,13 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                                 echo '<td>' . htmlspecialchars($row['año']) . '</td>';
                                 echo '<td>' . ($row['estado'] == 'A' ? 'Activo' : 'Inactivo') . '</td>';
                                 echo '<td>' . ($row['fecha_cierre_programada'] ? htmlspecialchars($row['fecha_cierre_programada']) : 'No Programada') . '</td>';
+                                echo '<td class="btn-center">';
                                 if ($row['fecha_cierre_programada'] !== null) {
-                                    echo '<td><button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)" disabled>Cerrado</button></td>';
+                                    echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)" disabled>Cerrado</button>';
                                 } else {
-                                    echo '<td><button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)">Cerrar Año</button></td>';
+                                    echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)">Cerrar Año</button>';
                                 }
+                                echo '</td>';
                                 echo '</tr>';
                             }
                         } else {
@@ -200,6 +300,11 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
+    </footer>
 
     <script>
     function validateDate() {
@@ -287,6 +392,9 @@ function actualizarPeriodos() {
     });
 }
     </script>
+    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
+    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 </body>
 
 </html>

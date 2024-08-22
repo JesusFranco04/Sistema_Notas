@@ -2,608 +2,412 @@
 session_start();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Descripción de tu sitio">
-    <meta name="author" content="Tu Nombre">
-    <title>SISTEMA DE GESTIÓN UEBF | PROFESOR</title>
-    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900&display=swap"
-        rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <title>Perfil de Profesor</title>
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
     <style>
-    /* Estilos generales */
-    body {
-        font-family: 'Arial', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f8f9fa;
-        color: #333;
-    }
-
-    /* Estilos para el encabezado */
-    header {
-        background-color: #8b0000;
-        color: #fff;
-        padding: 20px;
-        text-align: center;
-    }
-
-    header h1 {
-        margin: 0;
-        font-size: 32px;
-    }
-
-    /* Estilos para la barra de navegación */
-    nav {
-        background-color: #a2000e;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 20px;
-    }
-
-    .menu {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-    }
-
-    .menu li {
-        position: relative;
-    }
-
-    .menu li a {
-        display: block;
-        color: #fff;
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-    }
-
-    .menu li a:hover {
-        background-color: #ff6347;
-    }
-
-    /* Dropdown */
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #ff6347;
-        min-width: 160px;
-        z-index: 1;
-        left: 0;
-        top: 100%;
-    }
-
-    .dropdown-content li {
-        display: block;
-    }
-
-    .dropdown-content li a {
-        color: #fff;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        text-align: left;
-    }
-
-    .dropdown-content li a:hover {
-        background-color: #ff4500;
-    }
-
-    /* Mostrar subsecciones al pasar el ratón */
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-
-    /* Botón de cerrar sesión */
-    .session-info {
-        display: flex;
-        align-items: center;
-        color: #fff;
-    }
-
-    .session-info img {
-        border-radius: 50%;
-        margin-right: 10px;
-        width: 32px;
-        height: 32px;
-    }
-
-    .session-info span {
-        font-size: 14px;
-        color: #e5e5e5;
-        margin-right: 20px;
-    }
-
-    .session-info button {
-        background-color: #ff6347;
-        color: #fff;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 50px;
-        cursor: pointer;
-    }
-
-    .session-info button:hover {
-        background-color: #ff4500;
-    }
-
-    /* Estilos para el banner */
-    .banner {
-        width: 100%;
-        height: 400px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .banner-images {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-    }
-
-    .banner-images img {
-        max-width: 100%;
-        height: auto;
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        z-index: 1;
-        transition: opacity 1s ease;
-    }
-
-    .banner-images img.active {
-        opacity: 1;
-        z-index: 2;
-    }
-
-    .banner-text {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 36px;
-        text-align: center;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        z-index: 3;
-        font-family: 'Arial', sans-serif;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .banner-images:hover .banner-text {
-        opacity: 1;
-    }
-
-    /* Estilos para la historia del colegio */
-    .history-section {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .history-content {
-        flex: 1 1 60%;
-        padding: 20px;
-    }
-
-    .history-content p {
-        line-height: 1.6;
-        margin-bottom: 20px;
-        font-size: 18px;
-    }
-
-    .history-image img {
-        max-width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .divider {
-        width: 80%;
-        margin: 40px auto;
-        border-top: 2px solid #ccc;
-        position: relative;
-    }
-
-    .divider::after {
-        content: '';
-        width: 100px;
-        height: 2px;
-        background-color: #444;
-        position: absolute;
-        top: -1px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    /* Estilos para las pestañas */
-    .tabs {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-    }
-
-    .tab-button {
-        background-color: #f1f1f1;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .tab-button:hover {
-        background-color: #ddd;
-    }
-
-    .tab-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin: 20px 0;
-        display: none;
-    }
-
-    .tab-content p {
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-
-    .tab-content ol {
-        padding-left: 20px;
-    }
-
-    .tab-content li {
-        margin-bottom: 10px;
-    }
-
-    /* Estilos para las tarjetas de especialidades */
-    .cards {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 40px;
-    }
-
-    .card {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s;
-        max-width: 300px;
-        width: 100%;
-        text-align: center;
-    }
-
-    .card img {
-        max-width: 100%;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* Estilos para la sección de la directiva */
-    .directiva {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .directivo {
-        text-align: center;
-        margin: 20px;
-        flex: 1 0 30%;
-    }
-
-    .directivo img {
-        border-radius: 50%;
-        width: 150px;
-        height: 150px;
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .directivo p {
-        margin: 10px 0;
-    }
-
-    .directivo p.nombre {
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    .directivo p.cargo {
-        font-size: 14px;
-        color: #444;
-    }
-
-    .directivo:hover img {
-        transform: scale(1.1);
-    }
-
-    /* Estilos para el pie de página */
-    footer {
-        background-color: #8b0000;
-        color: #fff;
-        text-align: center;
-        padding: 20px 0;
-        position: relative;
-        bottom: 0;
-        width: 100%;
-    }
-
-    footer p {
-        margin: 0;
-    }
-
-    /* Media queries */
-    @media (max-width: 768px) {
-        .directiva {
-            flex-direction: column;
-            align-items: center;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
-
-        .directivo {
-            margin-bottom: 20px;
-            flex: 1 0 80%;
-        }
-    }
-    </style>
-</head>
-
-<body>
-    <!DOCTYPE html>
-    <html lang="es">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sistema de Gestión UEBF</title>
-        <link rel="stylesheet" href="styles.css">
-        <style>
-        /* Estilos adicionales */
-        .history-section {
+        header {
+            background-color: #E62433;
+            color: white;
+            padding: 20px;
+            position: relative;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 40px;
-        }
-
-        .history-content {
-            flex: 1 1 60%;
-            margin-right: 20px;
-        }
-
-        .history-image {
-            flex: 1 1 40%;
-        }
-
-        .history-image img {
-            max-width: 100%;
-            border-radius: 8px;
+            text-align: center;
+            height: 150px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        </style>
-    </head>
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        header p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .system-name {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+        }
+        .logout-button {
+            background-color: white;
+            color: #E62433;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+        }
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        .content-box {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .content-box h2 {
+            color: #E62433;
+            font-size: 22px;
+        }
+        .hero {
+            padding: 150px 30px;
+            border-radius: 10px;
+            background: url('../../imagenes/banner.jpg') no-repeat center center/cover;
+            color: #fff; /* Color de texto blanco para mejor contraste */
+            text-align: center; /* Centrar el texto */
+        }
 
-    <body>
-        <!-- Encabezado -->
-        <header>
-            <h1>SISTEMA DE GESTIÓN UEBF</h1>
-            <p>Bienvenido(a) Profesor(a) {{Nombre del Profesor}}</p>
-        </header>
+        .hero h2 {
+            font-size: 2.5em; /* Tamaño de fuente grande para el título */
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7); /* Sombra del texto para dar efecto de resalto */
+            color: #FFFFFF; /* Color del texto blanco */
+        }
 
-        <!-- Barra de Navegación -->
-        <nav>
-            <!-- Barra de navegación -->
-            <ul class="menu">
-                <!-- Lista de elementos del menú -->
-                <li><a href="http://localhost/sistema_notas/views/profe/index_profe.php">Inicio</a></li>
-                <!-- Enlace a la página de inicio -->
-                <li><a href="http://localhost/sistema_notas/views/profe/curso_profe.php">Registro de
-                        Calificaciones</a></li>
-                <!-- Enlace a la página de registro de calificaciones -->
-                <li class="dropdown">
-                    <a href="#">Consulta de Calificaciones</a>
-                    <!-- Enlace que despliega un menú de consulta de calificaciones -->
-                    <ul class="dropdown-content">
-                        <!-- Lista desplegable de consulta -->
-                        <li><a href="http://localhost/sistema_notas/views/profe/notasclase_profe.php">Consulta por
-                                Clase</a></li>
-                        <!-- Enlace a consulta por clase -->
-                        <li><a href="http://localhost/sistema_notas/views/profe/notasestudiante_profe.php">Consulta por
-                                Estudiante</a></li>
-                        <!-- Enlace a consulta por estudiante -->
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#">Reportes</a>
-                    <!-- Enlace que despliega un menú de reportes -->
-                    <ul class="dropdown-content">
-                        <!-- Lista desplegable de reportes -->
-                        <li><a href="http://localhost/sistema_notas/views/profe/reporteclase_profe.php">Reporte por
-                                Clase</a></li>
-                        <!-- Enlace a reporte por clase -->
-                        <li><a href="http://localhost/sistema_notas/views/profe/reporteestudiante_profe.php">Reporte por
-                                Estudiante</a></li>
-                        <!-- Enlace a reporte por estudiante -->
-                    </ul>
-                </li>
-            </ul>
-            <!-- Información de la sesión -->
-            <div class="session-info">
-                <?php
-                                // Verifica si las variables de sesión están establecidas
-                                if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
-                                    echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
-                                    echo "<i class='bx bx-user-circle' ></i>";
-                                }
-                                ?>
-                <!-- Botón para cerrar sesión -->
-                <button onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar Sesión</button>
-            </div>
-        </nav>
 
-        <!-- Banner con imágenes -->
-        <div class="banner">
-            <div class="banner-images">
-                <img class="active" src="http://localhost/sistema_notas/imagenes/banners1.png" alt="Imagen 1">
-                <img src="http://localhost/sistema_notas/imagenes/banners2.png" alt="Imagen 2">
-                <img src="http://localhost/sistema_notas/imagenes/banners3.png" alt="Imagen 3">
-                <div class="banner-text">SISTEMA DE GESTIÓN - UEBF</div>
-            </div>
-        </div>
+        .hero p {
+            font-size: 1.2em; /* Tamaño de fuente del párrafo */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra del texto para mejorar la legibilidad */
+        }
 
-        <!-- Sección de Historia del Colegio -->
-        <div class="history-section">
-            <div class="history-content">
-                <h2>Historia del Colegio</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae velit in ex ultricies condimentum.
-                    Morbi vitae enim vitae velit blandit fermentum. Nullam ut condimentum leo. Duis bibendum nunc a
-                    semper elementum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac
-                    turpis egestas. Mauris pretium justo at nulla suscipit, sed congue dolor ultricies. Quisque luctus,
-                    velit et pellentesque fermentum, eros felis lobortis odio, id lacinia lacus lectus sed ex. Aenean et
-                    commodo nulla. Fusce ultricies efficitur risus sit amet ultricies. Sed ultrices tortor sed nulla
-                    lobortis, vel sodales lacus feugiat.</p>
-                <p>Nulla et ultricies risus, sit amet efficitur libero. Etiam a magna fermentum, blandit felis a,
-                    fermentum ligula. Donec at egestas lectus, vel volutpat magna. Vestibulum eget justo vulputate,
-                    congue elit ut, fermentum tellus. Proin nec libero quam. Morbi porttitor in neque nec pharetra.
-                    Phasellus ut pharetra felis. Suspendisse feugiat neque ipsum, id convallis justo bibendum a.</p>
-            </div>
-            <div class="history-image">
-                <img src="http://localhost/sistema_notas/imagenes/Trabalhe-Conosco-S%c3%adrio-Liban%c3%aas-2b.png"
-                    alt="Imagen del Colegio">
-            </div>
-        </div>
+        .carousel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
 
-        <!-- Sección de Visión y Misión -->
-        <div class="tabs">
-            <button class="tab-button" onclick="openTab(event, 'vision')">Visión</button>
-            <button class="tab-button" onclick="openTab(event, 'mision')">Misión</button>
-        </div>
+        .carousel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
 
-        <div id="vision" class="tab-content">
-            <h2>Visión</h2>
-            <p>Ser reconocidos en el ámbito educativo nacional e internacional por la formación integral y de calidad de
-                nuestros estudiantes, basada en valores éticos, morales y científicos.</p>
-        </div>
+        .carousel-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            will-change: transform; /* Optimiza la transición */
+        }
 
-        <div id="mision" class="tab-content">
-            <h2>Misión</h2>
-            <p>Formar y educar a nuestros estudiantes en un ambiente de excelencia académica, promoviendo la
-                investigación, la innovación y el desarrollo humano sostenible, para que sean líderes competentes y
-                comprometidos con el progreso de la sociedad.</p>
-        </div>
+        .carousel-images img {
+            width: 100%;
+            max-width: 200px; /* Tamaño máximo de las imágenes */
+            margin: 0 10px; /* Espacio entre las imágenes */
+            flex-shrink: 0; /* Evita que las imágenes se encojan */
+        }
 
-        <!-- Sección de Especializaciones -->
-        <div class="cards">
-            <div class="card">
-                <img src="http://localhost/sistema_notas/imagenes/media/electronica.jpg"
-                    alt="Especialización en Electrónica de Consumo">
-                <h3>Especialización en Electrónica de Consumo</h3>
-                <p>Descripción breve de la especialización en Electrónica de Consumo.</p>
-                <a href="#" class="btn">Ver Más</a>
-            </div>
-            <div class="card">
-                <img src="http://localhost/sistema_notas/imagenes/media/electricidad.jpg"
-                    alt="Especialización en Electricidad">
-                <h3>Especialización en Electricidad</h3>
-                <p>Descripción breve de la especialización en Electricidad.</p>
-                <a href="#" class="btn">Ver Más</a>
-            </div>
-        </div>
 
-        <!-- Línea Divisoria -->
-        <div class="divider"></div>
+        .carousel-images img {
+            width: 100%;
+            max-width: 200px; /* Tamaño máximo de las imágenes */
+            margin: 0 10px; /* Espacio entre las imágenes */
+            flex-shrink: 0; /* Evita que las imágenes se encojan */
+        }
+        
+        .timeline {
+            position: relative; /* Posiciona el contenedor de manera relativa para permitir la colocación absoluta de los elementos hijos dentro de él */
+            width: calc(100% - 40px); /* Ancho del 100% del contenedor padre menos 40 píxeles (20px de padding a cada lado) para respetar el padding definido en el contenedor principal */
+            height: calc(100vh - -230px); /* Alto del 100% de la ventana gráfica (viewport height) menos 40 píxeles (20px de padding en la parte superior e inferior) para ajustar el tamaño a la ventana visible del navegador */
+            max-width: 100%; /* Establece que el contenedor puede tener hasta el 100% del ancho disponible sin restricción adicional de ancho máximo */
+            margin: 0 auto; /* Centra el contenedor horizontalmente en su contenedor padre, utilizando márgenes automáticos a los lados */
+            padding: 20px; /* Añade un espacio interno de 20 píxeles alrededor del contenido del contenedor */
+            border-left: 4px solid #E62433; /* Agrega un borde izquierdo sólido de 4 píxeles de grosor y color rojo (#E62433) */
+            background-color: #f9f9f9; /* Establece un color de fondo gris claro (#f9f9f9) para el contenedor */
+            border-radius: 10px; /* Redondea las esquinas del contenedor con un radio de 10 píxeles */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Aplica una sombra difusa al contenedor con un desplazamiento vertical de 6 píxeles, un desenfoque de 12 píxeles, y una opacidad de 0.2 */
+            display: flex; /* Usa el modelo de caja flexible para los elementos hijos, permitiendo una distribución flexible del espacio */
+            flex-direction: column; /* Organiza los elementos hijos en una columna verticalmente */
+            gap: 20px; /* Establece un espacio de 20 píxeles entre los elementos hijos del contenedor */
+        }
 
-        <h1 class="section-title">Directiva UEBF</h1>
-        <section class="directiva">
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/woman-7175038_640.png" alt="Foto Director">
-                <p class="nombre">Dra. Clara Martínez</p>
-                <p class="cargo">Directora</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/business-720429_640.png" alt="Foto Subdirector">
-                <p class="nombre">Prof. Juan Pérez</p>
-                <p class="cargo">Subdirector(a)</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/woman-7165664_640.png"
-                    alt="Foto Coordinador Académico">
-                <p class="nombre">Lic. Ana Ramírez</p>
-                <p class="cargo">Coordinador Académico</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/black-man-4699506_640.png"
-                    alt="Foto Coordinador de Convivencia">
-                <p class="nombre">Psic. José Gómez</p>
-                <p class="cargo">Coordinador(a) de Convivencia</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/sun-7350734_640.png"
-                    alt="Foto Coordinador de Desarrollo Estudiantil">
-                <p class="nombre">Ing. María López</p>
-                <p class="cargo">Coordinador(a) de Desarrollo Estudiantil</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/man-6974298_640.png" alt="Foto Secretario General">
-                <p class="nombre">Lic. Roberto Sánchez</p>
-                <p class="cargo">Secretario(a) General</p>
-            </div>
-            <div class="directivo">
-                <img src="http://localhost/sistema_notas/imagenes/woman-597173_640.png"
-                    alt="Foto Psicólogo/a Pedagógico/a">
-                <p class="nombre">Psic. Laura Fernández</p>
-                <p class="cargo">Psicólogo/a Pedagógico/a</p>
-            </div>
 
-            <!-- Pie de página -->
-            <footer>
-                <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-                    Zambrano.
-                    Todos los derechos reservados.</p>
-            </footer>
+        .timeline-item {
+            position: relative;
+            margin: 20px 0;
+            padding-left: 60px;
+            animation: fadeIn 1s ease-out;
+        }
 
-            <!-- Script para tabs -->
-            <script>
-            function openTab(evt, tabName) {
-                var i, tabcontent, tablinks;
-                tabcontent = document.getElementsByClassName("tab-content");
-                for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
-                }
-                tablinks = document.getElementsByClassName("tab-button");
-                for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].className = tablinks[i].className.replace(" active", "");
-                }
-                document.getElementById(tabName).style.display = "block";
-                evt.currentTarget.className += " active";
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            width: 24px;
+            height: 24px;
+            background-color: #E62433;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 4px solid #ffffff;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.2);
+        }
+
+        .timeline-content {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            background-color: #ffe1e3;
+        }
+
+        .timeline-content h2 {
+            color: #E62433;
+            margin-top: 0;
+            font-size: 1.6em; /* Tamaño del texto para los títulos */
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .timeline-content p {
+            color: #333;
+            line-height: 1.6;
+            font-size: 1.1em; /* Tamaño del texto para los párrafos */
+        }
+
+        .timeline-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .timeline-content ul li {
+            margin-bottom: 10px;
+            font-size: 1.2em; /* Tamaño del texto para los ítems de la lista */
+            color: #E62433;
+            font-weight: bold;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-content ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #E62433;
+            font-size: 1.5em; /* Tamaño del símbolo en la lista */
+            line-height: 1.2em;
+        }
+
+        .timeline-item:nth-child(2) {
+            margin-left: auto;
+            padding-right: 60px;
+            padding-left: 0;
+            text-align: right;
+        }
+
+        .timeline-item:nth-child(2)::before {
+            left: auto;
+            right: -20px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="system-name">SISTEMA DE GESTIÓN UEBF</div>
+        <h1>
+            Bienvenido(a), 
+            <?php
+            // Verifica si las variables de sesión están establecidas
+            if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
+                echo htmlspecialchars($_SESSION['cedula']);  // Escapa caracteres especiales para seguridad
+                echo " | " . htmlspecialchars($_SESSION['rol']) . " ";
+                echo "<i class='bx bx-user-circle'></i>";
             }
-            </script>
-    </body>
+            ?>
+        </h1>
+        <p>Gestiona tus actividades y calificaciones de manera sencilla</p>
+        <button class="logout-button" onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar Sesión</button>
+    </div> 
+</header>
 
-    </html>
+    <main>
+        <!-- Espacio para el contenido de la página Home -->
+        <div class="content-box">
+            <section class="hero">
+                <h2>Unidad Educativa Benjamin Franklin</h2>
+                <p>Un lugar dedicado a la excelencia académica y al desarrollo integral de nuestros estudiantes.</p>
+            </section>
+            <section class="info-section">
+                <h2>¿Está buscando una educación que prepare a sus hijos para un futuro exitoso?</h2>
+                <p>En la Unidad Educativa Particular Benjamín Franklin, ofrecemos una educación de excelencia que va más allá de lo académico:</p>
+                <ul class="info-list">
+                    <li><strong>Excelencia Académica:</strong> Formamos a los estudiantes en áreas como electrónica, electricidad y mecánica automotriz, desarrollando habilidades que los destacan en un mundo competitivo.</li>
+                    <li><strong>Desarrollo Integral:</strong> Fomentamos el crecimiento personal y los valores de respeto, tolerancia y responsabilidad, asegurando una formación completa.</li>
+                    <li><strong>Práctica y Experiencia Real:</strong> Combinamos teoría con práctica en laboratorios avanzados y proyectos reales, preparando a los estudiantes para enfrentar desafíos reales.</li>
+                    <li><strong>Educación Inclusiva:</strong> Adaptamos nuestro enfoque a las necesidades individuales, creando un ambiente donde cada niño se siente valorado y apoyado.</li>
+                    <li><strong>Conexiones y Oportunidades:</strong> Facilitamos prácticas y pasantías mediante alianzas con la comunidad y el sector productivo, preparando a los estudiantes para el mundo laboral.</li>
+                    <li><strong>Compromiso con la Sostenibilidad:</strong> Promovemos proyectos ecológicos que enseñan habilidades técnicas y conciencia ambiental.</li>
+                </ul>
+                <p>En la Unidad Educativa Particular Benjamín Franklin, formamos líderes del futuro con una educación integral que les abre puertas al éxito. ¡Descubra cómo podemos contribuir al futuro brillante de sus hijos!</p>
+                    <div class="carousel-container">
+                        <div class="carousel-images">
+                            <img src="..\..\imagenes\imagen1.jpeg" alt="Imagen 1">
+                            <img src="..\..\imagenes\imagen2.jpeg" alt="Imagen 2">
+                            <img src="..\..\imagenes\imagen3.jpeg" alt="Imagen 3">
+                            <img src="..\..\imagenes\imagen4.jpeg" alt="Imagen 4">
+                            <img src="..\..\imagenes\imagen5.jpeg" alt="Imagen 5">
+                            <!-- Duplicar las imágenes para el efecto de bucle infinito -->
+                            <img src="..\..\imagenes\imagen1.jpeg" alt="Imagen 1">
+                            <img src="..\..\imagenes\imagen2.jpeg" alt="Imagen 2">
+                            <img src="..\..\imagenes\imagen3.jpeg" alt="Imagen 3">
+                            <img src="..\..\imagenes\imagen4.jpeg" alt="Imagen 4">
+                            <img src="..\..\imagenes\imagen5.jpeg" alt="Imagen 5">
+                        </div>
+                        <div class="carousel-nav">
+                            <button onclick="prevImage()">&#10094;</button>
+                            <button onclick="nextImage()">&#10095;</button>
+                        </div>
+                    </div>
+    
+        </div> 
+    </main>
+
+<!-- Sección de Cursos -->
+<section style="background-color: #003366; color: white; padding: 40px 20px; text-align: center; width: 100%; margin: 0; border-top: 3px solid #E62433; border-bottom: 3px solid #E62433;">
+    <h2 style="font-size: 28px; margin-bottom: 20px;">Gestione y Revise sus Cursos</h2>
+    <p style="font-size: 18px; max-width: 800px; margin: 0 auto;">
+        Aquí podrá acceder a la lista completa de los cursos que está impartiendo. Revise detalladamente las listas de los estudiantes que se encuentran en sus clases, gestione las calificaciones y mantenga actualizada toda la información necesaria para el seguimiento académico de sus estudiantes.
+    </p>
+    <a href="http://localhost/sistema_notas/views/profe/curso_profe.php" style="text-decoration: none;">
+        <button class="ver-cursos-btn" style="background-color: white; color: #003366; border: none; padding: 15px 30px; font-size: 18px; margin-top: 30px; cursor: pointer; border-radius: 5px;">
+            Ver Cursos
+        </button>
+    </a>
+</section>
+
+
+ 
+    <main>
+    <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h2>Nuestra Visión</h2>
+                        <p>Buscamos ser reconocidos por:</p>
+                        <ul>
+                            <li>Excelencia Académica en áreas técnicas avanzadas.</li>
+                            <li>Formación Integral en desarrollo personal y social.</li>
+                            <li>Enfoque Práctico con proyectos y laboratorios innovadores.</li>
+                            <li>Inclusión y Diversidad en un ambiente de respeto y apoyo.</li>
+                            <li>Vinculación con la Comunidad y sector productivo.</li>
+                        </ul>
+                        <p>Formamos líderes capaces de contribuir al progreso del país a través del conocimiento y el compromiso social.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h2>Nuestra Misión</h2>
+                        <p>Proporcionamos una educación de excelencia enfocada en:</p>
+                        <ul>
+                            <li>Educación de Calidad con un programa riguroso y actualizado.</li>
+                            <li>Formación Integral para el crecimiento académico, emocional y ético.</li>
+                            <li>Práctica e Innovación con proyectos y actividades extracurriculares.</li>
+                            <li>Inclusión y Diversidad en un ambiente de respeto y aceptación.</li>
+                            <li>Vínculos con la Comunidad para facilitar la inserción laboral.</li>
+                        </ul>
+                        <p>Formamos ciudadanos críticos y creativos, preparados para enfrentar desafíos y contribuir al desarrollo sostenible.</p>
+                    </div>
+                </div>
+    </div>
+    </main>
+
+<!-- Otros enlaces de CSS/JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+
+<script>
+    // Animación de las imágenes en el collage
+        document.addEventListener('DOMContentLoaded', function () {
+            anime({
+                targets: '.grid-item',
+                opacity: [0, 1],
+                duration: 1000,
+                delay: anime.stagger(100),
+                easing: 'easeInOutQuad'
+            });
+            let index = 0;
+        const images = document.querySelectorAll('.carousel-images img');
+        const totalImages = images.length;
+        const imageWidth = images[0].clientWidth + 20; // Incluye el margen
+
+        function updateCarousel() {
+            images.forEach((img, i) => {
+                img.style.opacity = i === index ? '1' : '0.6';
+            });
+        }
+        function prevImage() {
+            if (index === 0) {
+                index = totalImages / 2 - 1; // Mueve al último de la primera mitad
+                document.querySelector('.carousel-images').style.transition = 'none'; // Desactiva transición temporalmente
+                document.querySelector('.carousel-images').style.transform = `translateX(-${index * imageWidth}px)`;
+                setTimeout(() => {
+                    document.querySelector('.carousel-images').style.transition = 'transform 0.5s ease-in-out'; // Reactiva transición
+                    index = (index - 1 + totalImages / 2) % (totalImages / 2);
+                }, 50); // Asegura que la transición se reactiva después de un breve período
+            } else {
+                index = (index - 1 + totalImages / 2) % (totalImages / 2);
+            }
+            updateCarousel();
+            adjustScroll();
+        }
+
+        function nextImage() {
+            index = (index + 1) % (totalImages / 2);
+            updateCarousel();
+            adjustScroll();
+        }
+
+        function adjustScroll() {
+            const container = document.querySelector('.carousel-images');
+            container.style.transform = `translateX(-${index * imageWidth}px)`;
+        }
+
+        document.querySelector('.carousel-nav').addEventListener('click', (event) => {
+            if (event.target.textContent === '◁') {
+                prevImage();
+            } else if (event.target.textContent === '▷') {
+                nextImage();
+            }
+        });
+
+        setInterval(nextImage, 3000); // Cambiar imagen automáticamente cada 3 segundos
+
+        window.onload = () => {
+            adjustScroll(); // Inicializar el scroll al cargar
+            updateCarousel(); // Inicializar la imagen activa al cargar
+        };
+    });
+</script>
+</body>
+</html>

@@ -1,4 +1,6 @@
 <?php
+session_start();
+// Incluir el archivo de conexión y verificar la conexión
 include("../../config.php");
 
 // Inicializar el mensaje
@@ -103,17 +105,94 @@ $result_relaciones = $conn->query($query_relaciones);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enlazar Estudiantes con Padres</title>
+    <title>Vinculación Familiar Académica | Sistema de Gestión UEBF</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SB Admin 2 CSS -->
+    <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            background-color: #E62433;
+            color: #ffffff;
+        }
+        .btn-custom:hover {
+            background-color: #f83b4a;
+            color: #ffffff;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .icon {
+            font-size: 1.5rem;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+        .table-container {
+            overflow: auto;
+            max-height: 400px;
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+        .alert {
+            margin-bottom: 1rem;
+        }
+        footer {
+        background-color: white; /* Color de fondo blanco */
+        color: #737373; /* Color del texto en gris oscuro */
+        text-align: center; /* Centrar el texto */
+        padding: 20px 0; /* Espaciado interno vertical */
+        width: 100%; /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        }
+
+        footer p {
+            margin: 0; /* Eliminar el margen de los párrafos */
+        }
+        .card {
+            margin-bottom: 2rem;
+        }
+        .card-header {
+            background-color: #E62433; /* Fondo rojo oscuro para el encabezado de la tarjeta */
+            color: #fff; /* Color del texto del encabezado */
+            border-bottom: 1px solid #fff; /* Línea divisoria blanca */
+            border-radius: 8px 8px 0 0; /* Redondeo solo en las esquinas superiores */
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h2 class="mb-4">Enlazar Estudiantes con Padres</h2>
+    <?php include_once('C:/xampp/htdocs/Sistema_Notas/views/admin/navbar_admin.php'); ?>
+    
+    <div class="container-fluid">
+        <div class="container">
+                <div class="card-header">
+                    <h5 class="mb-0">Vinculación Familiar Académica</h5>
+                </div>
+                <div class="card-body">
+                    <h2 class="mb-4">
+                        <i class='bx bx-link icon'></i> Enlazar Estudiantes con Padres
+                    </h2>
 
         <form class="mb-4" method="GET" action="">
             <div class="row mb-3">
-                <div class="col">
+            	<div class="col-md-3">
                     <label for="nivel" class="form-label">Nivel</label>
                     <select id="nivel" name="nivel" class="form-select">
                         <option value="">Selecciona un nivel</option>
@@ -125,7 +204,7 @@ $result_relaciones = $conn->query($query_relaciones);
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <label for="paralelo" class="form-label">Paralelo</label>
                     <select id="paralelo" name="paralelo" class="form-select">
                         <option value="">Selecciona un paralelo</option>
@@ -137,9 +216,7 @@ $result_relaciones = $conn->query($query_relaciones);
                         <?php endwhile; ?>
                     </select>
                 </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col">
+                <div class="col-md-3">
                     <label for="jornada" class="form-label">Jornada</label>
                     <select id="jornada" name="jornada" class="form-select">
                         <option value="">Selecciona una jornada</option>
@@ -151,7 +228,7 @@ $result_relaciones = $conn->query($query_relaciones);
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <label for="historial_academico" class="form-label">Historial Académico</label>
                     <select id="historial_academico" name="historial_academico" class="form-select">
                         <option value="">Selecciona un año académico</option>
@@ -164,7 +241,9 @@ $result_relaciones = $conn->query($query_relaciones);
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+            <button type="submit" class="btn btn-custom">
+                <i class='bx bx-filter icon'></i> Aplicar Filtros
+            </button>
         </form>
 
         <?php if ($mensaje): ?>
@@ -173,8 +252,11 @@ $result_relaciones = $conn->query($query_relaciones);
         </div>
         <?php endif; ?>
 
-        <h3 class="mb-4">Relaciones Estudiante-Padre</h3>
-        <table class="table table-bordered">
+        <h3 class="mb-4">
+        	<i class='bx bx-list-check icon'></i> Lista de Estudiantes
+        </h3>
+        <div class="table-container">
+            <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>Estudiante</th>
@@ -196,10 +278,12 @@ $result_relaciones = $conn->query($query_relaciones);
         </table>
     </div>
 
-        <h3 class="mb-4">Lista de Estudiantes</h3>
+        <h3 class="mb-4">
+        	<i class='bx bx-male-female icon'></i> Relaciones Estudiante-Padre
+        </h3>
         <form method="POST" action="">
             <div class="row mb-3">
-                <div class="col">
+            	<div class="col-md-6">
                     <label for="id_estudiante" class="form-label">Estudiante</label>
                     <select id="id_estudiante" name="id_estudiante" class="form-select" required>
                         <option value="">Selecciona un estudiante</option>
@@ -210,21 +294,42 @@ $result_relaciones = $conn->query($query_relaciones);
                         <?php endwhile; ?>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col-md-6">
                     <label for="id_padre" class="form-label">Padre</label>
                     <select id="id_padre" name="id_padre" class="form-select" required>
                         <option value="">Selecciona un padre</option>
                         <?php while ($row = $result_padres->fetch_assoc()): ?>
                             <option value="<?php echo $row['id_padre']; ?>">
-                                <?php echo $row['apellidos'] . ' ' . $row['nombres']; ?>
+                            	<?php echo $row['apellidos'] . ' ' . $row['nombres']; ?>
                             </option>
                         <?php endwhile; ?>
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-success">Enlazar</button>
+            <button type="submit" class="btn btn-custom">
+            	<i class='bx bx-save icon'></i> Guardar
+            </button>
         </form>
     </div>
+</div>
+</div>
+</div>
+
+<footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
+</footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- SB Admin 2 JS -->
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 </body>
 
 </html>

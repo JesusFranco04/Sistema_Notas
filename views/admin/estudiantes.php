@@ -7,9 +7,11 @@ include '../../Crud/config.php';
 date_default_timezone_set('America/Guayaquil');
 
 // Consulta SQL para obtener los estudiantes con los nombres de las tablas relacionadas
-$sql = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula, e.telefono, e.correo_electronico, e.direccion, e.fecha_nacimiento, e.genero, e.discapacidad, e.estado_calificacion, e.estado, n.nombre AS nivel, p.nombre AS paralelo, j.nombre AS jornada, h.año AS historial_academico, e.fecha_ingreso
+$sql = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula, e.telefono, e.correo_electronico, e.direccion, e.fecha_nacimiento, e.genero, e.discapacidad, e.estado_calificacion, e.estado, n.nombre AS nivel, p.nombre AS subnivel, s.nombre AS especialidad, es.nombre  AS paralelo, j.nombre AS jornada, h.año AS historial_academico, e.fecha_ingreso
         FROM estudiante e
         LEFT JOIN nivel n ON e.id_nivel = n.id_nivel
+        LEFT JOIN subnivel s ON e.id_subnivel = s.id_subnivel
+        LEFT JOIN especialidad es ON e.id_especialidad = es.id_especialidad
         LEFT JOIN paralelo p ON e.id_paralelo = p.id_paralelo
         LEFT JOIN jornada j ON e.id_jornada = j.id_jornada
         LEFT JOIN historial_academico h ON e.id_his_academico = h.id_his_academico";
@@ -60,7 +62,7 @@ if (!$resultado) {
     }
 
     .card-header {
-        background-color: #28a745;
+        background-color: #E62433;
         color: white;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
@@ -73,13 +75,13 @@ if (!$resultado) {
     }
 
     .btn-primary {
-        background-color: #28a745;
-        border-color: #28a745;
+        background-color: #E62433;
+        border-color: #E62433;
     }
 
     .btn-primary:hover {
-        background-color: #218838;
-        border-color: #1e7e34;
+        background-color: #DE112D;
+        border-color: #DE112D;
     }
 
     .btn-info {
@@ -112,7 +114,7 @@ if (!$resultado) {
     }
 
     .table thead th {
-        background-color: #28a745;
+        background-color: #E62433;
         color: white;
         text-align: center;
         font-weight: bold;
@@ -124,8 +126,8 @@ if (!$resultado) {
     }
 
     .table tbody tr:nth-child(odd) {
-        background-color: #d4edda;
-        /* Verde claro para filas impares */
+        background-color: #fcccce;
+        /* Rojo claro para filas impares */
     }
 
     .table tbody tr:nth-child(even) {
@@ -134,8 +136,8 @@ if (!$resultado) {
     }
 
     .table tbody tr:hover {
-        background-color: #e2e6ea;
-        /* Color de fondo al pasar el ratón */
+        background-color: #f8a9ad; /* Rojo bonito */
+        color: #0a0a0a; /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -146,10 +148,8 @@ if (!$resultado) {
     /* Estilo para contenedor de tabla */
     .table-container {
         max-height: 500px;
-        overflow-y: auto;
-        /* Barra de desplazamiento vertical */
-        overflow-x: auto;
-        /* Barra de desplazamiento horizontal */
+        overflow-y: auto; /* Barra de desplazamiento vertical */
+        overflow-x: auto; /* Barra de desplazamiento horizontal */
     }
 
 
@@ -167,7 +167,20 @@ if (!$resultado) {
     .filter-container {
         margin-bottom: 1rem;
     }
-    </style>
+
+    footer {
+    background-color: white; /* Color de fondo blanco */
+    color: #737373; /* Color del texto en gris oscuro */
+    text-align: center; /* Centrar el texto */
+    padding: 20px 0; /* Espaciado interno vertical */
+    width: 100%; /* Ancho completo */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0; /* Eliminar el margen de los párrafos */
+    }
+</style>
 </head>
 
 <body>
@@ -230,6 +243,8 @@ if (!$resultado) {
                                 <th>Estado</th>
                                 <th>Nivel</th>
                                 <th>Paralelo</th>
+                                <th>Especialidad</th>
+                                <th>Subnivel</th>
                                 <th>Jornada</th>
                                 <th>Historial Académico</th>
                                 <th>Fecha de Creación</th>
@@ -252,6 +267,8 @@ if (!$resultado) {
                                 <td><?php echo $fila['estado_calificacion']; ?></td>
                                 <td><?php echo $fila['estado']; ?></td>
                                 <td><?php echo $fila['nivel']; ?></td>
+                                <td><?php echo $fila['subnivel']; ?></td>
+                                <td><?php echo $fila['especialidad']; ?></td>
                                 <td><?php echo $fila['paralelo']; ?></td>
                                 <td><?php echo $fila['jornada']; ?></td>
                                 <td><?php echo $fila['historial_academico']; ?></td>
@@ -267,6 +284,11 @@ if (!$resultado) {
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
+    </footer>
 
     <!-- Scripts adicionales aquí -->
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>

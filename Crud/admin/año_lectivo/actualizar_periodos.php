@@ -2,49 +2,26 @@
 session_start();
 include '../../config.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_periodo = $_POST['periodo'];
 
-/**
- * Registra una actividad en la base de datos.
- *
- * @param mysqli $conn La conexión a la base de datos.
- * @param string $accion La descripción de la acción realizada.
- */
-function registrarActividad($conn, $accion) {
-    if (!isset($_SESSION['usuario'])) {
-        die("Error: Usuario no autenticado.");
-    }
-    
-    $usuario = $conn->real_escape_string($_SESSION['usuario']);
-    $sql_registro = $conn->prepare("INSERT INTO registro_actividades (usuario, accion, fecha) VALUES (?, ?, NOW())");
-    $sql_registro->bind_param("ss", $usuario, $accion);
-
-    if (!$sql_registro->execute()) {
-        die("Error al registrar la actividad: " . $sql_registro->error);
-    }
-}
-
-// Verifica si se ha enviado un período
-if (isset($_POST['periodo'])) {
-    $id_periodo = (int)$_POST['periodo'];
-
-    // Desactivar otros períodos
-    $sql_desactivar = $conn->prepare("UPDATE periodo_academico SET estado = '0' WHERE id_periodo IN (1, 2) AND id_periodo != ?");
-    $sql_desactivar->bind_param("i", $id_periodo);
-
-    if (!$sql_desactivar->execute()) {
-        die("Error al desactivar los períodos: " . $sql_desactivar->error);
-    }
+    // Desactivar otros períodos (excepto los que deben permanecer siempre activos)
+    $sql_desactivar = "UPDATE periodo_academico SET estado = 0 WHERE id_periodo NOT IN (3)";
+    $conn->query($sql_desactivar);
 
     // Activar el período seleccionado
-    $sql_activar = $conn->prepare("UPDATE periodo_academico SET estado = '1' WHERE id_periodo = ?");
-    $sql_activar->bind_param("i", $id_periodo);
+    $sql_activar = "UPDATE periodo_academico SET estado = 1 WHERE id_periodo = ?";
+    $stmt = $conn->prepare($sql_activar);
+    $stmt->bind_param("i", $id_periodo);
+    $stmt->execute();
 
-    if (!$sql_activar->execute()) {
-        die("Error al activar el período: " . $sql_activar->error);
+    // Respuesta en JSON
+    if ($stmt->affected_rows > 0) {
+        echo json_encode(["success" => true, "message" => "Período activado correctamente."]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Error al activar el período."]);
     }
 
-    registrarActividad($conn, "Cambiado el estado del período $id_periodo a activo");
-} else {
-    die("Error: No se ha seleccionado ningún período.");
+    $stmt->close();
+    $conn->close();
 }
-?>

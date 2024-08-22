@@ -1,10 +1,58 @@
 <?php
 session_start();
-// Incluir el archivo de conexión y verificar la conexión
-include('../../Crud/config.php'); // Ruta absoluta 
+include('../../Crud/config.php'); // Ruta absoluta
 
 // Configurar la zona horaria de Ecuador
-date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
+date_default_timezone_set('America/Guayaquil');
+
+// Consultas para obtener estadísticas
+$queryProfesores = "SELECT COUNT(*) as total FROM profesor";
+$queryEstudiantes = "SELECT COUNT(*) as total FROM estudiante";
+$queryUsuarios = "SELECT COUNT(*) as total FROM usuario";
+
+// Ejecutar consultas
+$resultProfesores = $conn->query($queryProfesores);
+$resultEstudiantes = $conn->query($queryEstudiantes);
+$resultUsuarios = $conn->query($queryUsuarios);
+
+// Obtener resultados
+$total_profesores = $resultProfesores->fetch_assoc()['total'];
+$total_estudiantes = $resultEstudiantes->fetch_assoc()['total'];
+$total_usuarios = $resultUsuarios->fetch_assoc()['total'];
+
+// Consultas para obtener datos para el gráfico
+$queryEstadisticas = "SELECT a.año, 
+                            SUM(p.id_profesor) as profesores, 
+                            SUM(e.id_estudiante) as estudiantes, 
+                            COUNT(u.id_usuario) as usuarios
+                      FROM historial_academico a
+                      LEFT JOIN profesor p ON a.id_his_academico = p.id_usuario
+                      LEFT JOIN estudiante e ON a.id_his_academico = e.id_his_academico
+                      LEFT JOIN usuario u ON a.id_his_academico = u.id_rol
+                      GROUP BY a.año";
+
+$resultEstadisticas = $conn->query($queryEstadisticas);
+$datosEstadisticas = [];
+
+while ($row = $resultEstadisticas->fetch_assoc()) {
+    $datosEstadisticas[] = $row;
+}
+
+// Procesar datos para el gráfico
+$labels = [];
+$dataProfesores = [];
+$dataEstudiantes = [];
+$dataUsuarios = [];
+
+foreach ($datosEstadisticas as $data) {
+    $labels[] = $data['año'];
+    $dataProfesores[] = $data['profesores'];
+    $dataEstudiantes[] = $data['estudiantes'];
+    $dataUsuarios[] = $data['usuarios'];
+}
+
+// Cerrar la conexión
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -129,21 +177,25 @@ date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecu
     .filter-container {
         margin-bottom: 1rem;
     }
+
+    footer {
+        background-color: white; /* Color de fondo blanco */
+        color: #737373; /* Color del texto en gris oscuro */
+        text-align: center; /* Centrar el texto */
+        padding: 20px 0; /* Espaciado interno vertical */
+        width: 100%; /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0; /* Eliminar el margen de los párrafos */
+    }
     </style>
 </head>
 
 <body>
-    <?php
-    // Incluir el archivo navbar_admin.php una sola vez desde el mismo directorio
-    include_once 'navbar_admin.php';
+    <?php include_once 'navbar_admin.php'; ?>
 
-    
-
-    // Datos temporales para la versión sin conexión
-    $total_profesores = 30;
-    $total_estudiantes = 200;
-    $total_usuarios = 50;
-    ?>
     <div class="container-fluid">
         <!-- Encabezado de página -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -192,183 +244,25 @@ date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecu
         <div class="chart-container">
             <canvas id="graficoAreaApilada"></canvas>
         </div>
-
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    Récord Académico
-                </div>
-                <div class="card-body">
-                    <!-- Campos de búsqueda -->
-                    <div class="filter-container">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="searchCedula"><i class="fas fa-id-card filter-icon"></i>Cédula</label>
-                                <input type="text" class="form-control" id="searchCedula"
-                                    placeholder="Buscar por cédula">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="searchParalelo"><i class="fas fa-columns filter-icon"></i>Paralelo</label>
-                                <select class="form-control" id="searchParalelo">
-                                    <!-- Opciones predefinidas -->
-                                    <option value="">Todos</option>
-                                    <option value="A">A</option>
-                                    <option value="B">B</option>
-                                    <option value="C">C</option>
-                                    <!-- Opciones futuras desde la base de datos -->
-                                    <?php 
-                                        // Aquí deberás colocar la consulta para obtener los paralelos desde la base de datos
-                                        // Ejemplo:
-                                        // $query = "SELECT DISTINCT paralelo FROM cursos";
-                                        // $result = mysqli_query($conn, $query);
-                                        // while ($row = mysqli_fetch_assoc($result)) {
-                                        //     echo "<option value='{$row['paralelo']}'>{$row['paralelo']}</option>";
-                                        // }
-                                        ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="searchNivel"><i class="fas fa-layer-group filter-icon"></i>Nivel</label>
-                                <select class="form-control" id="searchNivel">
-                                    <!-- Opciones predefinidas -->
-                                    <option value="">Todos</option>
-                                    <option value="Octavo">Octavo</option>
-                                    <option value="Noveno">Noveno</option>
-                                    <option value="Décimo">Décimo</option>
-                                    <option value="Primero">Primero Bachillerato</option>
-                                    <option value="Segundo">Segundo Bachillerato</option>
-                                    <option value="Tercero">Tercero Bachillerato</option>
-                                    <!-- Opciones futuras desde la base de datos -->
-                                    <?php 
-                                        // Aquí deberás colocar la consulta para obtener los niveles desde la base de datos
-                                        // Ejemplo:
-                                        // $query = "SELECT DISTINCT nivel FROM cursos";
-                                        // $result = mysqli_query($conn, $query);
-                                        // while ($row = mysqli_fetch_assoc($result)) {
-                                        //     echo "<option value='{$row['nivel']}'>{$row['nivel']}</option>";
-                                        // }
-                                        ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="searchSubnivel"><i
-                                        class="fas fa-layer-group filter-icon"></i>Subnivel</label>
-                                <select class="form-control" id="searchSubnivel">
-                                    <!-- Opciones predefinidas -->
-                                    <option value="">Todos</option>
-                                    <option value="EBG">EBG</option>
-                                    <option value="BTI">BTI</option>
-                                    <!-- Opciones futuras desde la base de datos -->
-                                    <?php 
-                                        // Aquí deberás colocar la consulta para obtener los subniveles desde la base de datos
-                                        // Ejemplo:
-                                        // $query = "SELECT DISTINCT subnivel FROM cursos";
-                                        // $result = mysqli_query($conn, $query);
-                                        // while ($row = mysqli_fetch_assoc($result)) {
-                                        //     echo "<option value='{$row['subnivel']}'>{$row['subnivel']}</option>";
-                                        // }
-                                        ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="searchNombre"><i class="fas fa-sort-alpha-down filter-icon"></i>Ordenar por
-                                    Nombre</label>
-                                <input type="text" class="form-control" id="searchNombre"
-                                    placeholder="Buscar por nombre">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabla de registros académicos -->
-                    <div class="section-title">EBG (Octavo a Décimo)</div>
-                    <div class="table-container">
-                        <table id="tableEBG" class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID Estudiante</th>
-                                    <th>Nombre Estudiante</th>
-                                    <th>Curso</th>
-                                    <th>Materia</th>
-                                    <th>Calificación</th>
-                                    <th>Periodo Académico</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Ejemplo de datos de récord académico para EBG -->
-                                <tr>
-                                    <td>001</td>
-                                    <td>Juan Pérez</td>
-                                    <td>Noveno A</td>
-                                    <td>Matemáticas</td>
-                                    <td>8.5</td>
-                                    <td>2024-2025</td>
-                                </tr>
-                                <tr>
-                                    <td>002</td>
-                                    <td>María López</td>
-                                    <td>Octavo B</td>
-                                    <td>Lengua y Literatura</td>
-                                    <td>9.2</td>
-                                    <td>2024-2025</td>
-                                </tr>
-                                <!-- Puedes repetir este patrón para cada registro de récord académico de EBG -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="section-title">BTI (Primero a Tercero de Bachillerato)</div>
-                    <div class="table-container">
-                        <table id="tableBTI" class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID Estudiante</th>
-                                    <th>Nombre Estudiante</th>
-                                    <th>Curso</th>
-                                    <th>Materia</th>
-                                    <th>Calificación</th>
-                                    <th>Periodo Académico</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Ejemplo de datos de récord académico para BTI -->
-                                <tr>
-                                    <td>003</td>
-                                    <td>Carlos Gómez</td>
-                                    <td>Segundo B</td>
-                                    <td>Física</td>
-                                    <td>7.8</td>
-                                    <td>2024-2025</td>
-                                </tr>
-                                <tr>
-                                    <td>004</td>
-                                    <td>Luisa Martínez</td>
-                                    <td>Tercero A</td>
-                                    <td>Química</td>
-                                    <td>8.9</td>
-                                    <td>2024-2025</td>
-                                </tr>
-                                <!-- Puedes repetir este patrón para cada registro de récord académico de BTI -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     </div>
-
-    <!-- Pie de Página -->
-    <footer class="text-center mt-4">
-        <div class="copyright-container">
-            <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
-                Zambrano.
-                Todos los derechos reservados.</p>
-        </div>
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
     </footer>
 
     <!-- Scripts JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- SB Admin 2 JS -->
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <!-- DataTables JS -->
+
+
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -388,33 +282,28 @@ date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecu
             }, stepTime);
         }
 
-        // Datos temporales para la versión sin conexión
-        var totalProfesores = <?php echo $total_profesores; ?>;
-        var totalEstudiantes = <?php echo $total_estudiantes; ?>;
-        var totalUsuarios = <?php echo $total_usuarios; ?>;
-
-        // Animación de subida para los números de las tarjetas
-        animateValue('totalProfesores', 0, totalProfesores, 1500);
-        animateValue('totalEstudiantes', 0, totalEstudiantes, 1500);
-        animateValue('totalUsuarios', 0, totalUsuarios, 1500);
+        // Animar los valores
+        animateValue('totalProfesores', 0, <?php echo $total_profesores; ?>, 1000);
+        animateValue('totalEstudiantes', 0, <?php echo $total_estudiantes; ?>, 1000);
+        animateValue('totalUsuarios', 0, <?php echo $total_usuarios; ?>, 1000);
 
         // Datos para el gráfico de área apilada
         var datosAreaApilada = {
-            labels: ['2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025'],
+            labels: <?php echo json_encode($labels); ?>,
             datasets: [{
                 label: 'Profesores',
                 backgroundColor: '#c42021', // Color rojo llamativo
-                data: [12, 19, 3, 5, 2],
+                data: <?php echo json_encode($dataProfesores); ?>,
                 stack: 'Stack 1',
             }, {
                 label: 'Estudiantes',
-                backgroundColor: '#ffeaae', // Color azul oscuro
-                data: [3, 5, 12, 15, 8],
+                backgroundColor: '#326d1e', // Color azul oscuro
+                data: <?php echo json_encode($dataEstudiantes); ?>,
                 stack: 'Stack 1',
             }, {
                 label: 'Usuarios',
-                backgroundColor: '#47a025', // Color amarillo
-                data: [5, 8, 11, 6, 7],
+                backgroundColor: '#003366', // Color amarillo
+                data: <?php echo json_encode($dataUsuarios); ?>,
                 stack: 'Stack 1',
             }]
         };
@@ -457,60 +346,9 @@ date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecu
         new Chart(ctxAreaApilada, configAreaApilada);
     });
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4Ag8drPmxJ4inVEuIpc2HVVgVVUew12Q5IMve9l/sr42u2Km9GJg" crossorigin="anonymous">
-    </script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <!-- Script adicional -->
-    <script>
-    $(document).ready(function() {
-        // Inicializar DataTables para ambas tablas sin opción de búsqueda
-        $('#tableEBG').DataTable({
-            searching: false
-        });
-        $('#tableBTI').DataTable({
-            searching: false
-        });
-
-        // Filtrado personalizado
-        $('#searchCedula').on('keyup', function() {
-            var tableEBG = $('#tableEBG').DataTable();
-            var tableBTI = $('#tableBTI').DataTable();
-            tableEBG.columns(0).search(this.value).draw();
-            tableBTI.columns(0).search(this.value).draw();
-        });
-
-        $('#searchParalelo').on('change', function() {
-            var tableEBG = $('#tableEBG').DataTable();
-            var tableBTI = $('#tableBTI').DataTable();
-            tableEBG.columns(2).search(this.value).draw();
-            tableBTI.columns(2).search(this.value).draw();
-        });
-
-        $('#searchNivel').on('change', function() {
-            var tableEBG = $('#tableEBG').DataTable();
-            var tableBTI = $('#tableBTI').DataTable();
-            tableEBG.columns(2).search(this.value).draw();
-            tableBTI.columns(2).search(this.value).draw();
-        });
-
-        $('#searchSubnivel').on('change', function() {
-            var tableEBG = $('#tableEBG').DataTable();
-            var tableBTI = $('#tableBTI').DataTable();
-            tableEBG.columns(2).search(this.value).draw();
-            tableBTI.columns(2).search(this.value).draw();
-        });
-
-        $('#searchNombre').on('keyup', function() {
-            var tableEBG = $('#tableEBG').DataTable();
-            var tableBTI = $('#tableBTI').DataTable();
-            tableEBG.columns(1).search(this.value).draw();
-            tableBTI.columns(1).search(this.value).draw();
-        });
-    });
-    </script>
+    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
+    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 </body>
 
 </html>

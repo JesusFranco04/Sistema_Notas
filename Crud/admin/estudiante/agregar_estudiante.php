@@ -12,6 +12,14 @@ $sql_nivel = "SELECT id_nivel, nombre FROM nivel";
 $result_nivel = $conn->query($sql_nivel);
 $niveles = $result_nivel->fetch_all(MYSQLI_ASSOC);
 
+$sql_subnivel = "SELECT id_subnivel, abreviatura FROM subnivel";
+$result_subnivel = $conn->query($sql_subnivel);
+$subniveles = $result_subnivel->fetch_all(MYSQLI_ASSOC);
+
+$sql_especialidad = "SELECT id_especialidad, nombre FROM especialidad";
+$result_especialidad = $conn->query($sql_especialidad);
+$especialidades = $result_especialidad->fetch_all(MYSQLI_ASSOC);
+
 $sql_paralelo = "SELECT id_paralelo, nombre FROM paralelo";
 $result_paralelo = $conn->query($sql_paralelo);
 $paralelos = $result_paralelo->fetch_all(MYSQLI_ASSOC);
@@ -37,12 +45,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $estado_calificacion = isset($_POST['estado_calificacion']) ? $_POST['estado_calificacion'] : '';
     $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
     $id_nivel = isset($_POST['id_nivel']) ? (int)$_POST['id_nivel'] : 0;
+    $id_subnivel = isset($_POST['id_subnivel']) ? (int)$_POST['id_subnivel'] : 0;
+    $id_especialidad = isset($_POST['id_especialidad']) ? (int)$_POST['id_especialidad'] : 0;
     $id_paralelo = isset($_POST['id_paralelo']) ? (int)$_POST['id_paralelo'] : 0;
     $id_jornada = isset($_POST['id_jornada']) ? (int)$_POST['id_jornada'] : 0;
     $id_his_academico = isset($_POST['id_his_academico']) ? (int)$_POST['id_his_academico'] : 0;
     $fecha_ingreso = date('Y-m-d H:i:s');
+    
 
-    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado_calificacion) && !empty($estado) && !empty($id_nivel) && !empty($id_paralelo) && !empty($id_jornada) && !empty($id_his_academico)) {
+    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado_calificacion) && !empty($estado) && !empty($id_nivel) && !empty($id_subnivel) && !empty($id_especialidad) && !empty($id_paralelo) && !empty($id_jornada) && !empty($id_his_academico)) {
         $sql = "SELECT * FROM estudiante WHERE cedula = ?";
         $stmt = $conn->prepare($sql);
         if ($stmt) {
@@ -56,13 +67,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'clase' => 'alert-danger'
                 );
             } else {
-                $sql_insert = "INSERT INTO estudiante ( nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, estado_calificacion, estado, id_nivel, id_paralelo, id_jornada, id_his_academico, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                $sql_insert = "INSERT INTO estudiante ( nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, estado_calificacion, estado, id_nivel, id_subnivel, id_especialidad, id_paralelo, id_jornada, id_his_academico, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                 
                 $stmt_insert = $conn->prepare($sql_insert);
                 if ($stmt_insert) {
                     // Bind parameters: "ssssssssssiiiiiss"
                     $stmt_insert->bind_param(
-                        "sssssssssssiiiis",
+                        "sssssssssssiiiiiis",
                         $nombres,
                         $apellidos,
                         $cedula,
@@ -75,6 +86,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $estado_calificacion,
                         $estado,
                         $id_nivel,
+                        $id_subnivel,
+                        $id_especialidad,
                         $id_paralelo,
                         $id_jornada,
                         $id_his_academico,
@@ -464,6 +477,30 @@ if (isset($conn)) {
                                 <option value="">Selecciona Nivel</option>
                                 <?php foreach ($niveles as $nivel): ?>
                                 <option value="<?= $nivel['id_nivel'] ?>"><?= $nivel['nombre'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_subnivel" class="form-label required"><i class='bx bxs-layer'></i>
+                                Subnivel:</label>
+                            <select class="form-control" id="id_subnivel" name="id_subnivel">
+                                <option value="">Selecciona Subnivel</option>
+                                <?php foreach ($subniveles as $subnivel): ?>
+                                <option value="<?= $subnivel['id_subnivel'] ?>"><?= $subnivel['abreviatura'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_especialidad" class="form-label required"><i class='bx bxs-star'></i>
+                                Especialidad:</label>
+                            <select class="form-control" id="id_especialidad" name="id_especialidad">
+                                <option value="">Selecciona Especialidad</option>
+                                <?php foreach ($especialidades as $especialidad): ?>
+                                <option value="<?= $especialidad['id_especialidad'] ?>"><?= $especialidad['nombre'] ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

@@ -34,7 +34,7 @@ CREATE TABLE usuario (
 
 
 
-CREATE TABLE nivel ( -- En esta tabla se guardara los datos por ejemplo: A, B, C, D,... 
+CREATE TABLE nivel ( -- En esta tabla se guardara los datos por ejemplo: Octavo, Noveno, Decimo, Primero de Bachillerato, Segundo de Bachillerato, Tercero de Bachillerato.
 	id_nivel INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(40) NOT NULL,
     estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
@@ -142,41 +142,6 @@ CREATE TABLE administrador (
 );
 
 
-CREATE TABLE notas_administrador (
-    id_notas INT AUTO_INCREMENT PRIMARY KEY,
-    id_administrador INT NOT NULL,
-    id_estudiante INT NOT NULL,
-    id_curso INT NOT NULL,
-    id_materia INT NOT NULL,
-    id_his_academico INT NOT NULL,
-    id_periodo INT NOT NULL,
-    cedula_profesor VARCHAR(10) NOT NULL,
-    nota1_primer_parcial FLOAT NULL,
-    nota2_primer_parcial FLOAT NULL,
-    examen_primer_parcial FLOAT NULL,
-    nota1_segundo_parcial FLOAT NULL,
-    nota2_segundo_parcial FLOAT NULL,
-    examen_segundo_parcial FLOAT NULL,
-    promedio_primer_quimestre FLOAT NULL,
-    promedio_segundo_quimestre FLOAT NULL,
-    nota_final FLOAT NULL,
-    estado_calificacion CHAR(1) NULL,
-    UNIQUE KEY unique_notas (id_estudiante, id_curso, id_materia, id_his_academico, id_periodo, cedula_profesor),
-    KEY idx_estudiante (id_estudiante),
-    KEY idx_curso (id_curso),
-    KEY idx_materia (id_materia),
-    KEY idx_his_academico (id_his_academico),
-    KEY idx_periodo (id_periodo),
-    KEY idx_cedula_profesor (cedula_profesor),
-    FOREIGN KEY (id_administrador) REFERENCES administrador(id_administrador) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_curso) REFERENCES curso(id_curso) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_materia) REFERENCES materia(id_materia) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 CREATE TABLE profesor (
     id_profesor INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
@@ -225,16 +190,20 @@ CREATE TABLE estudiante (
     estado_calificacion CHAR(1) NOT NULL DEFAULT 'P', -- P: Pendiente, A: Aprobado, R: Reprobado
     estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
     id_nivel INT NOT NULL, -- Nivel en el que está matriculado el estudiante
+    id_subnivel INT NOT NULL,
+    id_especialidad INT NOT NULL,
     id_paralelo INT NOT NULL, -- Paralelo en el que está matriculado el estudiante
     id_jornada INT NOT NULL, -- Jornada en la que está matriculado el estudiante
     id_historial_academico INT NOT NULL, -- Año académico en el que está matriculado el estudiante
-    usuario_ingreso VARCHAR(50) NOT NULL, -- Nombre de usuario que crea o modifica
     fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
     FOREIGN KEY (id_nivel) REFERENCES nivel(id_nivel),
+    FOREIGN KEY (id_subnivel) REFERENCES subnivel(id_subnivel),
+    FOREIGN KEY (id_especialidad) REFERENCES especialidad(id_especialidad),
     FOREIGN KEY (id_paralelo) REFERENCES paralelo(id_paralelo),
     FOREIGN KEY (id_jornada) REFERENCES jornada(id_jornada),
     FOREIGN KEY (id_historial_academico) REFERENCES historial_academico(id_his_academico)
 );
+
 
 CREATE TABLE padre_x_estudiante (
     id_padre INT,
@@ -283,6 +252,7 @@ CREATE TABLE registro_nota (
     FOREIGN KEY (id_estudiante) REFERENCES estudiante(id_estudiante),
     FOREIGN KEY (id_curso) REFERENCES curso(id_curso),
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
+    FOREIGN KEY (id_periodo) REFERENCES periodo_academico(id_periodo),
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
@@ -303,9 +273,6 @@ CREATE TABLE calificacion (
     FOREIGN KEY (id_materia) REFERENCES materia(id_materia),
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
-
-
-
 
 
 

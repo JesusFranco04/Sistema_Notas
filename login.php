@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Validación de usuarios regulares
-    require 'Crud/config.php';
+// Validación de usuarios regulares
+require 'Crud/config.php';
 // Validación de usuarios regulares
     $sql = "SELECT u.id_usuario, u.cedula, u.contraseña, u.estado, r.nombre AS nombre_rol 
             FROM usuario u

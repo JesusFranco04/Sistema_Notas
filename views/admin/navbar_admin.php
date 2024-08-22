@@ -76,6 +76,10 @@
                             <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
                             Representantes
                         </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/Crud/admin/padre_x_estudiante/padre_estudiante.php">
+                            <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
+                            Asignación de Padre
+                        </a>
                     </div>
                 </div>
             </div>
@@ -117,6 +121,12 @@
                         <a class="collapse-item"
                             href="http://localhost/sistema_notas/views/admin/curso_admin.php">
                             <i class='bx bxs-school'></i> Cursos
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/gestionar_academico.php">
+                            <i class='bx bxs-calendar'></i> Ciclos Académicos
+                        </a>
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/subir_nivel.php">
+                            <i class='bx bxs-graduation'></i> Niveles Académicos
                         </a>
                     </div>
                     <!-- Sección de Usuarios por Agregar -->

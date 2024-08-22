@@ -13,6 +13,14 @@ $sql_nivel = "SELECT id_nivel, nombre FROM nivel";
 $result_nivel = $conn->query($sql_nivel);
 $niveles = $result_nivel->fetch_all(MYSQLI_ASSOC);
 
+$sql_subnivel = "SELECT id_subnivel, abreviatura FROM subnivel";
+$result_subnivel = $conn->query($sql_subnivel);
+$subniveles = $result_subnivel->fetch_all(MYSQLI_ASSOC);
+
+$sql_especialidad = "SELECT id_especialidad, nombre FROM especialidad";
+$result_especialidad = $conn->query($sql_especialidad);
+$especialidades = $result_especialidad->fetch_all(MYSQLI_ASSOC);
+
 $sql_paralelo = "SELECT id_paralelo, nombre FROM paralelo";
 $result_paralelo = $conn->query($sql_paralelo);
 $paralelos = $result_paralelo->fetch_all(MYSQLI_ASSOC);
@@ -58,18 +66,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $estado_calificacion = isset($_POST['estado_calificacion']) ? $_POST['estado_calificacion'] : '';
     $estado = isset($_POST['estado']) ? $_POST['estado'] : '';
     $id_nivel = isset($_POST['id_nivel']) ? (int)$_POST['id_nivel'] : 0;
+    $id_subnivel = isset($_POST['id_subnivel']) ? (int)$_POST['id_subnivel'] : 0;
+    $id_especialidad = isset($_POST['id_especialidad']) ? (int)$_POST['id_especialidad'] : 0;
     $id_paralelo = isset($_POST['id_paralelo']) ? (int)$_POST['id_paralelo'] : 0;
     $id_jornada = isset($_POST['id_jornada']) ? (int)$_POST['id_jornada'] : 0;
     $id_his_academico = isset($_POST['id_his_academico']) ? (int)$_POST['id_his_academico'] : 0;
     $fecha_ingreso = date('Y-m-d H:i:s');
+    
 
-    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado_calificacion) && !empty($estado) && !empty($id_nivel) && !empty($id_paralelo) && !empty($id_jornada) && !empty($id_his_academico)) {
-        $sql_update = "UPDATE estudiante SET nombres = ?, apellidos = ?, telefono = ?, correo_electronico = ?, direccion = ?, fecha_nacimiento = ?, genero = ?, discapacidad = ?, estado_calificacion = ?, estado = ?, id_nivel = ?, id_paralelo = ?, id_jornada = ?, id_his_academico = ?, fecha_ingreso = ? WHERE cedula = ?";
+    if (!empty($nombres) && !empty($apellidos) && !empty($cedula) && !empty($direccion) && !empty($fecha_nacimiento) && !empty($genero) && !empty($discapacidad) && !empty($estado_calificacion) && !empty($estado) && !empty($id_nivel) && !empty($id_subnivel) && !empty($id_especialidad) && !empty($id_paralelo) && !empty($id_jornada) && !empty($id_his_academico)) {
+        $sql_update = "UPDATE estudiante SET nombres = ?, apellidos = ?, telefono = ?, correo_electronico = ?, direccion = ?, fecha_nacimiento = ?, genero = ?, discapacidad = ?, estado_calificacion = ?, estado = ?, id_nivel = ?, id_subnivel = ?, id_especialidad = ?, id_paralelo = ?, id_jornada = ?, id_his_academico = ?, fecha_ingreso = ? WHERE cedula = ?";
         
         $stmt_update = $conn->prepare($sql_update);
         if ($stmt_update) {
             $stmt_update->bind_param(
-                "sssssssssssiiiss",
+                "sssssssssssiiiiiss",
                 $nombres,
                 $apellidos,
                 $telefono,
@@ -81,6 +92,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $estado_calificacion,
                 $estado,
                 $id_nivel,
+                $id_subnivel,
+                $id_especialidad,
                 $id_paralelo,
                 $id_jornada,
                 $id_his_academico,
@@ -385,6 +398,7 @@ if (isset($conn)) {
                 <div class="form-group col-md-6">
                     <label for="genero" class="form-label required"><i class='bx bx-female-sign'></i> Género:</label>
                     <select class="form-control" id="genero" name="genero" required>
+                    <option value="">Seleccionar género</option>
                         <option value="Masculino"
                             <?= isset($estudiante['genero']) && $estudiante['genero'] == 'Masculino' ? 'selected' : '' ?>>
                             Masculino</option>
@@ -435,6 +449,7 @@ if (isset($conn)) {
                 <div class="form-group col-md-6">
                     <label for="id_nivel" class="form-label required"><i class='bx bxs-school'></i> Nivel:</label>
                     <select class="form-control" id="id_nivel" name="id_nivel" required>
+                        <option value="">Selecciona Nivel</option>
                         <?php foreach ($niveles as $nivel): ?>
                         <option value="<?= $nivel['id_nivel'] ?>"
                             <?= isset($estudiante['id_nivel']) && $estudiante['id_nivel'] == $nivel['id_nivel'] ? 'selected' : '' ?>>
@@ -445,8 +460,33 @@ if (isset($conn)) {
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">
+                    <label for="id_subnivel" class="form-label"><i class='bx bxs-layer'></i> Subnivel:</label>
+                    <select class="form-control" id="id_subnivel" name="id_subnivel">
+                    <option value="">Selecciona Subnivel</option>
+                        <?php foreach ($subniveles as $subnivel): ?>
+                        <option value="<?= $subnivel['id_subnivel'] ?>"
+                            <?= isset($estudiante['id_subnivel']) && $estudiante['id_subnivel'] == $subnivel['id_subnivel'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($subnivel['abreviatura']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="id_especialidad" class="form-label"><i class='bx bxs-star'></i> Especialidad:</label>
+                    <select class="form-control" id="id_especialidad" name="id_especialidad">
+                    <option value="">Selecciona Especialidad</option>
+                        <?php foreach ($especialidades as $especialidad): ?>
+                        <option value="<?= $especialidad['id_especialidad'] ?>"
+                            <?= isset($estudiante['id_especialidad']) && $estudiante['id_especialidad'] == $especialidad['id_especialidad'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($especialidad['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>   
+            <div class="form-row">
+                <div class="form-group col-md-6">
                     <label for="id_paralelo" class="form-label required"><i class='bx bxs-user-check'></i> Paralelo:</label>
                     <select class="form-control" id="id_paralelo" name="id_paralelo" required>
+                        <option value="">Selecciona Paralelo</option>
                         <?php foreach ($paralelos as $paralelo): ?>
                         <option value="<?= $paralelo['id_paralelo'] ?>"
                             <?= isset($estudiante['id_paralelo']) && $estudiante['id_paralelo'] == $paralelo['id_paralelo'] ? 'selected' : '' ?>>
@@ -457,6 +497,7 @@ if (isset($conn)) {
                 <div class="form-group col-md-6">
                     <label for="id_jornada" class="form-label required"><i class='bx bxs-calendar-week'></i> Jornada:</label>
                     <select class="form-control" id="id_jornada" name="id_jornada" required>
+                        <option value="">Selecciona Jornada</option>
                         <?php foreach ($jornadas as $jornada): ?>
                         <option value="<?= $jornada['id_jornada'] ?>"
                             <?= isset($estudiante['id_jornada']) && $estudiante['id_jornada'] == $jornada['id_jornada'] ? 'selected' : '' ?>>
@@ -469,6 +510,7 @@ if (isset($conn)) {
                 <div class="form-group col-md-6">
                     <label for="id_his_academico" class="form-label required"><i class='bx bxs-time'></i> Historial Académico:</label>
                     <select class="form-control" id="id_his_academico" name="id_his_academico" required>
+                        <option value="">Selecciona Historial Académico</option>
                         <?php foreach ($historiales as $historial): ?>
                         <option value="<?= $historial['id_his_academico'] ?>"
                             <?= isset($estudiante['id_his_academico']) && $estudiante['id_his_academico'] == $historial['id_his_academico'] ? 'selected' : '' ?>>

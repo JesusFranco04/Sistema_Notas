@@ -47,60 +47,142 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-    <style>
-    /* Estilo para el contenedor de la tabla */
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-    /* Estilo para separar los botones de acciones */
-    .action-buttons .btn {
-        margin-right: 20px;
-    }
+<style>
+    /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
     }
+
     .container-fluid {
         padding: 20px;
     }
+
+    /* Estilo de la tarjeta */
     .card {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
     }
+
     .card-header {
-        background-color: #c42021;
+        background-color: #E62433;
         color: white;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
         padding: 15px;
     }
+
+    /* Estilo de los botones de acción */
+    .action-buttons .btn {
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background-color: #E62433;
+        border-color: #E62433;
+    }
+
+    .btn-primary:hover {
+        background-color: #DE112D;
+        border-color: #DE112D;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+    }
+
+    .btn-success {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-success:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    /* Estilo de la tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
     .table thead th {
-        background-color: #dc3545;
+        background-color: #E62433;
         color: white;
         text-align: center;
+        font-weight: bold;
+        border: none;
     }
+
+    .table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #fcccce; /* Rojo claro para filas impares */
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f8f9fa; /* Gris claro para filas pares */
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8a9ad; /* Rojo bonito */
+        color: #0a0a0a; /* Letras negro al pasar el ratón */
+    }
+
     .table tbody td {
         text-align: center;
+        padding: 12px;
     }
+
+    /* Estilo para contenedor de tabla con barras de desplazamiento */
+    .table-container {
+        max-height: 500px; /* Ajusta la altura máxima según tus necesidades */
+        overflow-y: auto; /* Barra de desplazamiento vertical */
+        overflow-x: auto; /* Barra de desplazamiento horizontal */
+    }
+
+
     .section-title {
         font-size: 1.2rem;
         font-weight: bold;
         margin-top: 1rem;
         margin-bottom: 0.5rem;
     }
+
     .filter-icon {
         margin-right: 5px;
     }
-    .table tbody .btn-action {
-        margin-bottom: 10px;
-        display: inline-block;
-    }
+
     .filter-container {
         margin-bottom: 1rem;
     }
-    </style>
+
+    footer {
+    background-color: white; /* Color de fondo blanco */
+    color: #737373; /* Color del texto en gris oscuro */
+    text-align: center; /* Centrar el texto */
+    padding: 20px 0; /* Espaciado interno vertical */
+    width: 100%; /* Ancho completo */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0; /* Eliminar el margen de los párrafos */
+    }
+</style>
 </head>
 
 <body>
@@ -183,64 +265,12 @@ if (!$resultado) {
         </div>
     </div>
 
-    <!-- Modal de Confirmación -->
-    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p id="mensajeConfirmacion"></p>
-                </div>
-                <div class="modal-footer">
-                    <form id="formularioConfirmacion" method="POST" action="http://localhost/sistema_notas/Crud/admin/nivel/inactivar_nivel.php">
-                        <input type="hidden" id="inputIdNivel" name="id_nivel" value="">
-                        <input type="hidden" id="inputEstado" name="estado" value="">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" id="botonConfirmacion" class="btn btn-primary">Confirmar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Fin Modal de Confirmación -->
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <!-- SB Admin 2 JS -->
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+            Todos los derechos reservados.</p>
+    </footer>
+    <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
+    <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
-
-    <!-- Script para mostrar modal de confirmación -->
-    <script>
-    function mostrarModalCambioEstado(id_nivel, estado) {
-        var mensaje = '';
-        if (estado === 'A') {
-            mensaje = '¿Está seguro que desea inactivar este nivel?';
-        } else {
-            mensaje = '¿Está seguro que desea activar este nivel?';
-        }
-        $('#mensajeConfirmacion').text(mensaje);
-        $('#inputIdNivel').val(id_nivel);
-        $('#inputEstado').val(estado === 'A' ? 'inactivo' : 'activo');
-        $('#modalConfirmacion').modal('show');
-        return false; // Evitar el envío del formulario inmediatamente
-    }
-    </script>
-
 </body>
 </html>
-
-<?php
-// Liberar resultado
-mysqli_free_result($resultado);
-
-// Cerrar conexión
-$conn->close();
-?>
