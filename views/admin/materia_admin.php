@@ -163,16 +163,39 @@ if (!$resultado) {
     }
 
     footer {
-    background-color: white; /* Color de fondo blanco */
-    color: #737373; /* Color del texto en gris oscuro */
-    text-align: center; /* Centrar el texto */
-    padding: 20px 0; /* Espaciado interno vertical */
-    width: 100%; /* Ancho completo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
+    }
+
+    .modal-header {
+        background-color: #DE112D;
+        /* Color rojo */
+        color: white;
+        /* Color del texto en blanco para que contraste */
+    }
+
+    .modal-title {
+        font-weight: bold;
+    }
+
+    .close {
+        color: white;
+        /* Hacer que la "X" de cerrar sea blanca */
     }
 </style>
 </head>
@@ -220,9 +243,7 @@ if (!$resultado) {
                                 <button type="button" class="btn btn-info" data-toggle="modal"
                                     data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                             </div>
-                            <div class="col-auto">
-                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
-                            </div>
+
                         </div>
                     </div>
                 </form>
@@ -260,10 +281,56 @@ if (!$resultado) {
                             <?php endwhile; ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <!-- Manual de Uso - Parte 1 -->
+                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Materia (1/2)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ol>
+                                        <li><strong>Agregar Materia:</strong>En este paso debes ingresar
+                                        las Materias que tiene la Unidad Educativa </li>
+                                    </ol>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                        onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual de Uso - Parte 2 -->
+                    <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Materia- (2/2)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ol start="2">
+                                        <li><strong>Acciones:</strong> En Acciones tenemos Un boton de "inactivar" la cual al momento de apretarlo el registro quedara dasativado y asi mismo tendra
+                                        el boton de "activar" para que el registro se pueda ver en los otros formularios.
+                                        </li>
+                                    </ol>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                        onclick="openNextModal('#modalInstrucciones3')">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
     <!-- Modal de Confirmación -->
     <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
@@ -289,7 +356,10 @@ if (!$resultado) {
             </div>
         </div>
     </div>
-
+    </div>
+    </div>
+    </div>
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
@@ -338,6 +408,14 @@ if (!$resultado) {
                 alert('Error al cambiar el estado: ' + xhr.responseText);
             }
         });
+    }
+
+    function openNextModal(nextModalId) {
+        // Cierra el modal actual
+        $('.modal').modal('hide');
+
+        // Abre el siguiente modal
+        $(nextModalId).modal('show');
     }
     </script>
 

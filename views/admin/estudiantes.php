@@ -215,12 +215,6 @@ if (!$resultado) {
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/estudiante/agregar_estudiante.php" class="btn btn-primary">Agregar Estudiante</a>
                             </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInstrucciones1">Ver Manual de Uso</button>
-                            </div>
-                            <div class="col-auto">
-                                <a href="reporte_estudiante.php" class="btn btn-success">Generar reportes</a>
-                            </div>
                         </div>
                     </div>
                 </form>

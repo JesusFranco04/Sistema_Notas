@@ -230,13 +230,6 @@ if (!$resultado) {
                                     class="btn btn-primary">Agregar
                                     Padres</a>
                             </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
-                            </div>
-                            <div class="col-auto">
-                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
-                            </div>
                         </div>
                     </div>
                 </form>

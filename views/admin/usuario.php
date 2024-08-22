@@ -260,13 +260,6 @@ if (!$resultado) {
                                 <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
                                     class="btn btn-primary">Agregar Usuario</a>
                             </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
-                            </div>
-                            <div class="col-auto">
-                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
-                            </div>
                         </div>
                     </div>
                 </form>

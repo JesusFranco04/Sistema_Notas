@@ -232,9 +232,7 @@ if (!$resultado) {
                                 <button type="button" class="btn btn-info" data-toggle="modal"
                                     data-target="#modalInstrucciones1">Ver Manual de Uso</button>
                             </div>
-                            <div class="col-auto">
-                                <a href="reporte_usuario.php" class="btn btn-success">Generar reportes</a>
-                            </div>
+
                         </div>
                     </div>
                 </form>
@@ -273,10 +271,56 @@ if (!$resultado) {
                             <?php endwhile; ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <!-- Manual de Uso - Parte 1 -->
+                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Especialidad (1/2)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ol>
+                                        <li><strong>Agregar Especialidad:</strong> En este paso debes ingresar
+                                        la especialidades que tiene la Unidad Educativa. </li>
+                                    </ol>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                        onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual de Uso - Parte 2 -->
+                    <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Especialidad (2/2)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ol start="2">
+                                        <li><strong>Acciones:</strong> En Acciones tenemos Un boton de "inactivar" la cual al momento de apretarlo el registro quedara dasativado y asi mismo tendra
+                                        el boton de "activar" para que el registro se pueda ver en los otros formularios.
+                                        </li>
+                                    </ol>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                        onclick="openNextModal('#modalInstrucciones3')">cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
     <!-- Modal de Confirmación -->
     <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
@@ -302,6 +346,10 @@ if (!$resultado) {
                 </div>
             </div>
         </div>
+    </div>
+    </div>
+    </div>
+    </div>
     </div>
     <!-- Fin Modal de Confirmación -->
 
@@ -353,6 +401,13 @@ if (!$resultado) {
                 alert('Error al cambiar el estado: ' + xhr.responseText);
             }
         });
+    }
+    function openNextModal(nextModalId) {
+        // Cierra el modal actual
+        $('.modal').modal('hide');
+
+        // Abre el siguiente modal
+        $(nextModalId).modal('show');
     }
     </script>
 
