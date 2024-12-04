@@ -64,7 +64,8 @@ $id_estudiante = isset($_GET['id_estudiante']) ? $_GET['id_estudiante'] : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Calificaciones</title>
+    <title>Consulta de Estudiantes | Sistema de Gestión UEBF</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <style>
         html, body {
             height: 100%;

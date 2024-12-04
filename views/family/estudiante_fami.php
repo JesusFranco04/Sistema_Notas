@@ -66,7 +66,8 @@ if ($result_estudiantes === false) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Hijos | Perfil del Padre</title>
+    <title>Detalles del Estudiante | Sistema de Gestión UEBF</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;

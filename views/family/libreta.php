@@ -118,7 +118,7 @@ if ($nivel_siguiente) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Libreta de Calificaciones | Sistema de Gestión UEBF</title>
+    <title>Visualización de Libretas Académicas | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

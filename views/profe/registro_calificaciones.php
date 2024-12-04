@@ -239,7 +239,8 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Calificaciones</title>
+    <title>Registro de Calificaciones | Sistema de Gestión UEBF</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>

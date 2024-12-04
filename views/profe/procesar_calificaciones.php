@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include('../../Crud/config.php');
@@ -46,22 +45,24 @@ try {
     }
     $stmt_historial->close();
 
-    // Iniciar transacción
-    $conn->begin_transaction();
-    try {
-        if ($accion === 'eliminar') {
-            eliminarRegistros($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico);
-        } else if ($accion === 'guardar') {
-            guardarNotas($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico);
-        } else if ($accion === 'guardar_supletorio') {
-            guardarSupletorio($conn, $id_curso, $id_materia, $id_his_academico);
-        }
+// Iniciar transacción
+$conn->begin_transaction();
+try {
+    if ($accion === 'eliminar') {
+        eliminarRegistros($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico);
+        $_SESSION['mensaje'] = "La calificación ha sido eliminada correctamente.";
+    } else if ($accion === 'guardar') {
+        guardarNotas($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico);
+        $_SESSION['mensaje'] = "La calificación se ha guardado correctamente.";
+    } else if ($accion === 'guardar_supletorio') {
+        guardarSupletorio($conn, $id_curso, $id_materia, $id_his_academico);
+        $_SESSION['mensaje'] = "La nota de supletorio se ha guardado con éxito.";
+    }
 
-        // Confirmar transacción
-        $conn->commit();
-        $_SESSION['mensaje'] = "Operación realizada exitosamente.";
-        $_SESSION['tipo_mensaje'] = "success";
-    } catch (Exception $e) {
+    // Confirmar transacción
+    $conn->commit();
+    $_SESSION['tipo_mensaje'] = "success";
+} catch (Exception $e) {
         // Revertir transacción en caso de error
         $conn->rollback();
         $_SESSION['mensaje'] = "Error: " . $e->getMessage();

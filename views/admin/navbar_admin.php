@@ -4,9 +4,9 @@
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
         <!-- Barra Lateral - Marca -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center"
-            href="http://localhost/sistema_notas/views/admin/index_admin.php">
+            href="http://localhost/sistema_notas/views/admin/index_admin.php" title="Ir al inicio">
             <div class="sidebar-brand-icon rotate-n-25">
-                <i class='bx bx-book-reader' style="font-size: 36px;"></i>
+                <i class='bx bx-book-reader' style="font-size: 36px;" aria-hidden="true"></i>
             </div>
             <div class="sidebar-brand-text mx-3" style="font-size: 14px;">SISTEMA DE GESTIÓN<span
                     class="acronym">-UEBF</span></div>
@@ -16,8 +16,8 @@
         <!-- Elemento de Navegación - Panel de Control -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne"
-                aria-expanded="true" aria-controls="collapseOne">
-                <i class='bx bxs-home' style="font-size: 14px;"></i>
+                aria-expanded="false" aria-controls="collapseOne" title="Accede al Panel de Control">
+                <i class='bx bxs-home' style="font-size: 14px;" aria-hidden="true"></i>
                 <span class="nav-text">Inicio</span>
             </a>
             <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
@@ -25,14 +25,14 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Panel de Control</h6>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/index_admin.php">
-                            <i class='bx bx-file'></i> Página de Inicio
+                                <i class='bx bx-file' aria-hidden="true"></i> Página de Inicio
                         </a>
                     </div>
                     <div class="submenu-section">
                         <h6 class="collapse-header">Análisis Numérico</h6>
                         <a class="collapse-item"
                             href="http://localhost/sistema_notas/views/admin/estadistica_admin.php">
-                            <i class='bx bx-stats'></i> Estadísticas
+                                <i class='bx bx-stats' aria-hidden="true"></i> Estadísticas
                         </a>
                     </div>
                 </div>
@@ -47,8 +47,8 @@
         <!-- Elemento de Navegación - Gestión de Usuarios -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                aria-expanded="true" aria-controls="collapseTwo">
-                <i class='bx bxs-user' style="font-size: 14px;"></i>
+                aria-expanded="false" aria-controls="collapseTwo" title="Gestión de Usuarios">
+                <i class='bx bxs-user' style="font-size: 14px;" aria-hidden="true"></i>
                 <span class="nav-text">Gestión de Usuarios</span>
             </a>
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
@@ -57,11 +57,11 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/usuario.php">
-                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
+                                <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
                             Usuarios
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
-                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;"></i>
+                                <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
                             Administradores
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/profesores.php">
@@ -176,8 +176,9 @@
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
                 <!-- Barra de Navegación - Alternador de la Barra Lateral (Barra Superior) -->
-                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                    <i class="fa fa-bars"></i>
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3"
+                    aria-label="Alternar barra lateral">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
                 </button>
 
 
@@ -187,33 +188,30 @@
                     <!-- Ítem de la Barra de Navegación - Enlace de Uso Libre (Barra Superior) -->
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Menú del usuario">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                 <?php
-                                // Verifica si las variables de sesión están establecidas
                                 if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
                                     echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
-                                    echo "<i class='bx bx-user-circle' ></i>";
+                                    echo "<i class='bx bx-user-circle' aria-hidden='true'></i>";
                                 }
                                 ?>
                             </span>
                         </a>
 
                     <!-- Menú desplegable - Contenido (Barra Superior) -->
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                        aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
-                            <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;"></i>
-                            Perfil
-                        </a>
-
-                        <div class="dropdown-divider"></div>
-
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                            <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;"></i>
-                            Cerrar Sesión
-                        </a>
-                    </div>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
+                                <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;" aria-hidden="true"></i>
+                                Perfil
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;" aria-hidden="true"></i>
+                                Cerrar Sesión
+                            </a>
+                        </div>
                     <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
 
                     </li>
@@ -231,8 +229,8 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Confirmar cierre de sesión</h5>
-                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <h5 class="modal-title" id="logoutModalLabel">Confirmar cierre de sesión</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Cerrar">
                                 <span aria-hidden="true">×</span>
                             </button>
                         </div>
@@ -241,8 +239,12 @@
                             confirmar.
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php">Cerrar Sesión</a>
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal" aria-label="Cancelar">
+                                Cancelar
+                            </button>
+                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php" title="Cerrar sesión">
+                                Cerrar Sesión
+                            </a>
                         </div>
                     </div>
                 </div>

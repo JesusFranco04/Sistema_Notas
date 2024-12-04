@@ -46,7 +46,8 @@ $año_academico = $curso['año_academico'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión UEBF</title>
+    <title>Lista de Estudiantes por Curso | Sistema de Gestión UEBF</title>
+    <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/boxicons/css/boxicons.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
