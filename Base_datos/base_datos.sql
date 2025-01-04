@@ -274,6 +274,193 @@ CREATE TABLE calificacion (
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
+CREATE TABLE historial_log (
+    id_actividad INT AUTO_INCREMENT PRIMARY KEY,  -- ID de la actividad en el historial
+    id_usuario INT NOT NULL,                      -- ID del usuario que realiza la acción
+    tabla VARCHAR(50) NOT NULL,                   -- Nombre de la tabla afectada
+    id_registro INT NOT NULL,                     -- ID del registro afectado
+    accion VARCHAR(50) NOT NULL,                  -- Tipo de acción (Creación, Modificación)
+    descripcion TEXT NOT NULL,                    -- Descripción de la acción
+    fecha_actividad TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Fecha y hora de la actividad
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)  -- Relación con la tabla 'usuario'
+);
 
 
+
+DELIMITER $$
+
+CREATE PROCEDURE log_historial (
+    IN p_usuario_ingreso VARCHAR(50), -- Usuario que realiza la acción
+    IN p_tabla VARCHAR(50),           -- Nombre de la tabla afectada
+    IN p_id_registro INT,             -- ID del registro afectado
+    IN p_accion VARCHAR(50),          -- Tipo de acción (Creación, Modificación, etc.)
+    IN p_descripcion TEXT             -- Descripción de la acción
+)
+BEGIN
+    DECLARE user_id INT;
+
+    -- Obtener el ID del usuario basado en el campo `usuario_ingreso`
+    SET user_id = (SELECT id_usuario FROM usuario WHERE usuario_ingreso = p_usuario_ingreso LIMIT 1);
+
+    -- Si no se encuentra un usuario, asignar un ID predeterminado
+    IF user_id IS NULL THEN
+        SET user_id = 0; -- 0 puede representar un usuario desconocido o el sistema
+    END IF;
+
+    -- Insertar el registro en la tabla historial_log
+    INSERT INTO historial_log (id_usuario, tabla, id_registro, accion, descripcion)
+    VALUES (user_id, p_tabla, p_id_registro, p_accion, p_descripcion);
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_usuario_insert
+AFTER INSERT ON usuario
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'usuario', NEW.id_usuario, 'Creación', CONCAT('Se ha creado un nuevo usuario: ', NEW.cedula));
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_usuario_update
+AFTER UPDATE ON usuario
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'usuario', NEW.id_usuario, 'Modificación', CONCAT('El usuario ha sido actualizado: ', OLD.cedula, ' a ', NEW.cedula));
+END $$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_curso_insert
+AFTER INSERT ON curso
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'curso', NEW.id_curso, 'Creación', CONCAT('Se ha creado un nuevo curso: ', NEW.id_profesor, ', ', NEW.id_materia));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_curso_update
+AFTER UPDATE ON curso
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'curso', NEW.id_curso, 'Modificación', CONCAT('El curso ha sido actualizado: ', OLD.id_profesor, ', ', OLD.id_materia, ' a ', NEW.id_profesor, ', ', NEW.id_materia));
+END $$
+
+DELIMITER ;
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_nivel_insert
+AFTER INSERT ON nivel
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'nivel', NEW.id_nivel, 'Creación', CONCAT('Se ha creado un nuevo nivel: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_subnivel_insert
+AFTER INSERT ON subnivel
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'subnivel', NEW.id_subnivel, 'Creación', CONCAT('Se ha creado un nuevo subnivel: ', NEW.abreviatura));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_paralelo_insert
+AFTER INSERT ON paralelo
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'paralelo', NEW.id_paralelo, 'Creación', CONCAT('Se ha creado un nuevo paralelo: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_especialidad_insert
+AFTER INSERT ON especialidad
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'especialidad', NEW.id_especialidad, 'Creación', CONCAT('Se ha creado una nueva especialidad: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_jornada_insert
+AFTER INSERT ON jornada
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'jornada', NEW.id_jornada, 'Creación', CONCAT('Se ha creado una nueva jornada: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_materia_insert
+AFTER INSERT ON materia
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'materia', NEW.id_materia, 'Creación', CONCAT('Se ha creado una nueva materia: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_periodo_academico_insert
+AFTER INSERT ON periodo_academico
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'periodo_academico', NEW.id_periodo, 'Creación', CONCAT('Se ha creado un nuevo período académico: ', NEW.nombre));
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER after_historial_academico_insert
+AFTER INSERT ON historial_academico
+FOR EACH ROW
+BEGIN
+    -- Llamamos al procedimiento centralizado para registrar la acción
+    CALL log_historial(NEW.usuario_ingreso, 'historial_academico', NEW.id_his_academico, 'Creación', CONCAT('Se ha creado un nuevo año lectivo: ', NEW.año));
+END $$
+
+DELIMITER ;
 

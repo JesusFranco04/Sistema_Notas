@@ -3,6 +3,13 @@ session_start();
 // Incluir el archivo de conexión y verificar la conexión
 include('../../Crud/config.php'); // Ruta a tu archivo de configuración
 
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
+
 // Obtener valores de filtros
 $materia = isset($_GET['materia']) ? $_GET['materia'] : '';
 $nivel = isset($_GET['nivel']) ? $_GET['nivel'] : '';

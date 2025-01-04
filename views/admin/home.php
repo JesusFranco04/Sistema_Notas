@@ -281,7 +281,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(0, 0, 0, 0.8);
         /* Fondo semitransparente */
         z-index: 1000;
     }
@@ -417,8 +417,8 @@
 
     /* === Sección de Historia: Fondo completamente rojo === */
     .historia-section {
-        background-color: #218838;
-        /* verde oscuro */
+        background-color: #a82926;
+        /* Rojo oscuro */
         padding: 6rem 2rem;
         /* Aumenté el padding para mayor espacio */
         color: #ffffff;
@@ -612,8 +612,8 @@
     /* === Sección de Misión y Visión === */
     .vision-mission-section {
         padding: 50px;
-        background-color: #218838;
-        /* Fondo verde */
+        background-color: #a82926;
+        /* Fondo rojo */
         display: flex;
         flex-wrap: wrap;
         /* Diseño adaptativo */

@@ -202,7 +202,7 @@
                     <!-- Menú desplegable - Contenido (Barra Superior) -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="http://localhost/sistema_notas/Crud/perfil/editar_perfil.php">
+                            <a class="dropdown-item" href="http://localhost/sistema_notas/views/admin/perfil.php">
                                 <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;" aria-hidden="true"></i>
                                 Perfil
                             </a>

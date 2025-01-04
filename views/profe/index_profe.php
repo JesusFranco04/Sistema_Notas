@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
 ?>
 
 

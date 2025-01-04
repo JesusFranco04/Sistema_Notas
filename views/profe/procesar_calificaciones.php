@@ -3,10 +3,11 @@ session_start();
 include('../../Crud/config.php');
 
 try {
-    // Verificar el rol del usuario
-    if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
+    // Verificar si el usuario ha iniciado sesión y si su rol es "Profesor"
+    if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
+        // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
         header("Location: ../../login.php");
-        exit();
+        exit(); // Asegurarse de que no se ejecute más código después de la redirección
     }
 
     // Verificar el método de solicitud

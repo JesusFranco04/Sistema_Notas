@@ -1,6 +1,12 @@
 <?php
 session_start();
 include '../../Crud/config.php';
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
 
 // Función para mostrar alertas
 function mostrar_alerta($mensaje, $tipo) {

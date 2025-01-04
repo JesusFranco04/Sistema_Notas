@@ -7,10 +7,11 @@ include('../../Crud/config.php'); // Ruta absoluta
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
 
-// Verifica si el usuario es un profesor
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
-    exit();
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
 }
 
 // Asegúrate de que id_curso esté definido en la URL
@@ -43,6 +44,7 @@ $año_academico = $curso['año_academico'];
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,121 +56,139 @@ $año_academico = $curso['año_academico'];
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            background-color: #f8f9fa;
-            margin-bottom: 80px; /* Asegura que el contenido no quede oculto detrás del footer fijo */
-        }
-        .banner {
-            background-color: #E62433;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-bottom: 3px solid #003366;
-        }
+    body {
+        background-color: #f8f9fa;
+        margin-bottom: 80px;
+        /* Asegura que el contenido no quede oculto detrás del footer fijo */
+    }
 
-        .bg-red {
-            background-color: #E62433;
-        }
+    .banner {
+        background-color: #E62433;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border-bottom: 3px solid #003366;
+    }
 
-        .bg-blue {
-            background-color: #003366;
-        }
+    .bg-red {
+        background-color: #E62433;
+    }
 
-        .table-responsive {
-            max-height: 400px;
-            overflow: auto; /* Permite el desplazamiento tanto vertical como horizontal */
-        }
+    .bg-blue {
+        background-color: #003366;
+    }
 
-        .table {
-            border-radius: 15px; /* Bordes redondeados en la tabla */
-            overflow: hidden; /* Asegura que el redondeo de bordes funcione correctamente */
-        }
+    .table-responsive {
+        max-height: 400px;
+        overflow: auto;
+        /* Permite el desplazamiento tanto vertical como horizontal */
+    }
 
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
+    .table {
+        border-radius: 15px;
+        /* Bordes redondeados en la tabla */
+        overflow: hidden;
+        /* Asegura que el redondeo de bordes funcione correctamente */
+    }
 
-        footer {
-            border-top: 3px solid #003366; /* Borde en la parte superior */
-            background-color: #E62433;
-            color: white; 
-            text-align: center; /* Centrar el texto */
-            padding: 20px 0; /* Espaciado interno vertical */
-            width: 100%; /* Ancho completo */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
-            position: fixed;
-            bottom: 0;
-        }
+    .table th,
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
 
-        footer p {
-            margin: 0; /* Eliminar el margen de los párrafos */
-        }
+    footer {
+        border-top: 3px solid #003366;
+        /* Borde en la parte superior */
+        background-color: #E62433;
+        color: white;
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
+        position: fixed;
+        bottom: 0;
+    }
 
-        .container {
-            padding-bottom: 60px; /* Espacio para el footer */
-        }
+    footer p {
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
+    }
 
-        .btn-custom {
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s, color 0.3s; /* Transición suave para los cambios de color */
-        }
+    .container {
+        padding-bottom: 60px;
+        /* Espacio para el footer */
+    }
 
-        .btn-custom i {
-            margin-right: 8px;
-        }
+    .btn-custom {
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s, color 0.3s;
+        /* Transición suave para los cambios de color */
+    }
 
-        .btn-exportar {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .btn-custom i {
+        margin-right: 8px;
+    }
 
-        .btn-exportar:hover,
-        .btn-exportar:focus,
-        .btn-exportar:active {
-            background-color: #45a049; /* Color de fondo al pasar el mouse y al hacer clic */
-            color: white;
-        }
+    .btn-exportar {
+        background-color: #4CAF50;
+        color: white;
+    }
 
-        .btn-buscar {
-            background-color: #4CAF50;
-            color: white;
-        }
+    .btn-exportar:hover,
+    .btn-exportar:focus,
+    .btn-exportar:active {
+        background-color: #45a049;
+        /* Color de fondo al pasar el mouse y al hacer clic */
+        color: white;
+    }
 
-        .btn-buscar:hover,
-        .btn-buscar:focus,
-        .btn-buscar:active {
-            background-color: #45a049; /* Color de fondo al pasar el mouse y al hacer clic */
-            color: white;
-        }
+    .btn-buscar {
+        background-color: #4CAF50;
+        color: white;
+    }
 
-        .btn-regresar,
-        .btn-calificar {
-            background-color: #003366;
-            color: white;
-        }
+    .btn-buscar:hover,
+    .btn-buscar:focus,
+    .btn-buscar:active {
+        background-color: #45a049;
+        /* Color de fondo al pasar el mouse y al hacer clic */
+        color: white;
+    }
 
-        .btn-regresar:hover,
-        .btn-regresar:focus,
-        .btn-regresar:active,
-        .btn-calificar:hover,
-        .btn-calificar:focus,
-        .btn-calificar:active {
-            background-color: #002d72; /* Color de fondo al pasar el mouse y al hacer clic */
-            color: white;
-        }
+    .btn-regresar,
+    .btn-calificar {
+        background-color: #003366;
+        color: white;
+    }
 
-        .btn-regresar i,
-        .btn-calificar i,
-        .btn-exportar i {
-            color: inherit;
-        }
+    .btn-regresar:hover,
+    .btn-regresar:focus,
+    .btn-regresar:active,
+    .btn-calificar:hover,
+    .btn-calificar:focus,
+    .btn-calificar:active {
+        background-color: #002d72;
+        /* Color de fondo al pasar el mouse y al hacer clic */
+        color: white;
+    }
+
+    .btn-regresar i,
+    .btn-calificar i,
+    .btn-exportar i {
+        color: inherit;
+    }
     </style>
 </head>
+
 <body>
     <!-- Banner -->
     <div class="banner">
@@ -180,7 +200,8 @@ $año_academico = $curso['año_academico'];
         <h2 class="text-center">Lista de Estudiantes</h2>
         <form id="searchForm" class="mb-3">
             <div class="input-group">
-                <input type="text" id="searchQuery" class="form-control" placeholder="Buscar por cédula, apellido o nombre">
+                <input type="text" id="searchQuery" class="form-control"
+                    placeholder="Buscar por cédula, apellido o nombre">
                 <button type="submit" class="btn btn-buscar btn-custom">
                     <i class='bx bx-search'></i> Buscar
                 </button>
@@ -205,7 +226,8 @@ $año_academico = $curso['año_academico'];
 
     <!-- Footer -->
     <footer class="bg-red text-white text-center py-2 mt-4">
-        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos los derechos reservados.</p>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos
+            los derechos reservados.</p>
     </footer>
 
     <script>
@@ -252,7 +274,8 @@ $año_academico = $curso['año_academico'];
 
         // Manejo del botón exportar
         $('#btn-exportar').click(function() {
-            window.location.href = 'exportar_estudiantes.php?id_curso=<?php echo $id_curso; ?>&año=<?php echo $año_academico; ?>';
+            window.location.href =
+                'exportar_estudiantes.php?id_curso=<?php echo $id_curso; ?>&año=<?php echo $año_academico; ?>';
         });
 
         // Llamada AJAX para obtener estadísticas
@@ -273,7 +296,8 @@ $año_academico = $curso['año_academico'];
                         labels: Object.keys(data.edades), // Etiquetas para el gráfico
                         datasets: [{
                             label: 'Número de Estudiantes por Edad',
-                            data: Object.values(data.edades), // Datos para el gráfico
+                            data: Object.values(data
+                            .edades), // Datos para el gráfico
                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1
@@ -295,4 +319,5 @@ $año_academico = $curso['año_academico'];
     });
     </script>
 </body>
+
 </html>

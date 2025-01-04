@@ -4,12 +4,11 @@ session_start();
 // Incluir el archivo de conexión
 include('../../Crud/config.php'); // Ruta absoluta
 
-// Verificar el rol del usuario
-if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'Profesor') {
-    $_SESSION['mensaje'] = "Acceso denegado. Debe ser profesor para acceder a esta página.";
-    $_SESSION['tipo_mensaje'] = "error";
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
-    exit();
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
 }
 
 // Variables para mensajes

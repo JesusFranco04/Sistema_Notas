@@ -2,11 +2,11 @@
 session_start();
 include('../../Crud/config.php'); // Ruta al archivo de configuración de la base de datos
 
-// Verifica si el usuario está autenticado
-if (!isset($_SESSION['cedula'])) {
-    // Redirige al usuario a la página de inicio de sesión si no está autenticado
-    header("Location: http://localhost/sistema_notas/login.php");
-    exit();
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Padre'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
 }
 
 // Obtener la cédula del usuario desde la sesión

@@ -1,7 +1,7 @@
 <?php
 include('Crud/config.php');
 
-// Definición de claves de superusuario
+// Definición de claves de superusuario (sin cambios)
 define('SUPER_USER_KEY', '0954352185');
 define('SUPER_USER_PASSWORD', 'admin340');
 
@@ -36,17 +36,15 @@ require 'Crud/config.php';
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
 
-    if ($user) {
-        // Verificar si la contraseña es correcta y el estado del usuario
-if ($user && $contraseña === $user['contraseña']) {
-            // Verificar el estado del usuario
-            if ($user['estado'] === 'I') {
-                $error_message = "Su cuenta se encuentra inactiva temporalmente. Si considera que es un error, contáctese con un administrador.";
-            } else {
-                // Iniciar sesión
-                session_start();
-                $_SESSION['cedula'] = $user['cedula'];
-                $_SESSION['rol'] = $user['nombre_rol'];
+    if ($user && $contraseña === $user['contraseña']) {
+        // Verificar el estado del usuario
+        if ($user['estado'] === 'I') {
+            $error_message = "Su cuenta se encuentra inactiva temporalmente. Si considera que es un error, contáctese con un administrador.";
+        } else {
+            // Iniciar sesión
+            session_start();
+            $_SESSION['cedula'] = $user['cedula'];
+            $_SESSION['rol'] = $user['nombre_rol'];
 
                 // Obtener id_profesor si el rol es 'Profesor'
                 if ($user['nombre_rol'] === 'Profesor') {
@@ -65,9 +63,10 @@ if ($user && $contraseña === $user['contraseña']) {
                     }
                 }
 
-                // Redirigir según el rol del usuario
+                // Redirigir según el rol del usuario con un 'switch'
                 switch ($user['nombre_rol']) {
                     case 'Administrador':
+                    case 'Superadministrador':  // El Superadministrador tiene el mismo perfil que el Administrador
                         header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
                         break;
                     case 'Profesor':
@@ -85,9 +84,7 @@ if ($user && $contraseña === $user['contraseña']) {
         } else {
             $error_message = "Cédula o contraseña incorrecta";
         }
-    } else {
-        $error_message = "Cédula o contraseña incorrecta";
-    }
+
 }
 ?>
 
@@ -102,7 +99,6 @@ if ($user && $contraseña === $user['contraseña']) {
     <link rel="stylesheet" href="css/estilos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
     <style>
     /* Estilos generales del cuerpo */
     body {
@@ -117,7 +113,8 @@ if ($user && $contraseña === $user['contraseña']) {
     }
 
     .alert-danger {
-        display: <?php echo ( !empty($error_message)) ? 'block': 'none'; ?>;
+        display: <?php echo ( !empty($error_message)) ? 'block': 'none';
+        ?>;
         /* Mostrar mensaje de error si existe */
     }
 
@@ -300,7 +297,7 @@ if ($user && $contraseña === $user['contraseña']) {
         <div class="login-image"></div>
         <div class="login-form">
             <h1>Iniciar Sesión</h1>
-            <p>Por favor, introduzca sus credenciales para acceder al sistema</p>
+            <p>Ingrese sus credenciales para acceder al sistema</p>
 
             <!-- Mostrar mensaje de error si existe -->
             <?php if (!empty($error_message)) : ?>
@@ -326,7 +323,7 @@ if ($user && $contraseña === $user['contraseña']) {
                     </small>
                 </div>
                 <div class="button-container">
-                    <button type="submit">Iniciar Sesión</button>
+                    <button type="submit">Ingresar</button>
                 </div>
             </form>
         </div>
