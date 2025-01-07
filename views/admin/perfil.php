@@ -1,42 +1,53 @@
 <?php
-// Iniciar sesión
-session_start();
-
-// Incluir archivo de conexión a la base de datos
-include('../../Crud/config.php'); // Ruta de conexión a la base de datos
-
-// Verificar si el usuario está autenticado y tiene el rol adecuado
-if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
-    // Si no está autenticado o no tiene el rol adecuado, redirigir a login
-    header("Location: ../../login.php");
-    exit(); // Evitar que el código siga ejecutándose
+// ==========================
+// Inicio de la sesión
+// ==========================
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Obtener la cédula del usuario autenticado
-$cedula_usuario = $_SESSION['cedula']; 
-$rol_usuario = $_SESSION['rol']; // Obtener el rol del usuario autenticado
+include('../../Crud/config.php'); // Ruta a la configuración de la conexión
 
-// Inicializar los valores de los filtros. Si no están definidos en $_GET, se asigna un valor vacío.
+// ==========================
+// Verificación de autenticación y rol
+// ==========================
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+    // Redirigir al login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit();
+}
+
+// ==========================
+// Inicialización de variables
+// ==========================
+$cedula_usuario = $_SESSION['cedula']; // Cédula del usuario autenticado
+$rol_usuario = $_SESSION['rol']; // Rol del usuario autenticado
+
+// Filtros obtenidos desde los parámetros GET
 $tabla_filtro = isset($_GET['tabla']) ? $_GET['tabla'] : '';
 $fecha_filtro = isset($_GET['fecha']) ? $_GET['fecha'] : '';
 $id_usuario_filtro = isset($_GET['id_usuario']) ? $_GET['id_usuario'] : '';
 
-// Definir la consulta básica
+// Consulta básica de logs
 $query = "SELECT * FROM historial_log";
 
-// Consulta para obtener los valores únicos de la columna 'tabla'
-$sql = "SELECT DISTINCT tabla FROM historial_log WHERE tabla IS NOT NULL AND tabla != ''";
-$result = $conn->query($sql);
+// ==========================
+// Obtener las tablas únicas disponibles
+// ==========================
+$sql_tablas = "SELECT DISTINCT tabla FROM historial_log WHERE tabla IS NOT NULL AND tabla != ''";
+$stmt_tablas = $conn->prepare($sql_tablas);
+$stmt_tablas->execute();
+$result_tablas = $stmt_tablas->get_result();
 
-// Si hay resultados, almacenamos las tablas en un array
+// Almacenar las tablas únicas en un array
 $tablas = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $tablas[] = $row['tabla'];
-    }
+while ($row = $result_tablas->fetch_assoc()) {
+    $tablas[] = $row['tabla'];
 }
 
-// Construir condiciones de filtro
+// ==========================
+// Construcción de filtros dinámicos
+// ==========================
 $conditions = [];
 $params = [];
 $types = "";
@@ -55,82 +66,87 @@ if ($fecha_filtro != '') {
     $types .= "s"; // Tipo string
 }
 
-// Filtro por id_usuario según el rol
+// Filtro por usuario basado en el rol
 if ($rol_usuario === 'Superusuario') {
     if ($id_usuario_filtro != '') {
         $conditions[] = "id_usuario = (SELECT id_usuario FROM usuario WHERE cedula = ?)";
         $params[] = $id_usuario_filtro;
         $types .= "s"; // Tipo string
     }
-} else if ($rol_usuario === 'Administrador') {
-    // Administrador solo puede ver sus propios registros
-    $conditions[] = "id_usuario = (SELECT id_usuario FROM usuario WHERE cedula = ?)";
-    $params[] = $cedula_usuario;  // Usamos la cédula del administrador
-    $types .= "s"; // Tipo string
+} elseif ($rol_usuario === 'Administrador') {
+    // Obtener id_usuario del Administrador basado en su cédula
+    $stmt_usuario = $conn->prepare("SELECT id_usuario FROM usuario WHERE cedula = ?");
+    $stmt_usuario->bind_param("s", $cedula_usuario);
+    $stmt_usuario->execute();
+    $result_usuario = $stmt_usuario->get_result();
+
+    if ($result_usuario->num_rows > 0) {
+        $row = $result_usuario->fetch_assoc();
+        $id_usuario = $row['id_usuario'];
+        $conditions[] = "id_usuario = ?";
+        $params[] = $id_usuario; // Usar el ID directamente
+        $types .= "i"; // Tipo entero
+    } else {
+        die("Error: No se encontró un usuario con la cédula proporcionada.");
+    }
+    $stmt_usuario->close();
 }
 
-// Si hay filtros, añadirlos a la consulta
+// Agregar filtros a la consulta principal
 if (count($conditions) > 0) {
     $query .= " WHERE " . implode(" AND ", $conditions);
 }
 
+// ==========================
 // Paginación
+// ==========================
 $resultados_por_pagina = 10; // Cantidad de registros por página
-$pagina_actual = isset($_GET['pagina']) ? (int) $_GET['pagina'] : 1; // Página actual desde el GET
-$inicio = ($pagina_actual - 1) * $resultados_por_pagina; // Calcular el inicio de los registros
+$pagina_actual = max(1, isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1); // Página actual
+$inicio = ($pagina_actual - 1) * $resultados_por_pagina; // Calcular el inicio
 
 // Consulta para contar el total de registros con los filtros aplicados
 $count_query = "SELECT COUNT(*) AS total FROM historial_log";
 if (count($conditions) > 0) {
     $count_query .= " WHERE " . implode(" AND ", $conditions);
 }
+
+// Preparar la consulta de conteo
 $count_stmt = $conn->prepare($count_query);
-
-// Vincular los parámetros para contar
 if ($types != "") {
-    $count_stmt->bind_param($types, ...$params);  // Pasamos los parámetros necesarios
-} else {
-    // Si no hay tipos, no vinculamos parámetros
-    $count_stmt->execute();
+    $count_stmt->bind_param($types, ...$params); // Vincular parámetros
 }
-
 $count_stmt->execute();
-$total_registros = $count_stmt->get_result()->fetch_assoc()['total'];
-$total_paginas = ceil($total_registros / $resultados_por_pagina); // Calcular el total de páginas
+$result_count = $count_stmt->get_result();
+$total_registros = $result_count->fetch_assoc()['total'] ?? 0; // Total de registros
+$total_paginas = ceil($total_registros / $resultados_por_pagina); // Calcular páginas totales
+$count_stmt->close();
 
-// Añadir límite a la consulta principal
+// Agregar límite a la consulta principal para la paginación
 $query .= " ORDER BY fecha_actividad DESC LIMIT ?, ?";
-
-// Añadir parámetros para la paginación
 $params[] = $inicio;
 $params[] = $resultados_por_pagina;
-$types .= "ii"; // Tipo entero para el inicio y los resultados por página
+$types .= "ii"; // Tipos enteros para paginación
 
-// Preparar la consulta
+// ==========================
+// Preparar y ejecutar la consulta principal
+// ==========================
 $stmt = $conn->prepare($query);
 if (!$stmt) {
     die("Error al preparar la consulta: " . $conn->error);
 }
-
-// Vincular los parámetros a la consulta
-$stmt->bind_param($types, ...$params); // Usar el operador "..." para expandir $params
-
-// Ejecutar la consulta
+$stmt->bind_param($types, ...$params); // Vincular parámetros
 $stmt->execute();
 $result = $stmt->get_result();
 
 // Verificar si hay resultados
-$historial_vacio = ($result->num_rows === 0); // Si no hay registros, marcar como vacío
+$historial_vacio = ($result->num_rows === 0);
 
-// Cerrar conexión
+// ==========================
+// Cerrar la conexión
+// ==========================
 $stmt->close();
-$count_stmt->close();
 $conn->close();
 ?>
-
-
-
-
 
 
 <!DOCTYPE html>
@@ -369,7 +385,7 @@ $conn->close();
     }
 
     .badge-warning {
-        background-color: #ffc107;
+        background-color: #022be6;
         color: white;
         padding: 5px 10px;
         border-radius: 20px;
@@ -474,7 +490,7 @@ $conn->close();
                     <div class="filter-group">
                         <label for="tabla"><i class="bx bx-table"></i> Tabla:</label>
                         <select name="tabla" id="tabla" onchange="this.form.submit()">
-                            <option value="" disabled selected>Seleccionar tabla</option>
+                            <option value=""  selected>Seleccionar tabla</option>
                             <?php 
                             // Mostrar las tablas obtenidas de la base de datos en el filtro
                             foreach ($tablas as $tabla): 
