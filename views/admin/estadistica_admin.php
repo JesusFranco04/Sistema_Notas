@@ -13,9 +13,13 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
 date_default_timezone_set('America/Guayaquil');
 
 // Consultas para obtener estadísticas
-$queryProfesores = "SELECT COUNT(*) as total FROM profesor";
-$queryEstudiantes = "SELECT COUNT(*) as total FROM estudiante";
-$queryUsuarios = "SELECT COUNT(*) as total FROM usuario";
+$queryProfesores = "SELECT COUNT(*) as total FROM profesor p 
+                    INNER JOIN usuario u ON p.id_usuario = u.id_usuario 
+                    WHERE u.estado = 'A'";
+$queryEstudiantes = "SELECT COUNT(*) as total FROM estudiante 
+                     WHERE estado = 'A'";
+$queryUsuarios = "SELECT COUNT(*) as total FROM usuario 
+                  WHERE estado = 'A'";
 
 // Ejecutar consultas
 $resultProfesores = $conn->query($queryProfesores);
@@ -36,7 +40,9 @@ $queryEstadisticas = "SELECT a.año,
                       LEFT JOIN profesor p ON a.id_his_academico = p.id_usuario
                       LEFT JOIN estudiante e ON a.id_his_academico = e.id_his_academico
                       LEFT JOIN usuario u ON a.id_his_academico = u.id_rol
-                      GROUP BY a.año";
+                      GROUP BY a.año
+                      ORDER BY a.año DESC
+                      LIMIT 10";
 
 $resultEstadisticas = $conn->query($queryEstadisticas);
 $datosEstadisticas = [];
@@ -58,9 +64,46 @@ foreach ($datosEstadisticas as $data) {
     $dataUsuarios[] = $data['usuarios'];
 }
 
-// Cerrar la conexión
-$conn->close();
+// Consulta para obtener los mejores estudiantes
+$sql = "
+WITH mejores_estudiantes AS (
+    SELECT 
+        e.nombres AS Nombre,
+        e.apellidos AS Apellido,
+        sn.nombre AS Subnivel,
+        n.nombre AS Nivel,
+        c.id_curso AS Curso,
+        cal.nota_final AS NotaFinal,
+        ROW_NUMBER() OVER (
+            PARTITION BY sn.id_subnivel, n.id_nivel, c.id_curso
+            ORDER BY cal.nota_final DESC
+        ) AS posicion
+    FROM 
+        estudiante e
+    INNER JOIN calificacion cal ON e.id_estudiante = cal.id_estudiante
+    INNER JOIN curso c ON cal.id_curso = c.id_curso
+    INNER JOIN subnivel sn ON c.id_subnivel = sn.id_subnivel
+    INNER JOIN nivel n ON c.id_nivel = n.id_nivel
+    WHERE 
+        cal.nota_final BETWEEN 9 AND 10
+        AND e.estado = 'A'
+        AND cal.estado_calificacion = 'A'
+)
+SELECT * 
+FROM mejores_estudiantes
+WHERE posicion <= 2;
+";
+
+$result = $conn->query($sql);
+
+// Verificación de errores en la consulta SQL
+if ($result === false) {
+    echo "Error en la consulta: " . $conn->error;
+    exit;
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -71,7 +114,7 @@ $conn->close();
     <title>Estadísticas | Sistema de Gestión UEBF</title>
     <!-- Estilos y librerías externas -->
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.0/css/boxicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.1/css/boxicons.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -84,8 +127,11 @@ $conn->close();
     <style>
     /* Estilos personalizados */
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to bottom right, #f9f9fb, #e6e6f2);
+        margin: 0;
+        padding: 0;
+        color: #333;
     }
 
     .container-fluid {
@@ -109,7 +155,7 @@ $conn->close();
     .card-statistic h5 {
         font-size: 1.2rem;
         font-weight: bold;
-        color: #031d44;
+        color: #08185e;
         /* Color del título */
         display: flex;
         align-items: center;
@@ -124,22 +170,22 @@ $conn->close();
     .card-statistic p {
         font-size: 2rem;
         font-weight: bold;
-        color: #305B7A;
+        color: #08185e;
         /* Color del texto */
     }
 
     .border-left-primary {
-        border-left: 5px solid #c42021;
+        border-left: 5px solid #B90F2C;
         /* Rojo llamativo */
     }
 
     .border-left-success {
-        border-left: 5px solid #ffeaae;
+        border-left: 5px solid #32b54f;
         /* Azul oscuro */
     }
 
     .border-left-info {
-        border-left: 5px solid #47a025;
+        border-left: 5px solid #32b54f;
         /* Amarillo */
     }
 
@@ -161,7 +207,7 @@ $conn->close();
     }
 
     .table thead th {
-        background-color: #dc3545;
+        background-color: #B90F2C;
         color: white;
         text-align: center;
     }
@@ -185,17 +231,138 @@ $conn->close();
         margin-bottom: 1rem;
     }
 
+    .container {
+        width: 96%;
+        max-width: 1200px;
+        margin: 20px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .header {
+        background: linear-gradient(to right, #B90F2C, #06a660);
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+
+    p.subtitle {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 300;
+    }
+
+    .filter-bar {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-bar input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        flex-grow: 1;
+    }
+
+    .filter-bar button {
+        background: #06a660;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .table-wrapper {
+        overflow-y: auto;
+        max-height: 400px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table th,
+    table td {
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #B90F2C;
+        color: white;
+    }
+
+    table tbody tr:nth-child(even) {
+        background-color: #f8f8fa;
+    }
+
+    table tbody tr:hover {
+        background-color: #fbe8eb;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .gold {
+        background-color: #FFD700;
+    }
+
+    .silver {
+        background-color: #C0C0C0;
+    }
+
+    .bronze {
+        background-color: #CD7F32;
+    }
+
+    .alert-error {
+        margin-top: 20px;
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
     footer {
-        background-color: white; /* Color de fondo blanco */
-        color: #737373; /* Color del texto en gris oscuro */
-        text-align: center; /* Centrar el texto */
-        padding: 20px 0; /* Espaciado interno vertical */
-        width: 100%; /* Ancho completo */
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
     }
     </style>
 </head>
@@ -244,12 +411,75 @@ $conn->close();
             </div>
         </div>
 
-        <!-- Línea horizontal después de las tarjetas -->
-        <hr style="margin-top: 20px; margin-bottom: 20px;">
-
         <!-- Contenedor para el gráfico de área apilada -->
         <div class="chart-container">
             <canvas id="graficoAreaApilada"></canvas>
+        </div>
+    </div>
+
+    <!-- Línea horizontal -->
+    <hr style="margin-top: 1; margin-bottom: 20px;">
+
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Récord Académico</h1>
+                <p class="subtitle">¿Quieres conocer los mejores estudiantes de tu plantel de EBG y BTI?</p>
+            </div>
+            <div>
+                <i class='bx bxs-trophy' style='font-size: 3rem; color: #FFD700;'></i>
+            </div>
+        </div>
+        <div class="filter-bar">
+            <input type="text" id="search" placeholder="Buscar por nombre o nivel"
+                aria-label="Buscar por nombre o nivel">
+            <button onclick="filterTable()">Buscar</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="recordTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Subnivel</th>
+                        <th>Nivel</th>
+                        <th>Curso</th>
+                        <th>Nota Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $counter = 1;
+                    if ($result->num_rows > 0): 
+                        while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td>
+                            <?php 
+                                echo htmlspecialchars($row['Nombre']);
+                                if ($counter == 1) echo " <span class='badge gold'>🥇</span>";
+                                elseif ($counter == 2) echo " <span class='badge silver'>🥈</span>";
+                                elseif ($counter == 3) echo " <span class='badge bronze'>🥉</span>";
+                                $counter++;
+                                ?>
+                        </td>
+                        <td><?php echo htmlspecialchars($row['Apellido']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Subnivel']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Nivel']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Curso']); ?></td>
+                        <td><?php echo htmlspecialchars(number_format($row['NotaFinal'], 2)); ?></td>
+                    </tr>
+                    <?php endwhile; ?>
+                    <?php else: ?>
+                    <tr>
+                        <td colspan="6">No se encontraron registros con el criterio buscado.</td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <!-- Alerta de error debajo de la tabla -->
+        <div id="alert" class="alert-error" style="display: none;">
+            No se encontraron registros con el criterio buscado.
         </div>
     </div>
     </div>
@@ -299,17 +529,17 @@ $conn->close();
             labels: <?php echo json_encode($labels); ?>,
             datasets: [{
                 label: 'Profesores',
-                backgroundColor: '#c42021', // Color rojo llamativo
+                backgroundColor: '#DE112D', // Color rojo llamativo
                 data: <?php echo json_encode($dataProfesores); ?>,
                 stack: 'Stack 1',
             }, {
                 label: 'Estudiantes',
-                backgroundColor: '#326d1e', // Color azul oscuro
+                backgroundColor: '#32b54f', // Color verde
                 data: <?php echo json_encode($dataEstudiantes); ?>,
                 stack: 'Stack 1',
             }, {
                 label: 'Usuarios',
-                backgroundColor: '#003366', // Color amarillo
+                backgroundColor: '#022be6', // Color azul oscuro
                 data: <?php echo json_encode($dataUsuarios); ?>,
                 stack: 'Stack 1',
             }]
@@ -352,6 +582,21 @@ $conn->close();
         var ctxAreaApilada = document.getElementById('graficoAreaApilada').getContext('2d');
         new Chart(ctxAreaApilada, configAreaApilada);
     });
+
+    function filterTable() {
+        const input = document.getElementById('search').value.toLowerCase();
+        const rows = document.querySelectorAll('#recordTable tbody tr');
+        let matchFound = false;
+
+        rows.forEach(row => {
+            const cells = Array.from(row.querySelectorAll('td'));
+            const match = cells.some(cell => cell.textContent.toLowerCase().includes(input));
+            row.style.display = match ? '' : 'none';
+            if (match) matchFound = true;
+        });
+
+        document.getElementById('alert').style.display = matchFound ? 'none' : 'block';
+    }
     </script>
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
     <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -359,3 +604,9 @@ $conn->close();
 </body>
 
 </html>
+
+
+<?php
+// Cerrar la conexión
+$conn->close();
+?>
