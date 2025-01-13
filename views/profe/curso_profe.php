@@ -7,7 +7,7 @@ include('../../Crud/config.php'); // Ruta absoluta
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
 
-// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+// Verificar si el usuario ha iniciado sesión y si su rol es "Profesor"
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
