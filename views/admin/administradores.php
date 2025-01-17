@@ -56,7 +56,7 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
+    <style>
     /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
@@ -149,8 +149,10 @@ if (!$resultado) {
     }
 
     .table tbody tr:hover {
-        background-color: #f8a9ad; /* Rojo bonito */
-        color: #0a0a0a; /* Letras negro al pasar el ratón */
+        background-color: #f8a9ad;
+        /* Rojo bonito */
+        color: #0a0a0a;
+        /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -161,8 +163,10 @@ if (!$resultado) {
     /* Estilo para contenedor de tabla */
     .table-container {
         max-height: 500px;
-        overflow-y: auto; /* Barra de desplazamiento vertical */
-        overflow-x: auto; /* Barra de desplazamiento horizontal */
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
     }
 
 
@@ -182,18 +186,25 @@ if (!$resultado) {
     }
 
     footer {
-    background-color: white; /* Color de fondo blanco */
-    color: #737373; /* Color del texto en gris oscuro */
-    text-align: center; /* Centrar el texto */
-    padding: 20px 0; /* Espaciado interno vertical */
-    width: 100%; /* Ancho completo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
     }
-</style>
+    </style>
 
 </head>
 
@@ -212,7 +223,8 @@ if (!$resultado) {
                             <label for="searchCedula"><i class="fas fa-search filter-icon"></i>Búsqueda por
                                 Cédula</label>
                             <input type="text" class="form-control" id="searchCedula" name="cedula"
-                                value="<?php echo htmlspecialchars($cedulaFiltro); ?>">
+                                value="<?php echo htmlspecialchars($cedulaFiltro); ?>" maxlength="10" pattern="^\d{10}$"
+                                title="Por favor ingrese exactamente 10 caracteres numéricos.">
                         </div>
                         <div class="col-md-4">
                             <label for="searchGenero"><i class="fas fa-filter filter-icon"></i>Filtrar por
@@ -235,7 +247,15 @@ if (!$resultado) {
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
-                                    class="btn btn-primary">Agregar Administrador</a>
+                                    class="btn btn-primary">
+                                    Agregar Administrador
+                                </a>
+                            </div>
+                            <div class="col-auto">
+                                <a href="http://localhost/sistema_notas/views/admin/reporte_admin.php"
+                                    class="btn btn-success">
+                                    Descargar Reporte
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -249,7 +269,7 @@ if (!$resultado) {
                                 <th>Nombres</th>
                                 <th>Apellidos</th>
                                 <th>Cédula</th>
-                                <th>Telefono</th>
+                                <th>Teléfono</th>
                                 <th>Correo Electrónico</th>
                                 <th>Dirección</th>
                                 <th>Fecha de Nacimiento</th>
@@ -259,6 +279,7 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if (mysqli_num_rows($resultado) > 0) { ?>
                             <?php while ($fila = mysqli_fetch_assoc($resultado)) { ?>
                             <tr>
                                 <td><?php echo $fila['id_administrador']; ?></td>
@@ -274,8 +295,15 @@ if (!$resultado) {
                                 <td><?php echo $fila['id_usuario']; ?></td>
                             </tr>
                             <?php } ?>
+                            <?php } else { ?>
+                            <tr>
+                                <td colspan="11" class="text-center">No se encontraron registros que coincidan con los
+                                    criterios de búsqueda.</td>
+                            </tr>
+                            <?php } ?>
                         </tbody>
                     </table>
+
 
                     <!-- Modal de Confirmación -->
                     <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">

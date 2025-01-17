@@ -62,194 +62,324 @@ if ($result_estudiantes === false) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles del Estudiante | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-        }
+    /* Estilos básicos de la página */
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #163f6b;
+        /* Azul */
+        background-color: #ffffff;
+        /* Blanco */
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        /* Asegura que el cuerpo tenga al menos la altura de la ventana de visualización */
+        overflow-x: hidden;
+    }
 
+    /* Reset global */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .header {
+        background-color: #a20e14;
+        /* Rojo oscuro */
+        color: #ffffff;
+        /* Blanco */
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 2em;
+        /* Tamaño de fuente escalable */
+    }
+
+    /* Contenedor Principal */
+    .container {
+        max-width: 1200px;
+        width: 90%;
+        margin: 40px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        padding: 0 20px;
+        flex-grow: 1;
+    }
+
+    /* Tarjeta de Estudiante */
+    .student-card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .student-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Columna izquierda (información del estudiante) */
+    .student-info {
+        flex: 2;
+        margin-right: 20px;
+    }
+
+    .student-info h2 {
+        color: #233240;
+        margin-bottom: 10px;
+        font-size: 1.6rem;
+    }
+
+    .student-info p {
+        margin: 5px 0;
+        font-size: 1rem;
+        color: #34495e;
+    }
+
+    /* Columna derecha (botón) */
+    .actions {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .button {
+        background-color: #163f6b;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        text-align: center;
+    }
+
+    .button:hover {
+        background-color: #233240;
+        transform: translateY(-2px);
+    }
+
+    .alert {
+        display: flex;
+        align-items: center;
+        background-color: #f8d7da;
+        /* Fondo rosado elegante */
+        color: #70070a;
+        /* Texto rojo oscuro y sofisticado */
+        border: 1px solid #f5c6cb;
+        /* Borde rosado claro */
+        border-radius: 10px;
+        /* Bordes suaves y redondeados */
+        padding: 20px;
+        /* Espaciado amplio para dar aire */
+        margin-top: 20px;
+        /* Separación superior */
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        /* Sombra sutil y moderna */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Animaciones sutiles */
+    }
+
+    .alert:hover {
+        transform: scale(1.02);
+        /* Efecto de aumento al pasar el mouse */
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        /* Sombra más prominente */
+    }
+
+    .alert i {
+        font-size: 28px;
+        /* Tamaño del ícono más grande */
+        color: #70070a;
+        /* Color del ícono vibrante */
+        margin-right: 15px;
+        /* Separación del texto */
+    }
+
+    .alert p {
+        margin: 0;
+        /* Sin márgenes extra */
+        font-size: 16px;
+        /* Tamaño del texto legible */
+        font-weight: bold;
+        /* Resaltamos el mensaje */
+        color: #721c24;
+        /* Color del texto más intenso */
+    }
+
+    /* Footer */
+    footer {
+        background-color: #a20e14;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        margin-top: auto;
+        width: 100%;
+        box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+        font-size: 1rem;
+    }
+
+    footer p {
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Responsividad */
+    @media (max-width: 1024px) {
         .header {
-            background-color: #E62433;
-            color: #ffffff;
-            padding: 20px 50px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-bottom: 3px solid #003366;
-            width: 100%;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 15px 10px;
-            background-color: #E62433;
-            color: #ffffff;
-            border-top: 4px solid #003366;
-            width: 100%;
-            margin-top: auto;
+            font-size: 28px;
+            padding: 8px 0;
+            /* Reduce espacio en pantallas más pequeñas */
         }
 
         .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 40px auto;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            padding: 0 20px;
-            flex-grow: 1;
+            gap: 20px;
         }
 
         .student-card {
-            background-color: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            flex-wrap: wrap;
-        }
-
-        .student-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .student-info {
-            max-width: 70%;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .student-info h2 {
-            color: #E62433;
             margin-bottom: 15px;
-            font-size: 1.6rem;
-        }
-
-        .student-info p {
-            margin: 5px 0;
-            font-size: 1rem;
-            color: #2c3e50;
-        }
-
-        .actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            min-width: 150px;
-        }
-
-        .button {
-            background-color: #4CAF50;
-            color: #ffff;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
             width: 100%;
         }
 
-        .button:hover {
-            background-color: #45a049;
+        .actions {
+            width: 100%;
         }
 
-        @media (max-width: 768px) {
-            .student-card {
-            background-color: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Añadido color en la transición */
-            flex-wrap: wrap;
+        .button {
+            width: 100%;
         }
 
-        .student-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            color: #1a1a1a; /* Color de texto más oscuro al pasar el mouse */
+        footer {
+            font-size: 0.9rem;
         }
+    }
 
-        .student-info {
-            max-width: 70%;
-            flex: 1;
-            min-width: 250px;
+    @media (max-width: 768px) {
+        .student-card {
+            padding: 15px;
         }
 
         .student-info h2 {
-            color: #E62433;
-            margin-bottom: 15px;
-            font-size: 1.6rem;
-            transition: color 0.3s ease; /* Transición para el color del texto */
+            font-size: 1.4rem;
         }
 
         .student-info p {
-            margin: 5px 0;
             font-size: 1rem;
-            color: #2c3e50;
-            transition: color 0.3s ease; /* Transición para el color del texto */
         }
 
-        .student-card:hover .student-info h2,
-        .student-card:hover .student-info p {
-            color: #1a1a1a; /* Color de texto más oscuro al pasar el mouse */
+        .button {
+            font-size: 0.9rem;
+            padding: 10px 20px;
         }
 
-
-            .actions {
-                width: 100%;
-            }
+        footer {
+            font-size: 0.8rem;
         }
+    }
+
+    @media (max-width: 480px) {
+        .header {
+            font-size: 24px;
+            padding: 8px 0;
+            /* Ajuste adicional */
+        }
+
+        .container {
+            gap: 15px;
+        }
+
+        .student-card {
+            padding: 10px;
+        }
+
+        .student-info h2 {
+            font-size: 1.3rem;
+        }
+
+        .student-info p {
+            font-size: 0.9rem;
+        }
+
+        .button {
+            font-size: 0.8rem;
+            padding: 8px 10px;
+        }
+
+        footer {
+            font-size: 0.7rem;
+        }
+    }
     </style>
+
 </head>
+
 <body>
-    <div class="header">
+    <!-- Encabezado Principal -->
+    <header class="header">
         <h1>Sistema de Gestión UEBF</h1>
-    </div>
+    </header>
 
     <div class="container">
         <?php if ($result_estudiantes->num_rows > 0): ?>
-            <?php while ($row = $result_estudiantes->fetch_assoc()): ?>
-            <div class="student-card">
-                <div class="student-info">
-                    <h2><?php echo htmlspecialchars($row['nombres'] . ' ' . $row['apellidos']); ?></h2>
-                    <p><strong>Nivel:</strong> <?php echo htmlspecialchars($row['nombre_nivel']); ?></p>
-                    <p><strong>Paralelo:</strong> <?php echo htmlspecialchars($row['nombre_paralelo']); ?></p>
-                    <p><strong>Subnivel:</strong> <?php echo htmlspecialchars($row['nombre_subnivel']); ?></p>
-                    <p><strong>Especialidad:</strong> <?php echo htmlspecialchars($row['nombre_especialidad']); ?></p>
-                    <p><strong>Jornada:</strong> <?php echo htmlspecialchars($row['nombre_jornada']); ?></p>
-                    <p><strong>Año Lectivo:</strong> <?php echo htmlspecialchars($row['año']); ?></p>
-                </div>
-                <div class="actions">
-                    <a href="libreta.php?id_estudiante=<?php echo htmlspecialchars($row['id_estudiante']); ?>" class="button">Ver Libreta</a>
-                </div>
+        <?php while ($row = $result_estudiantes->fetch_assoc()): ?>
+        <div class="student-card">
+            <div class="student-info">
+                <h2><?php echo htmlspecialchars($row['nombres'] . ' ' . $row['apellidos']); ?></h2>
+                <p><strong>Nivel:</strong> <?php echo htmlspecialchars($row['nombre_nivel']); ?></p>
+                <p><strong>Paralelo:</strong> <?php echo htmlspecialchars($row['nombre_paralelo']); ?></p>
+                <p><strong>Subnivel:</strong> <?php echo htmlspecialchars($row['nombre_subnivel']); ?></p>
+                <p><strong>Especialidad:</strong> <?php echo htmlspecialchars($row['nombre_especialidad']); ?></p>
+                <p><strong>Jornada:</strong> <?php echo htmlspecialchars($row['nombre_jornada']); ?></p>
+                <p><strong>Año Lectivo:</strong> <?php echo htmlspecialchars($row['año']); ?></p>
             </div>
-            <?php endwhile; ?>
+            <div class="actions">
+                <a href="libreta.php?id_estudiante=<?php echo htmlspecialchars($row['id_estudiante']); ?>"
+                    class="button">Ver Libreta</a>
+            </div>
+        </div>
+        <?php endwhile; ?>
         <?php else: ?>
+        <div class="alert">
+            <i class='bx bx-error-alt'></i>
             <p>No tienes hijos registrados en el sistema.</p>
+        </div>
         <?php endif; ?>
     </div>
-    
-    <div class="footer">
-        &copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos los derechos reservados.
-    </div>
+
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos
+            los derechos reservados.</p>
+    </footer>
 </body>
+
 </html>

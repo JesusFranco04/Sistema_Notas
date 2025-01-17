@@ -164,8 +164,10 @@ if (!$resultado) {
     }
 
     .table tbody tr:hover {
-        background-color: #f8a9ad; /* Rojo bonito */
-        color: #0a0a0a; /* Letras negro al pasar el ratón */
+        background-color: #f8a9ad;
+        /* Rojo bonito */
+        color: #0a0a0a;
+        /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -176,8 +178,10 @@ if (!$resultado) {
     /* Estilo para contenedor de tabla */
     .table-container {
         max-height: 500px;
-        overflow-y: auto; /* Barra de desplazamiento vertical */
-        overflow-x: auto; /* Barra de desplazamiento horizontal */
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
     }
 
 
@@ -196,19 +200,134 @@ if (!$resultado) {
         margin-bottom: 1rem;
     }
 
+    /* Estilo del header del modal */
+    .modal-header {
+        background-color: #DE112D;
+        /* Rojo */
+        color: white;
+        /* Texto en blanco */
+        border-bottom: 2px solid #B50D22;
+        /* Bordes más definidos */
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        /* Tamaño ligeramente más grande */
+    }
+
+    /* Estilo para el botón de cerrar */
+    .close {
+        color: white;
+        /* "X" en blanco */
+        opacity: 0.8;
+        /* Transparencia sutil */
+    }
+
+    .close:hover {
+        opacity: 1;
+        /* Más visible al pasar el cursor */
+    }
+
+    /* Botones del modal */
+    .modal-footer .btn-secondary {
+        background-color: #07244a;
+        /* Azul oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #053166;
+        /* Azul más claro al pasar el cursor */
+    }
+
+    /* Botón Siguiente (verde) */
+    .modal-footer .btn-success {
+        background-color: #28a745;
+        /* Verde */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #218838;
+        /* Verde más oscuro al pasar el cursor */
+    }
+
+    /* Botón Atrás (azul oscuro) */
+    .modal-footer .btn-info {
+        background-color: #17a2b8;
+        /* Azul claro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-info:hover {
+        background-color: #117a8b;
+        /* Azul más oscuro al pasar el cursor */
+    }
+
+    /* Botón Cerrar (gris oscuro) */
+    .modal-footer .btn-dark {
+        background-color: #343a40;
+        /* Gris oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #23272b;
+        /* Gris más oscuro al pasar el cursor */
+    }
+
+    /* Ajustes generales del modal */
+    .modal-content {
+        border-radius: 8px;
+        /* Bordes redondeados */
+        overflow: hidden;
+        /* Evitar desbordes */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Sombra para profundidad */
+    }
+
+
     footer {
-    background-color: white; /* Color de fondo blanco */
-    color: #737373; /* Color del texto en gris oscuro */
-    text-align: center; /* Centrar el texto */
-    padding: 20px 0; /* Espaciado interno vertical */
-    width: 100%; /* Ancho completo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
     }
-</style>
+    </style>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <!-- DataTables JS -->
@@ -262,9 +381,24 @@ if (!$resultado) {
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
+                            <!-- Botón para agregar usuario -->
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php"
                                     class="btn btn-primary">Agregar Usuario</a>
+                            </div>
+                            <!-- Botón para ver manual de uso -->
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#modalInstrucciones1">
+                                    Ver Manual de Uso
+                                </button>
+                            </div>
+                            <!-- Botón para descargar reporte -->
+                            <div class="col-auto">
+                                <a href="http://localhost/sistema_notas/views/admin/reporte_usuarios.php"
+                                    class="btn btn-success">
+                                    Descargar Reporte
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -285,6 +419,7 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if (mysqli_num_rows($resultado) > 0): ?>
                             <?php while ($fila = mysqli_fetch_assoc($resultado)): ?>
                             <tr>
                                 <td><?php echo $fila['id_usuario']; ?></td>
@@ -307,12 +442,115 @@ if (!$resultado) {
                                 </td>
                             </tr>
                             <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <td colspan="8" class="text-center">No se encontraron registros disponibles en este
+                                    momento.</td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal 1 -->
+    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de Usuarios (1/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Cómo agregar usuarios:</strong></p>
+                    <p>En este paso, deberá ingresar los datos del usuario, como su nombre, correo electrónico y
+                        contraseña.
+                        Además, es importante que seleccione el rol correspondiente al usuario:</p>
+                    <ul>
+                        <li><strong>Administrador:</strong> Acceso completo a todas las funciones del sistema.</li>
+                        <li><strong>Profesor:</strong> Acceso a las secciones relacionadas con gestión académica.</li>
+                        <li><strong>Padre de Familia:</strong> Acceso limitado para consultar información de los
+                            estudiantes.</li>
+                    </ul>
+                    <p>Si selecciona el rol de <strong>Padre de Familia</strong>, se habilitará un campo adicional para
+                        indicar
+                        el parentesco con el estudiante (por ejemplo, Padre, Madre u otro familiar).</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"
+                        onclick="openModal('#modalInstrucciones2')">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de Usuarios (2/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Cómo editar la información de los usuarios:</strong></p>
+                    <p>En la sección de "Acciones", encontrará el botón <strong>Editar</strong>. Esta opción le permite
+                        modificar
+                        la información de un usuario en caso de que haya un error o necesite actualizarse.</p>
+                    <p>Por ejemplo, puede corregir un error en el nombre, cambiar el correo electrónico asociado, o
+                        actualizar
+                        el rol asignado al usuario.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="openModal('#modalInstrucciones3')">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3 -->
+    <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de Usuarios (3/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Cómo inactivar o reactivar usuarios:</strong></p>
+                    <p>En la sección de "Acciones", encontrará el botón <strong>Inactivar</strong>. Este botón le
+                        permite desactivar
+                        la cuenta de un usuario temporalmente, impidiendo su acceso al sistema.</p>
+                    <p>Si necesita reactivar al usuario, simplemente presione nuevamente el botón, que cambiará a
+                        <strong>Activar</strong>.
+                    </p>
+                    <p>Esta funcionalidad es útil para gestionar el acceso en casos donde un usuario ya no deba usar el
+                        sistema
+                        temporalmente, pero podría necesitarlo en el futuro.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="openModal('#modalInstrucciones2')">Atrás</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal de Confirmación -->
     <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
@@ -344,6 +582,7 @@ if (!$resultado) {
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
     </footer>
+
 </html>
 
 <!-- Bootstrap core JavaScript -->
@@ -390,8 +629,21 @@ function confirmarCambioEstado() {
         }
     });
 }
+
+function openModal(modalId) {
+    // Ocultar todos los modales abiertos
+    $('.modal').modal('hide');
+
+    // Mostrar el modal correspondiente
+    if ($(modalId).length) {
+        $(modalId).modal('show');
+    } else {
+        console.error('Modal no encontrado: ' + modalId);
+    }
+}
 </script>
 </body>
+
 </html>
 
 <?php

@@ -114,155 +114,272 @@ if ($nivel_siguiente) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualización de Libretas Académicas | Sistema de Gestión UEBF</title>
+    <title>Libretas Académicas | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Asegura que el cuerpo tenga al menos la altura de la ventana de visualización */
-        }
-        .header {
-            background-color: #E62433; /* Rojo para el fondo del encabezado */
-            color: #ffffff; /* Blanco para el texto */
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-bottom: 3px solid #003366; /* Azul marino para el borde inferior */
-        }
+    /* Reset global */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #163f6b;
+        /* Azul */
+        background-color: #ffffff;
+        /* Blanco */
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        /* Asegura que el cuerpo tenga al menos la altura de la ventana de visualización */
+        overflow-x: hidden;
+    }
+
+    .header {
+        background-color: #a20e14;
+        /* Rojo oscuro */
+        color: #ffffff;
+        /* Blanco */
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Footer */
+    footer {
+        background-color: #a20e14;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        margin-top: auto;
+        width: 100%;
+        box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+        font-size: 1rem;
+    }
+
+    footer p {
+        margin: 0;
+        line-height: 1.5;
+        color: white;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        background-color: white;
+        /* Blanco */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 80px;
+        /* Espacio suficiente para el footer */
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 2em;
+        /* Tamaño de fuente escalable */
+    }
+
+    .title-container {
+        text-align: center;
+        /* Centrar el título */
+        margin-bottom: 20px;
+    }
+
+    .title-container h1 {
+        color: #163f6b;
+        /* Azul */
+        margin: 0;
+    }
+
+    .header,
+    .grades-table-wrapper {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .header td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    .header .label {
+        font-weight: bold;
+        background-color: #f5f5f7;
+        /* Gris claro */
+        border-bottom: 2px solid #dbdbe2;
+        /* Gris oscuro */
+    }
+
+    .header td {
+        background-color: #ecf0f1;
+        /* Gris claro */
+        border: 2px solid #163f6b;
+        /* Azul */
+        color: #000000;
+        /* Negro */
+    }
+
+    .header .header-info {
+        background-color: #163f6b;
+        /* Azul */
+        color: white;
+    }
+
+    .grades-table-wrapper {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 500px;
+        border: 1px solid #dfdfdf;
+        /* Gris oscuro */
+        border-radius: 4px;
+        background-color: #f7fafd;
+        /* Azul claro */
+    }
+
+    .grades-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .grades-table th,
+    .grades-table td {
+        border: 1px solid #dfdfdf;
+        /* Gris oscuro */
+        padding: 8px;
+        text-align: center;
+    }
+
+    .grades-table th {
+        background-color: #a20e14;
+        /* Rojo oscuro */
+        color: #ffffff;
+        /* Blanco */
+    }
+
+    .grades-table tbody tr:nth-child(even) {
+        background-color: #ecf0f1;
+        /* Gris claro */
+    }
+
+    .grades-table tbody tr:hover {
+        background-color: #eaecef;
+        /* Gris claro */
+    }
+
+    .summary-row {
+        font-weight: bold;
+        background-color: #eaecef;
+        /* Gris claro */
+    }
+
+    .button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    .button-download {
+        background-color: #324b26;
+        /* Verde */
+    }
+
+    .button-download:hover {
+        background-color: #002500;
+        /* Verde más oscuro */
+    }
+
+    .button-print {
+        background-color: #163f6b;
+        /* Azul */
+    }
+
+    .button-print:hover {
+        background-color: #0e2643;
+        /* Azul más oscuro */
+    }
+
+    .actions {
+        text-align: right;
+        margin-top: 20px;
+        /* Espacio para evitar que el contenido quede pegado al footer */
+    }
+
+    .search-wrapper {
+        margin-bottom: 20px;
+        text-align: center;
+        /* Centrar el cuadro de búsqueda */
+    }
+
+    .search-wrapper input {
+        padding: 10px;
+        border: 1px solid #b0b0b0;
+        /* Gris oscuro */
+        border-radius: 4px;
+        width: 100%;
+        max-width: 400px;
+        /* Limitar el ancho del cuadro de búsqueda */
+    }
+
+    .note {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #edffea;
+        /* Verde claro */
+        border: 1px solid #c0d9b6;
+        /* Verde */
+        border-radius: 4px;
+        color: #002500;
+        /* Verde oscuro */
+    }
+
+    /* Estilos responsivos */
+    @media (max-width: 768px) {
+
+        .header,
         .footer {
-            text-align: center;
-            padding: 15px;
-            background-color: #E62433; /* Rojo para el fondo del pie de página */
-            color: #ffffff; /* Blanco para el texto del pie de página */
-            border-top: 4px solid #003366; /* Azul marino para el borde superior del pie de página */
-        }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 80px; /* Espacio suficiente para el footer */
-        }
-        h1 {
+            padding: 5px;
             margin: 0;
-        }
-        .title-container {
-            text-align: center; /* Centrar el título */
-            margin-bottom: 20px;
-        }
-        .title-container h1 {
-            color: #003366; /* Color azul oscuro */
-            margin: 0;
-        }
-        .header, .grades-table-wrapper {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .header td {
-            padding: 8px;
-            text-align: left;
-        }
-        .header .label {
-            font-weight: bold;
-            background-color: #e9ecef;
-            border-bottom: 2px solid #dee2e6;
-        }
-        .header td {
-            background-color: #eef7ff;
-            border: 2px solid #003366;
-            color: #000000; /* Blanco para el texto de las celdas en el encabezado */
-        }
-        .header .header-info {
-            background-color: #003366; /* Rojo para el cuadro de curso */
-            color: white;
-        }
-        .grades-table-wrapper {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 500px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #f9f9f9; /* Color de fondo para la tabla de calificaciones */
-        }
-        .grades-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .grades-table th, .grades-table td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
             text-align: center;
+            overflow-x: hidden;
         }
-        .grades-table th {
-            background-color: #E62433; /* Rojo oscuro para el encabezado de la tabla */
-            color: #fff;
+
+        .header img,
+        .footer img {
+            max-width: 100%;
+            height: auto;
         }
-        .grades-table tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .grades-table tbody tr:hover {
-            background-color: #e9ecef;
-        }
-        .summary-row {
-            font-weight: bold;
-            background-color: #e9ecef;
-        }
+
+
+
         .button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            text-align: center;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
         }
-        .button-download {
-            background-color: #dc3545; /* Rojo para el botón de PDF */
-        }
-        .button-print {
-            background-color: #28a745; /* Verde para el botón de imprimir */
-        }
-        .actions {
-            text-align: right;
-            margin-top: 20px; /* Espacio para evitar que el contenido quede pegado al footer */
-        }
-        .search-wrapper {
-            margin-bottom: 20px;
-            text-align: center; /* Centrar el cuadro de búsqueda */
-        }
-        .search-wrapper input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100%;
-            max-width: 400px; /* Limitar el ancho del cuadro de búsqueda */
-        }
-        .note {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: 4px;
-            color: #856404;
-        }
+    }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Sistema de Gestión UEBF</h1>
@@ -272,7 +389,7 @@ if ($nivel_siguiente) {
         <div class="title-container">
             <h1>Libreta de Calificaciones</h1>
         </div>
-        
+
         <!-- Encabezado -->
         <table class="header">
             <tr>
@@ -316,9 +433,9 @@ if ($nivel_siguiente) {
                 <thead>
                     <tr>
                         <th rowspan="2">Materia</th>
-                        <th colspan="6">Periodo 1</th>
-                        <th colspan="6">Periodo 2</th>
-                        <th colspan="4">Periodo 3</th>
+                        <th colspan="6">Primer Quimestre</th>
+                        <th colspan="6">Segundo Quimestre</th>
+                        <th colspan="4">Nota Final</th>
                     </tr>
                     <tr>
                         <th>Nota 1 Primer Parcial</th>
@@ -435,39 +552,66 @@ if ($nivel_siguiente) {
 
         <!-- Botones de Acción -->
         <div class="actions">
-            <button class="button button-print" onclick="window.print()">Imprimir</button>
+            <!-- Botón para imprimir -->
+            <button class="button button-print" onclick="printFile(this)" data-id-estudiante="<?= $id_estudiante; ?>"
+                data-id-his-academico="<?= $id_his_academico; ?>">
+                Imprimir
+            </button>
+
+            <!-- Mensaje de Estado Académico -->
+            <div class="note">
+                <p><?php echo htmlspecialchars($mensaje_nivel); ?></p>
+            </div>
         </div>
-        <!-- Mensaje de Estado Académico -->
-        <div class="note">
-            <p><?php echo htmlspecialchars($mensaje_nivel); ?></p>
-        </div>
     </div>
-    </div>
-    <div class="footer">
-        &copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos los derechos reservados.
-    </div>
+    <footer>
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos
+            los derechos reservados.</p>
+    </footer>
 
     <script>
-        // Función para filtrar la tabla por materia
-        function filterTable() {
-            const input = document.getElementById('search-materia');
-            const filter = input.value.toLowerCase();
-            const rows = document.getElementById('grades-table-body').getElementsByTagName('tr');
-            
-            for (const row of rows) {
-                const materiaCell = row.getElementsByTagName('td')[0];
-                if (materiaCell) {
-                    const materiaText = materiaCell.textContent || materiaCell.innerText;
-                    if (materiaText.toLowerCase().indexOf(filter) > -1) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
+    // Función para filtrar la tabla por materia
+    function filterTable() {
+        const input = document.getElementById('search-materia');
+        const filter = input.value.toLowerCase();
+        const rows = document.getElementById('grades-table-body').getElementsByTagName('tr');
+
+        for (const row of rows) {
+            const materiaCell = row.getElementsByTagName('td')[0];
+            if (materiaCell) {
+                const materiaText = materiaCell.textContent || materiaCell.innerText;
+                if (materiaText.toLowerCase().indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
                 }
             }
         }
+    }
 
+    // Función para imprimir el archivo PDF automáticamente
+    function printFile(button) {
+        // Obtiene los valores dinámicos desde los atributos del botón
+        const idEstudiante = button.getAttribute('data-id-estudiante');
+        const idHisAcademico = button.getAttribute('data-id-his-academico');
+
+        if (idEstudiante && idHisAcademico) {
+            // Construye la URL del archivo a imprimir
+            const url = `reporte_libreta.php?id_estudiante=${idEstudiante}&id_his_academico=${idHisAcademico}`;
+
+            // Abre el archivo en una nueva ventana
+            const newWindow = window.open(url, '_blank');
+
+            // Ejecuta automáticamente la impresión cuando el archivo termine de cargar
+            newWindow.onload = function() {
+                newWindow.print();
+            };
+        } else {
+            alert("Datos del estudiante no disponibles.");
+        }
+    }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.11/jspdf.plugin.autotable.min.js"></script>
 </body>
+
 </html>
