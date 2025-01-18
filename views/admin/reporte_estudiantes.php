@@ -52,7 +52,7 @@ class PDF extends FPDF {
         $this->Cell(0, 10, utf8_decode('UNIDAD EDUCATIVA "BENJAMÍN FRANKLIN"'), 0, 1, 'C');
         
         $this->SetFont('Arial', 'B', 11);
-        $this->Cell(0, 10, utf8_decode('REPORTE DE MATRICULAS DE ESTUDIANTES ACTIVOS'), 0, 1, 'C');
+        $this->Cell(0, 10, utf8_decode('REPORTE DE MATRICULAS DE ESTUDIANTES'), 0, 1, 'C');
 
         $this->SetFont('Arial', 'I', 10);
         $fechaHora = date('d/m/Y H:i A');

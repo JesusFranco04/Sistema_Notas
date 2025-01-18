@@ -76,10 +76,19 @@ if (!$resultado) {
     body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        /* Asegura que el body ocupe toda la altura de la pantalla */
+        margin: 0;
+        /* Elimina márgenes predeterminados */
     }
 
+    /* Espacio entre el contenido y el footer */
     .container-fluid {
         padding: 20px;
+        flex: 1;
+        /* Permite que el contenedor crezca y ocupe el espacio disponible */
     }
 
     /* Estilo de la tarjeta */
@@ -320,7 +329,6 @@ if (!$resultado) {
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
     }
 
     footer p {
@@ -576,6 +584,7 @@ if (!$resultado) {
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <!-- Fin Modal de Confirmación -->
     <footer>

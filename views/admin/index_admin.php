@@ -1046,7 +1046,6 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
     }
 
     footer p {
@@ -1308,6 +1307,7 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
                 <div class="specialty-name">Promoción Escolar</div>
             </div>
         </div>
+    </div>
     </div>
 
     <footer>

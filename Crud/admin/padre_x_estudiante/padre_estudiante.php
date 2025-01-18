@@ -1,29 +1,37 @@
-<?php
+<?php 
 session_start();
 // Incluir el archivo de conexión y verificar la conexión
 include("../../config.php");
+
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
 
 // Inicializar el mensaje
 $mensaje = '';
 $mensaje_tipo = '';
 
-// Obtener los datos necesarios para los filtros con estado activo
-$query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'";
+// Obtener los datos necesarios para los filtros
+$query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A' ORDER BY nombre";
 $result_niveles = $conn->query($query_niveles);
 
-$query_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'";
+$query_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A' ORDER BY nombre";
 $result_paralelos = $conn->query($query_paralelos);
 
-$query_jornadas = "SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'";
+$query_jornadas = "SELECT id_jornada, nombre FROM jornada WHERE estado = 'A' ORDER BY nombre";
 $result_jornadas = $conn->query($query_jornadas);
 
-$query_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'";
+$query_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A' ORDER BY año";
 $result_historiales = $conn->query($query_historiales);
 
 // Procesar el formulario de filtro
 $filters = [];
 $filter_query = '';
 
+// Verificar si se han recibido parámetros de filtro en la URL
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (isset($_GET['nivel']) && $_GET['nivel'] != '') {
         $filters['e.id_nivel'] = $_GET['nivel'];
@@ -38,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $filters['e.id_his_academico'] = $_GET['historial_academico'];
     }
 
+    // Si hay filtros aplicados, generamos la cláusula WHERE
     if (!empty($filters)) {
         $filter_clauses = [];
         foreach ($filters as $key => $value) {
@@ -47,14 +56,32 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     }
 }
 
-// Obtener la lista de estudiantes según los filtros aplicados
+// Obtener la lista de estudiantes con padres según los filtros aplicados
 $query_estudiantes = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula, p.nombres AS nombre_padre, p.apellidos AS apellido_padre, p.cedula AS cedula_padre
                       FROM estudiante e
                       LEFT JOIN padre_x_estudiante pxe ON e.id_estudiante = pxe.id_estudiante
-                      LEFT JOIN padre p ON pxe.id_padre = p.id_padre
-                      $filter_query
-                      ORDER BY e.apellidos";
+                      LEFT JOIN padre p ON pxe.id_padre = p.id_padre";
+
+if (!empty($filter_query)) {
+    $query_estudiantes .= " $filter_query"; // Agregar filtros si existen
+}
+
+$query_estudiantes .= " ORDER BY e.apellidos"; // Ordenar siempre
 $result_estudiantes = $conn->query($query_estudiantes);
+
+// Nueva consulta para estudiantes sin padre asociado
+$query_estudiantes_sin_padre = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula
+                                 FROM estudiante e
+                                 LEFT JOIN padre_x_estudiante pxe ON e.id_estudiante = pxe.id_estudiante";
+
+if (!empty($filter_query)) {
+    $query_estudiantes_sin_padre .= " $filter_query AND pxe.id_padre IS NULL"; // Filtros más condición
+} else {
+    $query_estudiantes_sin_padre .= " WHERE pxe.id_padre IS NULL"; // Solo condición
+}
+
+$query_estudiantes_sin_padre .= " ORDER BY e.apellidos"; // Ordenar siempre
+$result_estudiantes_sin_padre = $conn->query($query_estudiantes_sin_padre);
 
 // Obtener la lista de padres
 $query_padres = "SELECT id_padre, nombres, apellidos FROM padre ORDER BY apellidos";
@@ -124,6 +151,8 @@ $result_relaciones = $conn->query($query_relaciones);
         border-radius: 8px;
         padding: 2rem;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        /* Espacio entre el contenedor y el footer */
     }
 
     .btn-custom {
@@ -162,41 +191,6 @@ $result_relaciones = $conn->query($query_relaciones);
 
     .alert {
         margin-bottom: 1rem;
-    }
-
-    footer {
-        background-color: white;
-        /* Color de fondo blanco */
-        color: #737373;
-        /* Color del texto en gris oscuro */
-        text-align: center;
-        /* Centrar el texto */
-        padding: 20px 0;
-        /* Espaciado interno vertical */
-        width: 100%;
-        /* Ancho completo */
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
-    }
-
-    footer p {
-        margin: 0;
-        /* Eliminar el margen de los párrafos */
-    }
-
-    .card {
-        margin-bottom: 2rem;
-    }
-
-    .card-header {
-        background-color: #E62433;
-        /* Fondo rojo oscuro para el encabezado de la tarjeta */
-        color: #fff;
-        /* Color del texto del encabezado */
-        border-bottom: 1px solid #fff;
-        /* Línea divisoria blanca */
-        border-radius: 8px 8px 0 0;
-        /* Redondeo solo en las esquinas superiores */
     }
 
     /* Estilo del header del modal */
@@ -305,6 +299,42 @@ $result_relaciones = $conn->query($query_relaciones);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         /* Sombra para profundidad */
     }
+
+
+    footer {
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
+    }
+
+    footer p {
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
+    }
+
+    .card {
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        background-color: #E62433;
+        /* Fondo rojo oscuro para el encabezado de la tarjeta */
+        color: #fff;
+        /* Color del texto del encabezado */
+        border-bottom: 1px solid #fff;
+        /* Línea divisoria blanca */
+        border-radius: 8px 8px 0 0;
+        /* Redondeo solo en las esquinas superiores */
+    }
     </style>
 </head>
 
@@ -324,7 +354,7 @@ $result_relaciones = $conn->query($query_relaciones);
                 <form class="mb-4" method="GET" action="">
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <label for="nivel" class="form-label">Nivel</label>
+                            <label for="nivel" class="form-label">Nivel:</label>
                             <select id="nivel" name="nivel" class="form-select">
                                 <option value="">Selecciona un nivel</option>
                                 <?php while ($row = $result_niveles->fetch_assoc()): ?>
@@ -336,7 +366,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="paralelo" class="form-label">Paralelo</label>
+                            <label for="paralelo" class="form-label">Paralelo:</label>
                             <select id="paralelo" name="paralelo" class="form-select">
                                 <option value="">Selecciona un paralelo</option>
                                 <?php while ($row = $result_paralelos->fetch_assoc()): ?>
@@ -348,7 +378,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="jornada" class="form-label">Jornada</label>
+                            <label for="jornada" class="form-label">Jornada:</label>
                             <select id="jornada" name="jornada" class="form-select">
                                 <option value="">Selecciona una jornada</option>
                                 <?php while ($row = $result_jornadas->fetch_assoc()): ?>
@@ -360,7 +390,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="historial_academico" class="form-label">Historial Académico</label>
+                            <label for="historial_academico" class="form-label">Historial Académico:</label>
                             <select id="historial_academico" name="historial_academico" class="form-select">
                                 <option value="">Selecciona un año académico</option>
                                 <?php while ($row = $result_historiales->fetch_assoc()): ?>
@@ -372,19 +402,18 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-custom">
-                                <i class='bx bx-filter icon'></i> Aplicar Filtros
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-start">
+                        <!-- Botón para aplicar filtros -->
+                        <button type="submit" id="btn-aplicar" class="btn btn-primary mr-2">Aplicar filtros</button>
+
                         <!-- Botón para ver manual de uso -->
-                        <div class="col-auto">
+                        <div class="col-auto mr-2">
                             <button type="button" class="btn btn-secondary" data-toggle="modal"
                                 data-target="#modalInstrucciones1">
                                 Ver Manual de Uso
                             </button>
                         </div>
+
                         <!-- Botón para descargar reporte -->
                         <div class="col-auto">
                             <a href="http://localhost/sistema_notas/views/admin/reporte_padre_estudiante.php"
@@ -392,17 +421,17 @@ $result_relaciones = $conn->query($query_relaciones);
                                 Descargar Reporte
                             </a>
                         </div>
+                    </div>
                 </form>
 
                 <?php if ($mensaje): ?>
-                <div class="alert alert-<?php echo $mensaje_tipo == 'exito' ? 'success' : 'danger'; ?>">
+                <div class="alert alert-<?php echo $mensaje_tipo === 'exito' ? 'success' : 'danger'; ?>">
                     <?php echo $mensaje; ?>
                 </div>
                 <?php endif; ?>
 
-                <h3 class="mb-4">
-                    <i class='bx bx-list-check icon'></i> Lista de Estudiantes
-                </h3>
+                <h3 class="mb-4"><i class='bx bx-list-check icon'></i> Lista de Estudiantes</h3>
+                <?php if ($result_estudiantes->num_rows > 0): ?>
                 <div class="table-container">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -414,17 +443,30 @@ $result_relaciones = $conn->query($query_relaciones);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($row = $result_relaciones->fetch_assoc()): ?>
+                            <?php while ($row = $result_estudiantes->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo $row['nombre_estudiante'] . ' ' . $row['apellido_estudiante']; ?></td>
-                                <td><?php echo $row['cedula_estudiante']; ?></td>
-                                <td><?php echo $row['nombre_padre'] . ' ' . $row['apellido_padre']; ?></td>
-                                <td><?php echo $row['cedula_padre']; ?></td>
+                                <td><?php echo $row['nombres'] . ' ' . $row['apellidos']; ?></td>
+                                <td><?php echo $row['cedula']; ?></td>
+                                <td>
+                                    <?php 
+                        if (!empty($row['nombre_padre']) && !empty($row['apellido_padre'])) {
+                            echo $row['nombre_padre'] . ' ' . $row['apellido_padre'];
+                        } else {
+                            echo "Sin Padre Asociado";
+                        }
+                        ?>
+                                </td>
+                                <td>
+                                    <?php echo !empty($row['cedula_padre']) ? $row['cedula_padre'] : "N/A"; ?>
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
                     </table>
                 </div>
+                <?php else: ?>
+                <p>No se encontraron estudiantes con los criterios seleccionados.</p>
+                <?php endif; ?>
 
                 <h3 class="mb-4">
                     <i class='bx bx-male-female icon'></i> Relaciones Estudiante-Padre
@@ -432,18 +474,19 @@ $result_relaciones = $conn->query($query_relaciones);
                 <form method="POST" action="">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="id_estudiante" class="form-label">Estudiante</label>
+                            <label for="id_estudiante" class="form-label">Estudiante:</label>
                             <select id="id_estudiante" name="id_estudiante" class="form-select" required>
                                 <option value="">Selecciona un estudiante</option>
-                                <?php while ($row = $result_estudiantes->fetch_assoc()): ?>
+                                <?php while ($row = $result_estudiantes_sin_padre->fetch_assoc()): ?>
                                 <option value="<?php echo $row['id_estudiante']; ?>">
                                     <?php echo $row['apellidos'] . ' ' . $row['nombres']; ?>
                                 </option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
+
                         <div class="col-md-6">
-                            <label for="id_padre" class="form-label">Padre</label>
+                            <label for="id_padre" class="form-label">Padre:</label>
                             <select id="id_padre" name="id_padre" class="form-select" required>
                                 <option value="">Selecciona un padre</option>
                                 <?php while ($row = $result_padres->fetch_assoc()): ?>
@@ -458,126 +501,113 @@ $result_relaciones = $conn->query($query_relaciones);
                         <i class='bx bx-save icon'></i> Guardar
                     </button>
                 </form>
-
-                <!-- Modal 1 -->
-                <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
-                    aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
-                                    Vinculación Familiar (1/3)</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Bienvenido a la <strong>herramienta de gestión de vinculaciones familiares</strong>.
-                                    Este módulo permite crear, editar y gestionar relaciones entre estudiantes y sus
-                                    padres o representantes. A continuación, se detalla cómo usar esta funcionalidad
-                                    paso a paso:</p>
-                                <p><strong>Paso 1: Configurar los filtros iniciales</strong></p>
-                                <p>Antes de realizar cualquier acción, es importante filtrar los datos para trabajar
-                                    únicamente con la información necesaria. Configura los siguientes criterios:</p>
-                                <ul>
-                                    <li><strong>Nivel:</strong> Selecciona el grado académico del estudiante.</li>
-                                    <li><strong>Paralelo:</strong> Filtra por la sección o grupo asignado.</li>
-                                    <li><strong>Jornada:</strong> Indica si el estudiante pertenece a la jornada
-                                        matutina, vespertina, etc.</li>
-                                    <li><strong>Historial Académico:</strong> Marca esta opción si necesitas consultar
-                                        años lectivos previos.</li>
-                                </ul>
-                                <p>Estos filtros actualizan la lista de estudiantes visibles en la tabla principal.
-                                    Asegúrate de verificarlos antes de proceder.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary"
-                                    onclick="openModal('#modalInstrucciones2')">Siguiente</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal 2 -->
-                <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
-                    aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
-                                    Vinculación Familiar (2/3)</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p><strong>Paso 2: Crear o editar vinculaciones</strong></p>
-                                <p>Después de filtrar los datos, puedes proceder a vincular estudiantes con padres o
-                                    representantes. Sigue estos pasos:</p>
-                                <ul>
-                                    <li><strong>Selecciona al estudiante:</strong> En la tabla principal, identifica al
-                                        estudiante que deseas vincular.</li>
-                                    <li><strong>Selecciona al padre o representante:</strong> En el formulario inferior,
-                                        elige la persona adecuada de la lista.</li>
-                                    <li><strong>Parentesco:</strong> Indica la relación entre el estudiante y el
-                                        representante (por ejemplo, padre, madre, tutor legal, etc.).</li>
-                                </ul>
-                                <p>Finalmente, presiona el botón <strong>Guardar</strong>. El sistema confirmará si la
-                                    vinculación fue exitosa o si ya existe una relación previamente registrada.</p>
-                                <p>En caso de errores, puedes corregir la información antes de guardar.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                    onclick="openModal('#modalInstrucciones1')">Atrás</button>
-                                <button type="button" class="btn btn-primary"
-                                    onclick="openModal('#modalInstrucciones3')">Siguiente</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal 3 -->
-                <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
-                    aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
-                                    Vinculación Familiar (3/3)</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p><strong>Paso 3: Revisar y gestionar las vinculaciones</strong></p>
-                                <p>En la tabla de vinculaciones existentes, puedes consultar, editar o eliminar
-                                    relaciones según sea necesario:</p>
-                                <ul>
-                                    <li><strong>Editar:</strong> Selecciona el botón <strong>Editar</strong> para
-                                        modificar la relación (por ejemplo, cambiar el parentesco o asignar un
-                                        representante diferente).</li>
-                                    <li><strong>Eliminar:</strong> Utiliza el botón <strong>Eliminar</strong> para
-                                        desasociar a un estudiante de un representante.</li>
-                                    <li><strong>Inactivar:</strong> Si una relación no debe eliminarse pero no estará
-                                        activa temporalmente, puedes inactivarla para evitar confusiones.</li>
-                                </ul>
-                                <p>Recuerda que todas las acciones quedan registradas en el sistema para garantizar la
-                                    trazabilidad de los cambios.</p>
-                                <p>Con estas funciones, puedes administrar las relaciones familiares de manera eficiente
-                                    y mantener la base de datos siempre actualizada.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                    onclick="openModal('#modalInstrucciones2')">Atrás</button>
-                                <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
+
+    <!-- Modal 1 -->
+    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
+                        Vinculación Familiar (1/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bienvenido a la <strong>herramienta de gestión de vinculaciones familiares</strong>.
+                        Este módulo permite crear, editar y gestionar relaciones entre estudiantes y sus
+                        padres o representantes. A continuación, se detalla cómo usar esta funcionalidad
+                        paso a paso:</p>
+                    <p><strong>Paso 1: Configurar los filtros iniciales</strong></p>
+                    <p>Antes de realizar cualquier acción, es importante filtrar los datos para trabajar
+                        únicamente con la información necesaria. Configura los siguientes criterios:</p>
+                    <ul>
+                        <li><strong>Nivel:</strong> Selecciona el grado académico del estudiante.</li>
+                        <li><strong>Paralelo:</strong> Filtra por la sección o grupo asignado.</li>
+                        <li><strong>Jornada:</strong> Indica si el estudiante pertenece a la jornada
+                            matutina, vespertina, etc.</li>
+                        <li><strong>Historial Académico:</strong> Marca esta opción si necesitas consultar
+                            años lectivos previos.</li>
+                    </ul>
+                    <p>Estos filtros actualizan la lista de estudiantes visibles en la tabla principal.
+                        Asegúrate de verificarlos antes de proceder.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"
+                        onclick="openModal('#modalInstrucciones2')">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
+                        Vinculación Familiar (2/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Paso 2: Crear o editar vinculaciones</strong></p>
+                    <p>Después de filtrar los datos, puedes proceder a vincular estudiantes con padres o
+                        representantes. Sigue estos pasos:</p>
+                    <ul>
+                        <li><strong>Selecciona al estudiante:</strong> En la tabla principal, identifica al
+                            estudiante que deseas vincular.</li>
+                        <li><strong>Selecciona al padre o representante:</strong> En el formulario inferior,
+                            elige la persona adecuada de la lista.</li>
+                        <li><strong>Parentesco:</strong> Indica la relación entre el estudiante y el
+                            representante (por ejemplo, padre, madre, tutor legal, etc.).</li>
+                    </ul>
+                    <p>Finalmente, presiona el botón <strong>Guardar</strong>. El sistema confirmará si la
+                        vinculación fue exitosa o si ya existe una relación previamente registrada.</p>
+                    <p>En caso de errores, puedes corregir la información antes de guardar.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="openModal('#modalInstrucciones3')">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3 -->
+    <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
+        aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
+                        Vinculación Familiar (3/3)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Paso 3: Revisar y gestionar las vinculaciones</strong></p>
+                    <p>Recuerda que todas las acciones quedan registradas en el sistema para garantizar la
+                        trazabilidad de los cambios.</p>
+                    <p>Con estas funciones, puedes administrar las relaciones familiares de manera eficiente
+                        y mantener la base de datos siempre actualizada.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="openModal('#modalInstrucciones2')">Atrás</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -593,8 +623,6 @@ $result_relaciones = $conn->query($query_relaciones);
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    <!-- SB Admin 2 JS -->
-    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
     <script>
     function openModal(modalId) {

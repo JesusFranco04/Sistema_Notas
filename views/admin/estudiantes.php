@@ -323,7 +323,6 @@ if (!$resultado) {
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
     }
 
     footer p {
@@ -541,6 +540,7 @@ if (!$resultado) {
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 

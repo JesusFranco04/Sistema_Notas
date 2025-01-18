@@ -357,7 +357,6 @@ if ($result === false) {
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
     }
 
     footer p {
@@ -483,6 +482,7 @@ if ($result === false) {
         </div>
     </div>
     </div>
+
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
