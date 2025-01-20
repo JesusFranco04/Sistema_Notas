@@ -97,50 +97,55 @@ if ($id_curso > 0) {
 
 // Obtener los datos para las listas desplegables
 try {
-    // Profesores
-    $result = $conn->query("SELECT id_profesor, CONCAT(nombres, ' ', apellidos) AS nombre_completo FROM profesor");
+    // Profesores (seleccionando solo los que están activos)
+    $result = $conn->query("
+        SELECT p.id_profesor, CONCAT(p.nombres, ' ', p.apellidos) AS nombre_completo 
+        FROM profesor p
+        INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+        WHERE u.estado = 'A'
+    ");
     if ($result->num_rows > 0) {
         $profesores = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Materias
-    $result = $conn->query("SELECT id_materia, nombre FROM materia");
+    // Materias (Solo activas)
+    $result = $conn->query("SELECT id_materia, nombre FROM materia WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $materias = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Niveles
-    $result = $conn->query("SELECT id_nivel, nombre FROM nivel");
+    // Niveles (Solo activos)
+    $result = $conn->query("SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $niveles = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Paralelos
-    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo");
+    // Paralelos (Solo activos)
+    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $paralelos = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Subniveles
-    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel");
+    // Subniveles (Solo activos)
+    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $subniveles = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Especialidades
-    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad");
+    // Especialidades (Solo activas)
+    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $especialidades = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Jornadas
-    $result = $conn->query("SELECT id_jornada, nombre FROM jornada");
+    // Jornadas (Solo activas)
+    $result = $conn->query("SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $jornadas = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Historiales
-    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico");
+    // Historiales académicos (Solo activos)
+    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $historiales = $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -148,7 +153,6 @@ try {
     $error = "Error al obtener los datos: " . $e->getMessage();
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">

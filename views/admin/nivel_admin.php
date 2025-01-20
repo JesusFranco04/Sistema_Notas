@@ -36,6 +36,7 @@ if (!$resultado) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,8 +46,11 @@ if (!$resultado) {
     <title>Niveles | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <!-- Custom fonts for this template-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
+        type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- SB Admin 2 CSS -->
@@ -54,7 +58,7 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
+    <style>
     /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
@@ -137,16 +141,20 @@ if (!$resultado) {
     }
 
     .table tbody tr:nth-child(odd) {
-        background-color: #fcccce; /* Rojo claro para filas impares */
+        background-color: #fcccce;
+        /* Rojo claro para filas impares */
     }
 
     .table tbody tr:nth-child(even) {
-        background-color: #f8f9fa; /* Gris claro para filas pares */
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
     }
 
     .table tbody tr:hover {
-        background-color: #f8a9ad; /* Rojo bonito */
-        color: #0a0a0a; /* Letras negro al pasar el ratón */
+        background-color: #f8a9ad;
+        /* Rojo bonito */
+        color: #0a0a0a;
+        /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -156,9 +164,12 @@ if (!$resultado) {
 
     /* Estilo para contenedor de tabla con barras de desplazamiento */
     .table-container {
-        max-height: 500px; /* Ajusta la altura máxima según tus necesidades */
-        overflow-y: auto; /* Barra de desplazamiento vertical */
-        overflow-x: auto; /* Barra de desplazamiento horizontal */
+        max-height: 500px;
+        /* Ajusta la altura máxima según tus necesidades */
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
     }
 
 
@@ -177,19 +188,132 @@ if (!$resultado) {
         margin-bottom: 1rem;
     }
 
+    /* Estilo del header del modal */
+    .modal-header {
+        background-color: #DE112D;
+        /* Rojo */
+        color: white;
+        /* Texto en blanco */
+        border-bottom: 2px solid #B50D22;
+        /* Bordes más definidos */
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        /* Tamaño ligeramente más grande */
+    }
+
+    /* Estilo para el botón de cerrar */
+    .close {
+        color: white;
+        /* "X" en blanco */
+        opacity: 0.8;
+        /* Transparencia sutil */
+    }
+
+    .close:hover {
+        opacity: 1;
+        /* Más visible al pasar el cursor */
+    }
+
+    /* Botones del modal */
+    .modal-footer .btn-secondary {
+        background-color: #07244a;
+        /* Azul oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #053166;
+        /* Azul más claro al pasar el cursor */
+    }
+
+    /* Botón Siguiente (verde) */
+    .modal-footer .btn-success {
+        background-color: #28a745;
+        /* Verde */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #218838;
+        /* Verde más oscuro al pasar el cursor */
+    }
+
+    /* Botón Atrás (azul oscuro) */
+    .modal-footer .btn-info {
+        background-color: #17a2b8;
+        /* Azul claro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-info:hover {
+        background-color: #117a8b;
+        /* Azul más oscuro al pasar el cursor */
+    }
+
+    /* Botón Cerrar (gris oscuro) */
+    .modal-footer .btn-dark {
+        background-color: #343a40;
+        /* Gris oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #23272b;
+        /* Gris más oscuro al pasar el cursor */
+    }
+
+    /* Ajustes generales del modal */
+    .modal-content {
+        border-radius: 8px;
+        /* Bordes redondeados */
+        overflow: hidden;
+        /* Evitar desbordes */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Sombra para profundidad */
+    }
+
     footer {
-    background-color: white; /* Color de fondo blanco */
-    color: #737373; /* Color del texto en gris oscuro */
-    text-align: center; /* Centrar el texto */
-    padding: 20px 0; /* Espaciado interno vertical */
-    width: 100%; /* Ancho completo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
     }
-</style>
+    </style>
 </head>
 
 <body>
@@ -203,15 +327,19 @@ if (!$resultado) {
                 <form method="GET" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de Creación</label>
-                            <input type="date" class="form-control" id="searchFecha" name="fecha" value="<?php echo $fecha; ?>">
+                            <label for="searchFecha"><i class="fas fa-calendar-alt filter-icon"></i>Fecha de
+                                Creación</label>
+                            <input type="date" class="form-control" id="searchFecha" name="fecha"
+                                value="<?php echo $fecha; ?>">
                         </div>
                         <div class="col-md-4">
                             <label for="searchEstado"><i class="fas fa-filter filter-icon"></i>Estado</label>
                             <select class="form-control" id="searchEstado" name="estado">
                                 <option value="">Todos</option>
-                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos</option>
-                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>Inactivos</option>
+                                <option value="activo" <?php echo $estado == 'activo' ? 'selected' : ''; ?>>Activos
+                                </option>
+                                <option value="inactivo" <?php echo $estado == 'inactivo' ? 'selected' : ''; ?>>
+                                    Inactivos</option>
                             </select>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
@@ -221,11 +349,22 @@ if (!$resultado) {
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
                             <div class="col-auto">
-                                <a href="http://localhost/sistema_notas/Crud/admin/nivel/agregar_nivel.php" class="btn btn-primary">Agregar Nivel</a>
+                                <a href="http://localhost/sistema_notas/Crud/admin/nivel/agregar_nivel.php"
+                                    class="btn btn-primary">Agregar Nivel</a>
                             </div>
+                            <!-- Botón para ver manual de uso -->
                             <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#modalInstrucciones1">
+                                    Ver Manual de Uso
+                                </button>
+                            </div>
+                            <!-- Botón para descargar reporte -->
+                            <div class="col-auto">
+                                <a href="http://localhost/sistema_notas/views/admin/reporte_niveles.php"
+                                    class="btn btn-success">
+                                    Descargar Reporte
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -235,7 +374,7 @@ if (!$resultado) {
                     <table class="table table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <!-- tener que estar igual que la base de datos -->
+                                <!-- Tener que estar igual que la base de datos -->
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>
@@ -245,6 +384,7 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if (isset($resultado) && mysqli_num_rows($resultado) > 0): ?>
                             <?php while ($fila = mysqli_fetch_assoc($resultado)): ?>
                             <tr>
                                 <td><?php echo $fila['id_nivel']; ?></td>
@@ -253,71 +393,126 @@ if (!$resultado) {
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>
                                 <td>
-                                    <form action="http://localhost/sistema_notas/Crud/admin/nivel/inactivar_nivel.php" method="POST" style="display:inline;">
+                                    <form action="http://localhost/sistema_notas/Crud/admin/nivel/inactivar_nivel.php"
+                                        method="POST" style="display:inline;">
                                         <input type="hidden" name="id_nivel" value="<?php echo $fila['id_nivel']; ?>">
-                                        <input type="hidden" name="estado" value="<?php echo $fila['estado'] == 'A' ? 'inactivo' : 'activo'; ?>">
-                                        <button type="submit" class="btn btn-<?php echo $fila['estado'] == 'A' ? 'warning' : 'success'; ?>" onclick="return mostrarModalCambioEstado(<?php echo $fila['id_nivel']; ?>, '<?php echo $fila['estado']; ?>')">
+                                        <input type="hidden" name="estado"
+                                            value="<?php echo $fila['estado'] == 'A' ? 'inactivo' : 'activo'; ?>">
+                                        <button type="submit"
+                                            class="btn btn-<?php echo $fila['estado'] == 'A' ? 'warning' : 'success'; ?>"
+                                            onclick="return mostrarModalCambioEstado(<?php echo $fila['id_nivel']; ?>, '<?php echo $fila['estado']; ?>')">
                                             <?php echo $fila['estado'] == 'A' ? 'Inactivar' : 'Activar'; ?>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center">No se encontraron registros disponibles en este
+                                    momento.</td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
-                    <!-- Manual de Uso - Parte 1 -->
-                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
-                        aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Niveles (1/2)</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <ol>
-                                        <li><strong>Agregar Nivel:</strong> En este paso debes ingresar
-                                            los niveles que tiene la Unidad Educativa</li>
-                                    </ol>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
-                                </div>
+                </div>
+                <!-- Modal 1 - Gestión de Niveles -->
+                <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
+                                    Niveles (1/3)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Cómo agregar un nuevo nivel:</strong></p>
+                                <p>En este paso, deberá ingresar los datos del nivel, como su nombre. Este campo es
+                                    obligatorio, así que asegúrese de escribir el nombre del nivel (por ejemplo:
+                                    "Octavo", "Noveno", "Décimo", etc.).</p>
+                                <p>Una vez que haya escrito el nombre, haga clic en el botón <strong>Crear
+                                        Nivel</strong> para registrarlo en el sistema.</p>
+                                <p>El estado se asignará automáticamente como "Activo" y la fecha de ingreso también se
+                                    completará de manera automática.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary"
+                                    onclick="openModal('#modalInstrucciones2')">Siguiente</button>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Manual de Uso - Parte 2 -->
-                    <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
-                        aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Nivel(2/2)</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <ol start="2">
-                                        <li><strong>Acciones:</strong> En Acciones tenemos Un boton de "inactivar" la cual al momento de apretarlo el registro quedara dasativado y asi mismo tendra
-                                        el boton de "activar" para que el registro se pueda ver en los otros formularios.
-                                        </li>
-                                    </ol>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones3')">Cerrrar</button>
-                                </div>
+                </div>
+                <!-- Modal 2 - Gestión de Niveles -->
+                <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
+                                    Niveles (2/3)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Cómo buscar y filtrar niveles:</strong></p>
+                                <p>En la parte superior de la tabla, encontrarás dos filtros importantes:</p>
+                                <ul>
+                                    <li><strong>Fecha de Creación:</strong> Puedes filtrar los niveles por la fecha en
+                                        que fueron creados. Selecciona una fecha o un rango de fechas.</li>
+                                    <li><strong>Estado:</strong> Puedes filtrar los niveles según su estado. Tienes la
+                                        opción de seleccionar entre "Todos", "Activos" o "Inactivos".</li>
+                                </ul>
+                                <p>Una vez aplicados los filtros, haz clic en el botón <strong>Filtrar</strong> para ver
+                                    los resultados.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                                <button type="button" class="btn btn-primary"
+                                    onclick="openModal('#modalInstrucciones3')">Siguiente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal 3 - Gestión de Niveles -->
+                <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
+                    aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
+                                    Niveles (3/3)</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Cómo activar o inactivar un nivel:</strong></p>
+                                <p>En la tabla de niveles, encontrarás un botón en la columna de "Acciones". Este botón
+                                    te permitirá cambiar el estado de un nivel.</p>
+                                <ul>
+                                    <li><strong>Inactivar:</strong> Si el nivel está activo y deseas desactivarlo
+                                        temporalmente, puedes hacer clic en el botón <strong>Inactivar</strong>.</li>
+                                    <li><strong>Activar:</strong> Si un nivel está inactivo y deseas activarlo
+                                        nuevamente, solo haz clic en el botón <strong>Activar</strong>.</li>
+                                </ul>
+                                <p>Recuerda que esta acción cambiará el estado del nivel en el sistema.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="openModal('#modalInstrucciones2')">Atrás</button>
+                                <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <footer>
@@ -326,15 +521,21 @@ if (!$resultado) {
     </footer>
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>
     <script src="http://localhost/sistema_notas/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
     <script>
-    function openNextModal(nextModalId) {
-        // Cierra el modal actual
+    function openModal(modalId) {
+        // Ocultar todos los modales abiertos
         $('.modal').modal('hide');
 
-        // Abre el siguiente modal
-        $(nextModalId).modal('show');
+        // Mostrar el modal correspondiente
+        if ($(modalId).length) {
+            $(modalId).modal('show');
+        } else {
+            console.error('Modal no encontrado: ' + modalId);
+        }
     }
     </script>
 </body>
+
 </html>

@@ -13,6 +13,10 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
+// Inicializar las variables de filtro
+$fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
+$estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+
 // Consulta SQL para obtener los cursos con nombres de las tablas relacionadas
 $sql = "
 SELECT
@@ -36,15 +40,31 @@ FROM
     LEFT JOIN especialidad e ON c.id_especialidad = e.id_especialidad
     LEFT JOIN jornada j ON c.id_jornada = j.id_jornada
     LEFT JOIN historial_academico ha ON c.id_his_academico = ha.id_his_academico
-";
+WHERE 1=1"; // Base de la consulta
 
+// Agregar filtros a la consulta
+if (!empty($fecha)) {
+    // Asegurarse de escapar el valor de fecha para evitar inyección SQL
+    $fecha = mysqli_real_escape_string($conn, $fecha);
+    $sql .= " AND DATE(c.fecha_ingreso) = '$fecha'";
+}
 
+if (!empty($estado)) {
+    $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
+    // Asegurarse de escapar el valor del estado para evitar inyección SQL
+    $estadoFiltro = mysqli_real_escape_string($conn, $estadoFiltro);
+    $sql .= " AND c.estado = '$estadoFiltro'";
+}
+
+// Ejecutar la consulta
 $resultado = $conn->query($sql);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -70,7 +90,7 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
+    <style>
     /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
@@ -153,16 +173,20 @@ if (!$resultado) {
     }
 
     .table tbody tr:nth-child(odd) {
-        background-color: #fcccce; /* Rojo claro para filas impares */
+        background-color: #fcccce;
+        /* Rojo claro para filas impares */
     }
 
     .table tbody tr:nth-child(even) {
-        background-color: #f8f9fa; /* Gris claro para filas pares */
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
     }
 
     .table tbody tr:hover {
-        background-color: #f8a9ad; /* Rojo bonito */
-        color: #0a0a0a; /* Letras negro al pasar el ratón */
+        background-color: #f8a9ad;
+        /* Rojo bonito */
+        color: #0a0a0a;
+        /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -172,9 +196,12 @@ if (!$resultado) {
 
     /* Estilo para contenedor de tabla con barras de desplazamiento */
     .table-container {
-        max-height: 500px; /* Ajusta la altura máxima según tus necesidades */
-        overflow-y: auto; /* Barra de desplazamiento vertical */
-        overflow-x: auto; /* Barra de desplazamiento horizontal */
+        max-height: 500px;
+        /* Ajusta la altura máxima según tus necesidades */
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
     }
 
 
@@ -191,6 +218,113 @@ if (!$resultado) {
 
     .filter-container {
         margin-bottom: 1rem;
+    }
+
+    /* Estilo del header del modal */
+    .modal-header {
+        background-color: #DE112D;
+        /* Rojo */
+        color: white;
+        /* Texto en blanco */
+        border-bottom: 2px solid #B50D22;
+        /* Bordes más definidos */
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        /* Tamaño ligeramente más grande */
+    }
+
+    /* Estilo para el botón de cerrar */
+    .close {
+        color: white;
+        /* "X" en blanco */
+        opacity: 0.8;
+        /* Transparencia sutil */
+    }
+
+    .close:hover {
+        opacity: 1;
+        /* Más visible al pasar el cursor */
+    }
+
+    /* Botones del modal */
+    .modal-footer .btn-secondary {
+        background-color: #07244a;
+        /* Azul oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #053166;
+        /* Azul más claro al pasar el cursor */
+    }
+
+    /* Botón Siguiente (verde) */
+    .modal-footer .btn-success {
+        background-color: #28a745;
+        /* Verde */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #218838;
+        /* Verde más oscuro al pasar el cursor */
+    }
+
+    /* Botón Atrás (azul oscuro) */
+    .modal-footer .btn-info {
+        background-color: #17a2b8;
+        /* Azul claro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-info:hover {
+        background-color: #117a8b;
+        /* Azul más oscuro al pasar el cursor */
+    }
+
+    /* Botón Cerrar (gris oscuro) */
+    .modal-footer .btn-dark {
+        background-color: #343a40;
+        /* Gris oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #23272b;
+        /* Gris más oscuro al pasar el cursor */
+    }
+
+    /* Ajustes generales del modal */
+    .modal-content {
+        border-radius: 8px;
+        /* Bordes redondeados */
+        overflow: hidden;
+        /* Evitar desbordes */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Sombra para profundidad */
     }
 
     footer {
@@ -212,23 +346,7 @@ if (!$resultado) {
         margin: 0;
         /* Eliminar el margen de los párrafos */
     }
-
-    .modal-header {
-        background-color: #DE112D;
-        /* Color rojo */
-        color: white;
-        /* Color del texto en blanco para que contraste */
-    }
-
-    .modal-title {
-        font-weight: bold;
-    }
-
-    .close {
-        color: white;
-        /* Hacer que la "X" de cerrar sea blanca */
-    }
-</style>
+    </style>
 </head>
 
 <body>
@@ -265,14 +383,25 @@ if (!$resultado) {
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
+                            <!-- Botón para agregar curso -->
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/curso/agregar_curso.php"
                                     class="btn btn-primary">Agregar
                                     Curso</a>
                             </div>
+                            <!-- Botón para ver manual de uso -->
                             <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#modalInstrucciones1">
+                                    Ver Manual de Uso
+                                </button>
+                            </div>
+                            <!-- Botón para descargar reporte -->
+                            <div class="col-auto">
+                                <a href="http://localhost/sistema_notas/views/admin/reporte_curso.php"
+                                    class="btn btn-success">
+                                    Descargar Reporte
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -296,99 +425,146 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            while ($fila = mysqli_fetch_assoc($resultado)) {
-                                ?>
+                            <?php if ($resultado->num_rows > 0): ?>
+                            <!-- Si hay registros en la base de datos -->
+                            <?php while ($fila = $resultado->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo $fila['id_curso']; ?></td>
-                                <td><?php echo $fila['nombre_profesor']; ?></td>
-                                <td><?php echo $fila['nombre_materia']; ?></td>
-                                <td><?php echo $fila['nombre_nivel']; ?></td>
-                                <td><?php echo $fila['nombre_paralelo']; ?></td>
-                                <td><?php echo $fila['nombre_subnivel']; ?></td>
-                                <td><?php echo $fila['nombre_especialidad']; ?></td>
-                                <td><?php echo $fila['nombre_jornada']; ?></td>
-                                <td><?php echo $fila['año_his_academico']; ?></td>
-                                <td><?php echo $fila['estado']; ?></td>
+                                <td><?php echo htmlspecialchars($fila['id_curso']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_profesor']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_materia']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_nivel']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_paralelo']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_subnivel']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_especialidad']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['nombre_jornada']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['año_his_academico']); ?></td>
+                                <td><?php echo htmlspecialchars($fila['estado'] == 'A' ? 'Activo' : 'Inactivo'); ?></td>
                                 <td>
-                                    <a href="http://localhost/sistema_notas/Crud/admin/curso/editar_curso.php?id=<?php echo $fila['id_curso']; ?>"
+                                    <a href="http://localhost/sistema_notas/Crud/admin/curso/editar_curso.php?id=<?php echo urlencode($fila['id_curso']); ?>"
                                         class="btn btn-sm btn-primary">Editar</a>
                                 </td>
                             </tr>
-                            <?php } ?>
+                            <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <!-- Si no hay registros disponibles -->
+                                <td colspan="11" class="text-center">No se encontraron registros disponibles en este
+                                    momento.</td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
-                    <!-- Manual de Uso - Parte 1 -->
+
                     <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
                         aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Cursos (1/3)</h5>
+                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
+                                        Cursos (1/3)</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
+                                    <p><strong>Cómo agregar un nuevo curso:</strong></p>
+                                    <p>En esta sección, puedes agregar un nuevo curso al sistema. Para hacerlo, sigue
+                                        estos pasos:</p>
                                     <ol>
-                                        <li><strong>Agregar curso:</strong> En este paso, debes asignar uno o varios cursos 
-                                        a los profesores que ya estén registrados, especificando el curso, paralelo, especialidad, 
-                                        jornada y historial académico. Si no se encuentra un profesor en el listado, será necesario 
-                                        añadir sus datos para que pueda ser seleccionado. </li>
+                                        <li>Haz clic en el botón <strong>"Agregar Curso"</strong>, que se encuentra en
+                                            la parte superior izquierda, justo debajo de los filtros.</li>
+                                        <li>Se abrirá un formulario donde deberás completar los campos obligatorios,
+                                            como el nombre del profesor, materias, nivel, paralelo y otros detalles.
+                                        </li>
+                                        <li>Cuando hayas terminado de llenar el formulario, haz clic en el botón
+                                            <strong>"Crear Curso"</strong> para guardar el curso en el sistema.
+                                        </li>
                                     </ol>
+                                    <p>Recuerda que todos los campos marcados como obligatorios deben ser llenados
+                                        correctamente.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="openModal('#modalInstrucciones2')">Siguiente</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Manual de Uso - Parte 2 -->
                     <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
                         aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Cursos (2/3)</h5>
+                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
+                                        Cursos (2/3)</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <ol start="2">
-                                        <li><strong>Editar Curso:</strong>Editar los datos en caso de algun error.
+                                    <p><strong>Cómo buscar y filtrar cursos:</strong></p>
+                                    <p>En la parte superior de la tabla, encontrarás dos herramientas de filtro:</p>
+                                    <ul>
+                                        <li><strong>Fecha de Creación:</strong> Utiliza este filtro para mostrar cursos
+                                            creados en una fecha específica. Solo selecciona una fecha en el calendario.
                                         </li>
-                                    </ol>
+                                        <li><strong>Estado:</strong> Aquí puedes elegir entre "Todos", "Activos" o
+                                            "Inactivos" para mostrar cursos según su estado actual.</li>
+                                    </ul>
+                                    <p>Después de seleccionar los filtros que desees, haz clic en el botón
+                                        <strong>"Filtrar"</strong>, ubicado a la derecha, para ver los resultados en la
+                                        tabla.
+                                    </p>
+                                    <p>Si no hay registros que coincidan con los filtros seleccionados, la tabla
+                                        mostrará un mensaje indicando que no hay resultados disponibles.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones3')">Siguiente</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="openModal('#modalInstrucciones3')">Siguiente</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Manual de Uso - Parte 3 -->
+
                     <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
                         aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Cursos (3/3)</h5>
+                                    <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
+                                        Cursos (3/3)</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <ol start="3">
-                                        <li><strong>Filtros:</strong>Tiene filtros para ayudar de una forma rapida en la busqueda.</li>
+                                    <p><strong>Cómo editar o cambiar el estado de un curso (activar/inactivar):</strong>
+                                    </p>
+                                    <ol>
+                                        <li><strong>Ve a la tabla de cursos</strong> y haz clic en
+                                            <strong>Editar</strong> en la columna "Acciones" del curso que deseas
+                                            modificar.
+                                        </li>
+                                        <li><strong>En el formulario de edición</strong>, busca el campo llamado
+                                            <strong>"Estado"</strong>.
+                                        </li>
+                                        <li><strong>Cambia el estado:</strong> selecciona "Activo" para activarlo o
+                                            "Inactivo" para desactivarlo.</li>
+                                        <li><strong>Haz clic en el botón rojo</strong> que dice
+                                            <strong>"Actualizar"</strong> para guardar los cambios en el sistema.
+                                        </li>
                                     </ol>
+                                    <p class="text-danger"><strong>Importante:</strong> No se elimina el curso, solo se
+                                        cambia su estado entre activo e inactivo.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones4')">Cerrar</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="openModal('#modalInstrucciones2')">Atrás</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
                         </div>
@@ -396,6 +572,7 @@ if (!$resultado) {
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <footer>
@@ -411,20 +588,16 @@ if (!$resultado) {
     <!-- SB Admin 2 JS-->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
     <script>
-    function openNextModal(nextModalId) {
-        // Cierra el modal actual
+    function openModal(modalId) {
+        // Ocultar todos los modales abiertos
         $('.modal').modal('hide');
 
-        // Abre el siguiente modal
-        $(nextModalId).modal('show');
-    }
-
-    function openNextModal(nextModalId) {
-        // Cierra el modal actual
-        $('.modal').modal('hide');
-
-        // Abre el siguiente modal
-        $(nextModalId).modal('show');
+        // Mostrar el modal correspondiente
+        if ($(modalId).length) {
+            $(modalId).modal('show');
+        } else {
+            console.error('Modal no encontrado: ' + modalId);
+        }
     }
     </script>
 </body>

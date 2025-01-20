@@ -326,26 +326,6 @@ if (!$resultado) {
                             </div>
                         </div>
                     </div>
-
-                    <!-- Modal de Instrucciones -->
-                    <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
-                        aria-labelledby="modalInstrucciones1Label" aria-hidden="true">
-                        <div class="modal-dialog modal-xl" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstrucciones1Label">Manual de Usuario del Sistema
-                                        de Gestión UEBF</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <embed src="Manual_de_Usuario.pdf" type="application/pdf" width="100%"
-                                        height="600px" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

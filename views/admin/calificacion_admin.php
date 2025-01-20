@@ -78,8 +78,9 @@ if (!$result) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Calificaciones | Sistema de Gestión UEBF</title>
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
@@ -92,63 +93,72 @@ if (!$result) {
     <!-- SB Admin 2 CSS -->
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Boxicons CSS -->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-    }
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+    /* Estilos generales */
     body {
-        background-color: #f0f4f7;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        flex-direction: column;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #4b5563;
     }
+
     .container-fluid {
-        flex: 1;
-        margin-top: 40px;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        max-width: 1000px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
+
     .card-header {
         background-color: #E62433;
-        color: #fff;
         padding: 10px;
-        border-radius: 60px 60px 60 60;
-        margin-bottom: 20px;
+        border-radius: 6px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
-    h2 {
+
+    .card-header h2 {
+        color: #fff;
         margin: 0;
+        font-size: 1.8rem;
         font-weight: 600;
-        font-size: 1.75rem;
+        letter-spacing: 0.5px;
     }
+
     .filters-container {
         display: flex;
         flex-wrap: nowrap;
         gap: 15px;
         margin-bottom: 20px;
     }
+
     .filters-container .form-group {
         flex: 1;
         min-width: 150px;
         margin-bottom: 0;
     }
+
     .filters-container .form-control {
         width: 100%;
     }
+
     .input-group .form-control {
         border-radius: 6px 0 0 6px;
     }
+
     .input-group-append .btn {
         border-radius: 0 6px 6px 0;
     }
+
     .search-bar-container {
         margin-bottom: 20px;
     }
+
     .table-container {
         max-height: 600px;
         overflow-y: auto;
@@ -156,28 +166,102 @@ if (!$result) {
         border: 1px solid #dcdcdc;
         border-radius: 5px;
     }
+
     table {
         width: 100%;
         min-width: 1200px;
         border-collapse: collapse;
     }
-    th, td {
+
+    th,
+    td {
         text-align: center;
         vertical-align: middle;
         padding: 12px;
         border: 1px solid #dcdcdc;
     }
+
     th {
         background-color: #E62433;
         color: #fff;
         font-weight: 600;
     }
+
     tr:nth-child(even) {
         background-color: #f9f9f9;
     }
+
     tr:nth-child(odd) {
         background-color: #ffffff;
     }
+
+    /* Estilos generales para los modales */
+    .modal-content {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        font-family: Arial, sans-serif;
+    }
+
+    .modal-header {
+        background-color: #DE112D;
+        padding: 15px;
+        color: white;
+        border-bottom: 2px solid #B50D22;
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+
+    .modal-header .close {
+        font-size: 1.5rem;
+        color: white;
+        background: none;
+        border: none;
+        opacity: 0.8;
+        outline: none;
+        transition: opacity 0.2s;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .modal-footer .btn {
+        border: none;
+        transition: background-color 0.3s ease;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .modal-footer .btn-secondary {
+        background-color: #0e2643;
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #0b1e36;
+    }
+
+    .modal-footer .btn-success {
+        background-color: #0d5316;
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #0a4312;
+    }
+
+    .modal-footer .btn-dark {
+        background-color: #3d454d;
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #31373e;
+    }
+
     footer {
         background-color: white;
         color: #737373;
@@ -186,11 +270,93 @@ if (!$result) {
         width: 100%;
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     }
+
     footer p {
         margin: 0;
     }
-</style>    
+
+    /* MEDIA QUERIES PARA HACE EL DISEÑO RESPONSIVO */
+    @media (max-width: 1200px) {
+        .container-fluid {
+            padding: 30px;
+        }
+
+        .filters-container {
+            flex-direction: column;
+        }
+
+        .filters-container .form-group {
+            margin-bottom: 10px;
+        }
+
+        table {
+            min-width: 800px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .filters-container {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filters-container .form-group {
+            min-width: 100%;
+        }
+
+        table {
+            min-width: 600px;
+        }
+
+        th,
+        td {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+        }
+
+        table {
+            min-width: 400px;
+        }
+
+        th,
+        td {
+            font-size: 0.8rem;
+            padding: 8px;
+        }
+
+        .filters-container {
+            gap: 5px;
+        }
+
+        .filters-container .form-group {
+            min-width: 100%;
+        }
+
+        .search-bar-container {
+            margin-bottom: 10px;
+        }
+    }
+    </style>
 </head>
+
 <body>
     <?php include_once 'navbar_admin.php'; ?>
     <div class="container-fluid">
@@ -199,62 +365,80 @@ if (!$result) {
         </div>
         <form method="GET" action="">
             <div class="filters-container">
+                <!-- Campo Materia -->
                 <div class="form-group">
+                    <i class="bx bx-book"></i>
                     <label for="materia">Materia:</label>
                     <select id="materia" name="materia" class="form-control">
                         <option value="">Selecciona Materia</option>
                         <?php
-                        while ($row = $materiasResult->fetch_assoc()) {
-                            echo "<option value=\"" . htmlspecialchars($row['nombre']) . "\" " . ($materia == $row['nombre'] ? 'selected' : '') . ">" . htmlspecialchars($row['nombre']) . "</option>";
-                        }
-                        ?>
+                while ($row = $materiasResult->fetch_assoc()) {
+                    echo "<option value=\"" . htmlspecialchars($row['nombre']) . "\" " . ($materia == $row['nombre'] ? 'selected' : '') . ">" . htmlspecialchars($row['nombre']) . "</option>";
+                }
+                ?>
                     </select>
                 </div>
+                <!-- Campo Nivel -->
                 <div class="form-group">
+                    <i class="bx bx-bar-chart-alt-2"></i>
                     <label for="nivel">Nivel:</label>
                     <select id="nivel" name="nivel" class="form-control">
                         <option value="">Selecciona Nivel</option>
                         <?php
-                        while ($row = $nivelesResult->fetch_assoc()) {
-                            echo "<option value=\"" . htmlspecialchars($row['nombre']) . "\" " . ($nivel == $row['nombre'] ? 'selected' : '') . ">" . htmlspecialchars($row['nombre']) . "</option>";
-                        }
-                        ?>
+                while ($row = $nivelesResult->fetch_assoc()) {
+                    echo "<option value=\"" . htmlspecialchars($row['nombre']) . "\" " . ($nivel == $row['nombre'] ? 'selected' : '') . ">" . htmlspecialchars($row['nombre']) . "</option>";
+                }
+                ?>
                     </select>
                 </div>
+                <!-- Campo Curso -->
                 <div class="form-group">
+                    <i class="bx bx-chalkboard"></i>
                     <label for="curso">Curso:</label>
                     <select id="curso" name="curso" class="form-control">
                         <option value="">Selecciona Curso</option>
                         <?php
-                        while ($row = $cursosResult->fetch_assoc()) {
-                            echo "<option value=\"" . htmlspecialchars($row['id_curso']) . "\" " . ($curso == $row['id_curso'] ? 'selected' : '') . ">" . htmlspecialchars($row['id_curso']) . "</option>";
-                        }
-                        ?>
+                while ($row = $cursosResult->fetch_assoc()) {
+                    echo "<option value=\"" . htmlspecialchars($row['id_curso']) . "\" " . ($curso == $row['id_curso'] ? 'selected' : '') . ">" . htmlspecialchars($row['id_curso']) . "</option>";
+                }
+                ?>
                     </select>
                 </div>
+                <!-- Campo Año Lectivo -->
                 <div class="form-group">
+                    <i class="bx bx-calendar"></i>
                     <label for="anioLectivo">Año Lectivo:</label>
                     <select id="anioLectivo" name="anioLectivo" class="form-control">
                         <option value="">Selecciona Año Lectivo</option>
                         <?php
-                        while ($row = $anioLectivoResult->fetch_assoc()) {
-                            echo "<option value=\"" . htmlspecialchars($row['año']) . "\" " . ($anioLectivo == $row['año'] ? 'selected' : '') . ">" . htmlspecialchars($row['año']) . "</option>";
-                        }
-                        ?>
+                while ($row = $anioLectivoResult->fetch_assoc()) {
+                    echo "<option value=\"" . htmlspecialchars($row['año']) . "\" " . ($anioLectivo == $row['año'] ? 'selected' : '') . ">" . htmlspecialchars($row['año']) . "</option>";
+                }
+                ?>
                     </select>
                 </div>
             </div>
+            <!-- Barra de búsqueda -->
             <div class="search-bar-container">
                 <div class="form-group">
                     <div class="input-group">
-                        <input type="text" id="cedula" name="cedula" class="form-control" value="<?php echo htmlspecialchars($cedula); ?>" placeholder="Cédula Estudiante">
+                        <input type="text" id="cedula" name="cedula" class="form-control"
+                            value="<?php echo htmlspecialchars($cedula); ?>" placeholder="Cédula Estudiante">
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-primary">Buscar</button>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Botón para abrir el manual de uso -->
+            <div class="manual-button-container" style="margin-top: 10px; margin-bottom: 20px;">
+                <button type="button" data-toggle="modal" data-target="#modalInstrucciones1" class="btn btn-secondary">
+                    <i class='bx bx-book'></i> Manual de Uso
+                </button>
+            </div>
         </form>
+
+        <!-- Tabla de Resultados -->
         <?php if ($result && $result->num_rows > 0): ?>
         <div class="table-container">
             <table class="table table-bordered">
@@ -299,8 +483,85 @@ if (!$result) {
         <?php elseif ($result): ?>
         <p>No se encontraron registros con los filtros aplicados.</p>
         <?php endif; ?>
+
+        <!-- Modal 1 - Manual de Uso de la Gestión de Calificaciones (1/3) -->
+        <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
+            aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de Calificaciones
+                            (1/3)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>¿Cómo buscar estudiantes?</strong></p>
+                        <ol>
+                            <li>En la parte superior de la página, completa los filtros de búsqueda:</li>
+                            <ul>
+                                <li><strong>Materia:</strong> Selecciona la asignatura.</li>
+                                <li><strong>Nivel:</strong> Elige el nivel educativo.</li>
+                                <li><strong>Curso:</strong> Escoge el curso.</li>
+                                <li><strong>Año Lectivo:</strong> Selecciona el año académico.</li>
+                                <li><strong>Cédula:</strong> Si buscas por estudiante, ingresa su cédula.</li>
+                            </ul>
+                            <li>Haz clic en el botón verde <strong>"Buscar"</strong> debajo de los filtros.</li>
+                        </ol>
+                        <p><strong>Nota:</strong> Si no aparece ningún estudiante, verifica que los datos ingresados
+                            sean correctos.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success"
+                            onclick="openModal('#modalInstrucciones2')">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal 2 - Manual de Uso de la Gestión de Calificaciones (2/3) -->
+        <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
+            aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de Calificaciones
+                            (2/3)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>¿Cómo ver los resultados?</strong></p>
+                        <ol>
+                            <li>Al hacer clic en <strong>"Buscar"</strong>, verás una tabla con los estudiantes que
+                                coinciden con tus filtros.</li>
+                            <li>La tabla muestra:
+                                <ul>
+                                    <li><strong>Nombre:</strong> El nombre completo del estudiante.</li>
+                                    <li><strong>Curso:</strong> El curso en el que está matriculado.</li>
+                                    <li><strong>Calificación:</strong> Las notas obtenidas en los parciales y exámenes,
+                                        así como el promedio final.</li>
+                                    <li><strong>Estado de la calificación:</strong> Indica si el estudiante está
+                                        <strong>Aprobado</strong> o <strong>Reprobado</strong>.
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>Si ves varios estudiantes, puedes buscar por nombre, curso o estado de calificación para
+                                encontrar a uno en particular.</li>
+                        </ol>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                        <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
@@ -313,5 +574,21 @@ if (!$result) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
     <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    function openModal(modalId) {
+        // Ocultar todos los modales abiertos
+        $('.modal').modal('hide');
+
+        // Mostrar el modal correspondiente
+        if ($(modalId).length) {
+            $(modalId).modal('show');
+        } else {
+            console.error('Modal no encontrado: ' + modalId);
+        }
+    }
+    </script>
 </body>
+
 </html>

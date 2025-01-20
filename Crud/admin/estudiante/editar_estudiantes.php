@@ -9,19 +9,19 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $mensaje = array();
 
 // Consulta para niveles, paralelos, jornadas y historial académico
-$sql_nivel = "SELECT id_nivel, nombre FROM nivel";
+$sql_nivel = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'a'";
 $result_nivel = $conn->query($sql_nivel);
 $niveles = $result_nivel->fetch_all(MYSQLI_ASSOC);
 
-$sql_subnivel = "SELECT id_subnivel, abreviatura FROM subnivel";
+$sql_subnivel = "SELECT id_subnivel, abreviatura FROM subnivel WHERE estado = 'a'";
 $result_subnivel = $conn->query($sql_subnivel);
 $subniveles = $result_subnivel->fetch_all(MYSQLI_ASSOC);
 
-$sql_especialidad = "SELECT id_especialidad, nombre FROM especialidad";
+$sql_especialidad = "SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'a'";
 $result_especialidad = $conn->query($sql_especialidad);
 $especialidades = $result_especialidad->fetch_all(MYSQLI_ASSOC);
 
-$sql_paralelo = "SELECT id_paralelo, nombre FROM paralelo";
+$sql_paralelo = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'a'";
 $result_paralelo = $conn->query($sql_paralelo);
 $paralelos = $result_paralelo->fetch_all(MYSQLI_ASSOC);
 
@@ -29,7 +29,7 @@ $sql_jornada = "SELECT id_jornada, nombre FROM jornada";
 $result_jornada = $conn->query($sql_jornada);
 $jornadas = $result_jornada->fetch_all(MYSQLI_ASSOC);
 
-$sql_historial = "SELECT id_his_academico, año FROM historial_academico";
+$sql_historial = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'a'";
 $result_historial = $conn->query($sql_historial);
 $historiales = $result_historial->fetch_all(MYSQLI_ASSOC);
 
@@ -131,6 +131,7 @@ if (isset($conn)) {
     $conn->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">

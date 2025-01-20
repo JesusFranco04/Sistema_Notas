@@ -58,7 +58,7 @@ if (!$resultado) {
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <!-- Estilos personalizados -->
-<style>
+    <style>
     /* Estilo general del cuerpo */
     body {
         font-family: Arial, sans-serif;
@@ -141,16 +141,20 @@ if (!$resultado) {
     }
 
     .table tbody tr:nth-child(odd) {
-        background-color: #fcccce; /* Rojo claro para filas impares */
+        background-color: #fcccce;
+        /* Rojo claro para filas impares */
     }
 
     .table tbody tr:nth-child(even) {
-        background-color: #f8f9fa; /* Gris claro para filas pares */
+        background-color: #f8f9fa;
+        /* Gris claro para filas pares */
     }
 
     .table tbody tr:hover {
-        background-color: #f8a9ad; /* Rojo bonito */
-        color: #0a0a0a; /* Letras negro al pasar el ratón */
+        background-color: #f8a9ad;
+        /* Rojo bonito */
+        color: #0a0a0a;
+        /* Letras negro al pasar el ratón */
     }
 
     .table tbody td {
@@ -160,9 +164,12 @@ if (!$resultado) {
 
     /* Estilo para contenedor de tabla con barras de desplazamiento */
     .table-container {
-        max-height: 500px; /* Ajusta la altura máxima según tus necesidades */
-        overflow-y: auto; /* Barra de desplazamiento vertical */
-        overflow-x: auto; /* Barra de desplazamiento horizontal */
+        max-height: 500px;
+        /* Ajusta la altura máxima según tus necesidades */
+        overflow-y: auto;
+        /* Barra de desplazamiento vertical */
+        overflow-x: auto;
+        /* Barra de desplazamiento horizontal */
     }
 
 
@@ -181,19 +188,133 @@ if (!$resultado) {
         margin-bottom: 1rem;
     }
 
+    /* Estilo del header del modal */
+    .modal-header {
+        background-color: #DE112D;
+        /* Rojo */
+        color: white;
+        /* Texto en blanco */
+        border-bottom: 2px solid #B50D22;
+        /* Bordes más definidos */
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        /* Tamaño ligeramente más grande */
+    }
+
+    /* Estilo para el botón de cerrar */
+    .close {
+        color: white;
+        /* "X" en blanco */
+        opacity: 0.8;
+        /* Transparencia sutil */
+    }
+
+    .close:hover {
+        opacity: 1;
+        /* Más visible al pasar el cursor */
+    }
+
+    /* Botones del modal */
+    .modal-footer .btn-secondary {
+        background-color: #07244a;
+        /* Azul oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #053166;
+        /* Azul más claro al pasar el cursor */
+    }
+
+    /* Botón Siguiente (verde) */
+    .modal-footer .btn-success {
+        background-color: #28a745;
+        /* Verde */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #218838;
+        /* Verde más oscuro al pasar el cursor */
+    }
+
+    /* Botón Atrás (azul oscuro) */
+    .modal-footer .btn-info {
+        background-color: #17a2b8;
+        /* Azul claro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-info:hover {
+        background-color: #117a8b;
+        /* Azul más oscuro al pasar el cursor */
+    }
+
+    /* Botón Cerrar (gris oscuro) */
+    .modal-footer .btn-dark {
+        background-color: #343a40;
+        /* Gris oscuro */
+        color: white;
+        /* Texto en blanco */
+        border: none;
+        /* Sin borde */
+        transition: background-color 0.3s ease;
+        /* Animación suave */
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #23272b;
+        /* Gris más oscuro al pasar el cursor */
+    }
+
+    /* Ajustes generales del modal */
+    .modal-content {
+        border-radius: 8px;
+        /* Bordes redondeados */
+        overflow: hidden;
+        /* Evitar desbordes */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* Sombra para profundidad */
+    }
+
     footer {
-    background-color: white; /* Color de fondo blanco */
-    color: #737373; /* Color del texto en gris oscuro */
-    text-align: center; /* Centrar el texto */
-    padding: 20px 0; /* Espaciado interno vertical */
-    width: 100%; /* Ancho completo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+        background-color: white;
+        /* Color de fondo blanco */
+        color: #737373;
+        /* Color del texto en gris oscuro */
+        text-align: center;
+        /* Centrar el texto */
+        padding: 20px 0;
+        /* Espaciado interno vertical */
+        width: 100%;
+        /* Ancho completo */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        /* Sombra más pronunciada */
     }
 
     footer p {
-        margin: 0; /* Eliminar el margen de los párrafos */
+        margin: 0;
+        /* Eliminar el margen de los párrafos */
     }
-</style>
+    </style>
 </head>
 
 <body>
@@ -230,14 +351,25 @@ if (!$resultado) {
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="row justify-content-start action-buttons">
+                            <!-- Botón para agregar subnivel -->
                             <div class="col-auto">
                                 <a href="http://localhost/sistema_notas/Crud/admin/subnivel/agregar_subnivel.php"
                                     class="btn btn-primary">Agregar
                                     Subnivel</a>
                             </div>
+                            <!-- Botón para ver manual de uso -->
                             <div class="col-auto">
-                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                    data-target="#modalInstrucciones1">Ver Manual de Uso</button>
+                                <button type="button" class="btn btn-secondary" data-toggle="modal"
+                                    data-target="#modalInstrucciones1">
+                                    Ver Manual de Uso
+                                </button>
+                            </div>
+                            <!-- Botón para descargar reporte -->
+                            <div class="col-auto">
+                                <a href="http://localhost/sistema_notas/views/admin/reporte_subnivel.php"
+                                    class="btn btn-success">
+                                    Descargar Reporte
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -258,6 +390,8 @@ if (!$resultado) {
                             </tr>
                         </thead>
                         <tbody>
+                            <?php if ($resultado->num_rows > 0): ?>
+                            <!-- Verifica si hay resultados -->
                             <?php while ($fila = $resultado->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo $fila['id_subnivel']; ?></td>
@@ -277,95 +411,161 @@ if (!$resultado) {
                                 </td>
                             </tr>
                             <?php endwhile; ?>
+                            <?php else: ?>
+                            <tr>
+                                <td colspan="7" class="text-center">No se encontraron registros disponibles en este
+                                    momento.</td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
-                    <!-- Manual de Uso - Parte 1 -->
+
+                    <!-- Modal 1 - Gestión de Subniveles -->
                     <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
                         aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Subnivel (1/2)</h5>
+                                    <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de
+                                        Subniveles (1/3)</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <ol>
-                                        <li><strong>Agregar subnivel:</strong> En este paso debes ingresar
-                                        los "subniveles" y la abreviatura si es BTI o EGB. </li>
-                                    </ol>
+                                    <p><strong>¿Cómo agregar un nuevo subnivel?</strong></p>
+                                    <p>Para agregar un nuevo subnivel, haz clic en el botón <strong>"Agregar
+                                            Subnivel"</strong> en la parte superior de la página.</p>
+                                    <p>En el formulario que aparecerá, debes ingresar los siguientes datos:</p>
+                                    <ul>
+                                        <li><strong>Nombre:</strong> Escribe el nombre completo del subnivel (por
+                                            ejemplo: "Educacion Basica General"). Este campo es obligatorio.</li>
+                                        <li><strong>Abreviatura:</strong> Ingresa una abreviatura corta para el subnivel
+                                            (por ejemplo: "EBG"). Este campo también es obligatorio.</li>
+                                        <li><strong>Estado:</strong> Este campo se llenará automáticamente como
+                                            "Activo". No necesitas modificarlo.</li>
+                                        <li><strong>Usuario de Ingreso:</strong> Se llenará automáticamente con tu
+                                            cédula, que indica quién está registrando el subnivel.</li>
+                                        <li><strong>Fecha de Ingreso:</strong> La fecha y hora de registro también se
+                                            llenan automáticamente.</li>
+                                    </ul>
+                                    <p>Cuando termines, haz clic en el botón <strong>"Crear Subnivel"</strong> para
+                                        registrar el nuevo subnivel.</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones2')">Siguiente</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="openModal('#modalInstrucciones2')">Siguiente</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Manual de Uso - Parte 2 -->
+                    <!-- Modal 2 - Gestión de Subniveles -->
                     <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
                         aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Subnivel (2/2)</h5>
+                                    <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de
+                                        Subniveles (2/3)</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <ol start="2">
-                                        <li><strong>Acciones:</strong>En Acciones tenemos Un boton de "inactivar" la cual al momento de apretarlo el registro quedara dasativado y asi mismo tendra
-                                        el boton de "activar" para que el registro se pueda ver en los otros formularios.
-                                        </li>
-                                    </ol>
+                                    <p><strong>¿Cómo buscar y filtrar los subniveles?</strong></p>
+                                    <p>En la parte superior de la tabla, verás los filtros disponibles para encontrar
+                                        los subniveles que necesitas:</p>
+                                    <ul>
+                                        <li><strong>Fecha de Creación:</strong> Puedes seleccionar una fecha o un rango
+                                            de fechas para ver los subniveles registrados en ese período.</li>
+                                        <li><strong>Estado:</strong> Aquí podrás elegir entre "Todos", "Activos" o
+                                            "Inactivos" para ver solo los subniveles con el estado que prefieras.</li>
+                                    </ul>
+                                    <p>Una vez que hayas seleccionado tus filtros, presiona el botón
+                                        <strong>"Filtrar"</strong> para aplicar los filtros y ver los resultados.
+                                    </p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
-                                        onclick="openNextModal('#modalInstrucciones3')">cerrar</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="openModal('#modalInstrucciones1')">Atrás</button>
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="openModal('#modalInstrucciones3')">Siguiente</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal 3 - Gestión de Subniveles -->
+                    <div class="modal fade" id="modalInstrucciones3" tabindex="-1" role="dialog"
+                        aria-labelledby="modalInstruccionesLabel3" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalInstruccionesLabel3">Manual de Uso - Gestión de
+                                        Subniveles (3/3)</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>¿Cómo activar o inactivar un subnivel?</strong></p>
+                                    <p>En la tabla de subniveles, verás una columna llamada <strong>"Acciones"</strong>.
+                                        Aquí podrás cambiar el estado de los subniveles.</p>
+                                    <ul>
+                                        <li><strong>Inactivar:</strong> Si el subnivel está activo y deseas
+                                            desactivarlo, haz clic en el botón <strong>"Inactivar"</strong>.</li>
+                                        <li><strong>Activar:</strong> Si un subnivel está inactivo y deseas activarlo,
+                                            haz clic en el botón <strong>"Activar"</strong>.</li>
+                                    </ul>
+                                    <p>Recuerda que solo los subniveles activos están disponibles para usar en otras
+                                        partes del sistema.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="openModal('#modalInstrucciones2')">Atrás</button>
+                                    <button type="button" class="btn btn-dark" data-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal de Confirmación -->
+                    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p id="mensajeConfirmacion"></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form id="formularioConfirmacion" method="POST">
+                                        <input type="hidden" id="inputIdSubnivel" name="id_subnivel" value="">
+                                        <input type="hidden" id="inputEstado" name="estado" value="">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">Cancelar</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="confirmarCambioEstado()">Confirmar</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-    <!-- Modal de Confirmación -->
-    <div id="modalConfirmacion" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Cambio de Estado</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p id="mensajeConfirmacion"></p>
-                </div>
-                <div class="modal-footer">
-                    <form id="formularioConfirmacion" method="POST">
-                        <input type="hidden" id="inputIdSubnivel" name="id_subnivel" value="">
-                        <input type="hidden" id="inputEstado" name="estado" value="">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary"
-                            onclick="confirmarCambioEstado()">Confirmar</button>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
-</div>
-</div>
-</div>
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Fin Modal de Confirmación -->
 
     <!-- Bootstrap core JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -412,12 +612,16 @@ if (!$resultado) {
         });
     }
 
-    function openNextModal(nextModalId) {
-        // Cierra el modal actual
+    function openModal(modalId) {
+        // Ocultar todos los modales abiertos
         $('.modal').modal('hide');
 
-        // Abre el siguiente modal
-        $(nextModalId).modal('show');
+        // Mostrar el modal correspondiente
+        if ($(modalId).length) {
+            $(modalId).modal('show');
+        } else {
+            console.error('Modal no encontrado: ' + modalId);
+        }
     }
     </script>
 

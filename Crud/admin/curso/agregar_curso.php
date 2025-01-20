@@ -18,130 +18,60 @@ $historiales = [];
 
 // Obtener datos de la base de datos
 try {
-    // Profesores
-    $result = $conn->query("SELECT id_profesor, CONCAT(nombres, ' ', apellidos) AS nombre_completo FROM profesor");
+    // Profesores (seleccionando solo los que están activos)
+    $result = $conn->query("
+        SELECT p.id_profesor, CONCAT(p.nombres, ' ', p.apellidos) AS nombre_completo 
+        FROM profesor p
+        INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+        WHERE u.estado = 'A'
+    ");
     if ($result->num_rows > 0) {
         $profesores = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Materias
-    $result = $conn->query("SELECT id_materia, nombre FROM materia");
+    // Materias (solo activas)
+    $result = $conn->query("SELECT id_materia, nombre FROM materia WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $materias = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Niveles
-    $result = $conn->query("SELECT id_nivel, nombre FROM nivel");
+    // Niveles (solo activos)
+    $result = $conn->query("SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $niveles = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Paralelos
-    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo");
+    // Paralelos (solo activos)
+    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $paralelos = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Subniveles
-    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel");
+    // Subniveles (solo activos)
+    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $subniveles = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Especialidades
-    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad");
+    // Especialidades (solo activas)
+    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $especialidades = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Jornadas
-    $result = $conn->query("SELECT id_jornada, nombre FROM jornada");
+    // Jornadas (solo activas)
+    $result = $conn->query("SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $jornadas = $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Historiales
-    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico");
+    // Historiales académicos (solo activos)
+    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'");
     if ($result->num_rows > 0) {
         $historiales = $result->fetch_all(MYSQLI_ASSOC);
     }
 } catch (Exception $e) {
     $error = "Error al obtener los datos: " . $e->getMessage();
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Recoger los valores del formulario
-    $id_profesor = $_POST['id_profesor'];
-    $id_materias = $_POST['id_materias']; // Esto recogerá un array de materias seleccionadas
-    $id_nivel = $_POST['id_nivel'];
-    $id_paralelo = $_POST['id_paralelo'];
-    $id_subnivel = $_POST['id_subnivel'];
-    $id_especialidad = $_POST['id_especialidad'];
-    $id_jornada = $_POST['id_jornada'];
-    $id_his_academico = $_POST['id_his_academico'];
-    $estado = $_POST['estado'];
-    $usuario_ingreso = $_SESSION['cedula'];
-    $fecha_ingreso = date('Y-m-d H:i:s');
-
-    // Crear la consulta SQL para verificar si el registro ya existe
-    $verificarConsulta = "SELECT * FROM curso WHERE id_profesor = ? AND id_materia = ? AND id_nivel = ? AND id_paralelo = ? AND id_subnivel = ? AND id_especialidad = ? AND id_jornada = ? AND id_his_academico = ? AND estado = ?";
-    
-    // Preparar la declaración (statement) para la verificación
-    if ($verificarStmt = $conn->prepare($verificarConsulta)) {
-        $existeRegistro = false;
-        $todosInsertados = true;
-        
-        foreach ($id_materias as $materia) {
-            // Vincular los parámetros para la verificación
-            $verificarStmt->bind_param("iiiiiiiss", $id_profesor, $materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado);
-
-            // Ejecutar la verificación
-            $verificarStmt->execute();
-            $result = $verificarStmt->get_result();
-            
-            // Si el registro ya existe
-            if ($result->num_rows > 0) {
-                $existeRegistro = true;
-                break; // No necesitamos verificar más, ya que sabemos que al menos uno ya existe
-            }
-        }
-
-        if ($existeRegistro) {
-            $error = "Uno o más cursos ya están registrados para las materias seleccionadas.";
-        } else {
-            // Si no hay registros duplicados, proceder a insertar los datos
-            $consulta = "INSERT INTO curso (id_profesor, id_materia, id_nivel, id_paralelo, id_subnivel, id_especialidad, id_jornada, id_his_academico, estado, usuario_ingreso, fecha_ingreso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            // Preparar la declaración (statement) para la inserción
-            if ($stmt = $conn->prepare($consulta)) {
-                // Iterar sobre cada materia seleccionada y realizar la inserción
-                foreach ($id_materias as $materia) {
-                    // Vincular los parámetros
-                    $stmt->bind_param("iiiiiiissss", $id_profesor, $materia, $id_nivel, $id_paralelo, $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
-
-                    // Ejecutar la declaración
-                    if ($stmt->execute()) {
-                        // Si la inserción es exitosa
-                        $success = "Todos los cursos han sido registrados con éxito.";
-                    } else {
-                        // Si hay un error al insertar
-                        $error = "Error al registrar uno o más cursos: " . $stmt->error;
-                        break; // No necesitamos seguir insertando si ocurre un error
-                    }
-                }
-
-                // Cerrar la declaración
-                $stmt->close();
-            } else {
-                $error = "Error al preparar la consulta de inserción: " . $conn->error;
-            }
-        }
-
-        // Cerrar la declaración de verificación
-        $verificarStmt->close();
-    } else {
-        $error = "Error al preparar la consulta de verificación: " . $conn->error;
-    }
 }
 ?>
 
@@ -405,6 +335,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         font-size: 14px;
         /* Tamaño de fuente más pequeño para una mejor presentación */
     }
+
+    .materia-container .no-materias {
+        color: red;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+    }
     </style>
 </head>
 
@@ -452,6 +389,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="form-group">
                         <label for="id_materias">Materias: <span class="text-danger">*</span></label>
                         <div class="materia-container">
+                            <?php if (empty($materias)): ?>
+                            <p style="color: red; font-weight: bold;">No hay materias registradas todavía.</p>
+                            <?php else: ?>
                             <?php foreach ($materias as $materia): ?>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox"
@@ -463,6 +403,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 </label>
                             </div>
                             <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

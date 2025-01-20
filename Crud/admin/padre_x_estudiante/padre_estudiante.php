@@ -623,6 +623,8 @@ $result_relaciones = $conn->query($query_relaciones);
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <!-- SB Admin 2 JS -->
+    <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
 
     <script>
     function openModal(modalId) {

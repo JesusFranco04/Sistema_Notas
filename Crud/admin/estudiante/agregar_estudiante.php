@@ -135,8 +135,6 @@ if (isset($conn)) {
 ?>
 
 
-
-
 <!DOCTYPE html>
 <html lang="es">
 
