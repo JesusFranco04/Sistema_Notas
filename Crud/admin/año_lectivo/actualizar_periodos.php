@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 include '../../config.php';
 
@@ -15,11 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("i", $id_periodo);
     $stmt->execute();
 
-    // Respuesta en JSON
+    // Redirigir con el mensaje adecuado
     if ($stmt->affected_rows > 0) {
-        echo json_encode(["success" => true, "message" => "Período activado correctamente."]);
+        header('Location: http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Período activado correctamente.&tipo=success');
     } else {
-        echo json_encode(["success" => false, "message" => "Error al activar el período."]);
+        header('Location: http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al activar el período. Por favor, inténtelo de nuevo.&tipo=error');
     }
 
     $stmt->close();

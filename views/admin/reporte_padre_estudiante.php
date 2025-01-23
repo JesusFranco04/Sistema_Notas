@@ -9,6 +9,18 @@ include('../../Crud/config.php'); // Conexión a la base de datos
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
 
+// Consulta SQL para obtener el total de estudiantes que tienen padres asociados
+$queryEstudiantes = "SELECT COUNT(DISTINCT id_estudiante) AS total_estudiantes 
+                     FROM padre_x_estudiante";
+$resultEstudiantes = $conn->query($queryEstudiantes);
+$totalEstudiantes = $resultEstudiantes->fetch_assoc()['total_estudiantes'];
+
+// Consulta SQL para obtener el total de padres
+$queryPadres = "SELECT COUNT(DISTINCT pe.id_padre) AS total_padres 
+                FROM padre_x_estudiante pe";
+$resultPadres = $conn->query($queryPadres);
+$totalPadres = $resultPadres->fetch_assoc()['total_padres'];
+
 // Consulta SQL para obtener los datos necesarios para el reporte
 $query = "
     SELECT 
@@ -102,6 +114,24 @@ class PDF extends FPDF {
         $this->Cell(20, 6, 'Telefono', 1, 0, 'C', true);
         $this->Cell(30, 6, 'Correo Electronico', 1, 1, 'C', true);
     }
+
+    function Resumen($estudiantes, $padres) {
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(0, 10, 'Resumen de Estudiantes y Padres', 0, 1, 'C', true);
+
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+
+        $ancho = ($this->GetPageWidth() - 20) / 2;
+
+        $this->Cell($ancho, 10, utf8_decode('Total de Estudiantes: ' . $estudiantes), 1, 0, 'C', true);
+        $this->Cell($ancho, 10, utf8_decode('Total de Padres: ' . $padres), 1, 1, 'C', true);
+
+        $this->Ln(10);
+    }
 }
 
 // Crear objeto PDF con orientación Horizontal ('L' para landscape)
@@ -109,7 +139,10 @@ $pdf = new PDF('L', 'mm', 'A4'); // 'L' para horizontal, 'mm' para milímetros, 
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 5.5);  // Fuente más pequeña para los datos
 
-// Encabezados de la tabla
+// Resumen
+$pdf->Resumen($totalEstudiantes, $totalPadres);
+
+// Encabezado de la tabla
 $pdf->TableHeader();
 
 // Mostrar los datos de los estudiantes y sus padres

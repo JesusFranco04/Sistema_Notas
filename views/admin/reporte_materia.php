@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Iniciar sesión
 session_start();
 
@@ -24,8 +24,19 @@ $query = "
         id_materia ASC
 ";
 
-// Ejecutar la consulta
+// Consulta SQL para obtener las materias inactivas (para el resumen)
+$queryInactivos = "
+    SELECT 
+        id_materia 
+    FROM 
+        materia 
+    WHERE 
+        estado = 'I'
+";
+
+// Ejecutar las consultas
 $result = $conn->query($query);
+$resultInactivos = $conn->query($queryInactivos);
 
 // Definición de la clase PDF para el reporte
 class PDF extends FPDF {
@@ -94,11 +105,38 @@ class PDF extends FPDF {
         $this->Cell(40, 10, utf8_decode($row['usuario_ingreso']), 1, 0, 'L', true); // Alto de las celdas más pequeño
         $this->Cell(40, 10, date('d/m/Y', strtotime($row['fecha_ingreso'])), 1, 1, 'C', true); // Alto de las celdas más pequeño
     }
+
+    // Función para mostrar el cuadro de resumen de materias
+    function SummaryBox($activos, $inactivos, $total) {
+        // Título del cuadro
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(189, 10, 'Resumen de Materias', 0, 1, 'C', true);
+
+        // Resumen de materias activos, inactivos y total
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+
+        $this->Cell(63, 10, 'Materias Activas: ' . $activos, 1, 0, 'C', true);
+        $this->Cell(63, 10, 'Materias Inactivas: ' . $inactivos, 1, 0, 'C', true);
+        $this->Cell(63, 10, 'Total de Materias: ' . $total, 1, 1, 'C', true);
+        $this->Ln(10);
+    }
 }
 
 // Crear objeto PDF con orientación Vertical ('P' para portrait)
 $pdf = new PDF('P', 'mm', 'A4'); // 'P' para vertical, 'mm' para milímetros, 'A4' tamaño
 $pdf->AddPage();
+
+// Calcular el número de materias activas e inactivas
+$totalActivos = $result->num_rows;
+$totalInactivos = $resultInactivos->num_rows;
+$totalMaterias = $totalActivos + $totalInactivos;
+
+// Mostrar el cuadro de resumen de materias
+$pdf->SummaryBox($totalActivos, $totalInactivos, $totalMaterias);
 
 // Encabezados de la tabla
 $pdf->TableHeader();

@@ -15,12 +15,39 @@ $estado = isset($_GET['estado']) ? $_GET['estado'] : null;
 // Depuración: Verificar qué parámetros se están pasando
 // echo "Fecha: " . $fecha . " Estado: " . $estado . "<br>";
 
-// Consulta base
-$query = "SELECT u.id_usuario, u.cedula, a.nombres, a.apellidos, a.correo_electronico, u.contraseña, r.nombre AS rol, u.fecha_ingreso
-          FROM usuario u
-          INNER JOIN rol r ON u.id_rol = r.id_rol
-          LEFT JOIN administrador a ON u.id_usuario = a.id_usuario
-          WHERE 1=1";
+// Consulta para obtener el resumen de usuarios
+$queryResumenUsuarios = "
+    SELECT 
+        COUNT(*) AS total_usuarios, 
+        SUM(CASE WHEN estado = 'A' THEN 1 ELSE 0 END) AS usuarios_activos,
+        SUM(CASE WHEN estado = 'I' THEN 1 ELSE 0 END) AS usuarios_inactivos
+    FROM usuario
+";
+
+// Ejecutar la consulta para obtener el resumen de usuarios
+$resultResumenUsuarios = $conn->query($queryResumenUsuarios);
+
+// Obtener los resultados del resumen
+$rowResumenUsuarios = $resultResumenUsuarios->fetch_assoc();
+
+// Consulta SQL
+$query = "
+    SELECT 
+        u.id_usuario,
+        u.cedula,
+        COALESCE(p.nombres, a.nombres, pr.nombres) AS nombres,
+        COALESCE(p.apellidos, a.apellidos, pr.apellidos) AS apellidos,
+        COALESCE(p.correo_electronico, a.correo_electronico, pr.correo_electronico) AS correo_electronico,
+        u.contraseña,
+        r.nombre AS rol,
+        u.fecha_ingreso
+    FROM usuario u
+    LEFT JOIN padre p ON u.id_usuario = p.id_usuario
+    LEFT JOIN administrador a ON u.id_usuario = a.id_usuario
+    LEFT JOIN profesor pr ON u.id_usuario = pr.id_usuario
+    INNER JOIN rol r ON u.id_rol = r.id_rol
+    WHERE 1=1
+";
 
 // Parámetros para la consulta
 $params = [];
@@ -113,6 +140,29 @@ class PDF extends FPDF {
 $pdf = new PDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 6);  // Fuente más pequeña para los datos
+
+// Mostrar el resumen de usuarios
+$pdf->SetFont('Arial', 'B',12);
+$pdf->SetFillColor(178, 34, 34); // Rojo
+$pdf->SetTextColor(255, 255, 255); // Blanco
+$pdf->Cell(189, 10, 'Resumen de Usuarios', 0, 1, 'C', true);
+
+// Establecer el estilo para los cuadros de resumen
+$pdf->SetFont('Arial', '', 10);
+$pdf->SetFillColor(245, 245, 245); // Color de fondo suave (gris claro)
+$pdf->SetTextColor(0, 0, 0); // Color de texto negro
+
+// Cuadro para "Usuarios Activos"
+$pdf->Cell(63, 10, utf8_decode('Usuarios Activos: ' . $rowResumenUsuarios['usuarios_activos']), 1, 0, 'C', true);
+
+// Cuadro para "Usuarios Inactivos"
+$pdf->Cell(63, 10, utf8_decode('Usuarios Inactivos: ' . $rowResumenUsuarios['usuarios_inactivos']), 1, 0, 'C', true);
+
+// Cuadro para "Total de Usuarios"
+$pdf->Cell(63, 10, utf8_decode('Total de Usuarios: ' . $rowResumenUsuarios['total_usuarios']), 1, 1, 'C', true);
+
+// Insertar un espacio antes de la tabla
+$pdf->Ln(10);
 
 // Encabezados de la tabla
 $pdf->TableHeader();

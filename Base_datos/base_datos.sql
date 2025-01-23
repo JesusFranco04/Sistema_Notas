@@ -194,14 +194,14 @@ CREATE TABLE estudiante (
     id_especialidad INT NOT NULL,
     id_paralelo INT NOT NULL, -- Paralelo en el que está matriculado el estudiante
     id_jornada INT NOT NULL, -- Jornada en la que está matriculado el estudiante
-    id_historial_academico INT NOT NULL, -- Año académico en el que está matriculado el estudiante
+    id_his_academico INT NOT NULL, -- Año académico en el que está matriculado el estudiante
     fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha y hora de registro
     FOREIGN KEY (id_nivel) REFERENCES nivel(id_nivel),
     FOREIGN KEY (id_subnivel) REFERENCES subnivel(id_subnivel),
     FOREIGN KEY (id_especialidad) REFERENCES especialidad(id_especialidad),
     FOREIGN KEY (id_paralelo) REFERENCES paralelo(id_paralelo),
     FOREIGN KEY (id_jornada) REFERENCES jornada(id_jornada),
-    FOREIGN KEY (id_historial_academico) REFERENCES historial_academico(id_his_academico)
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
 

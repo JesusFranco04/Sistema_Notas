@@ -6,76 +6,97 @@ date_default_timezone_set('America/Guayaquil');
 $error = ''; // Variable para almacenar mensajes de error
 $success = ''; // Variable para almacenar mensajes de éxito
 
-// Inicializar variables
-$profesores = [];
-$materias = [];
-$niveles = [];
-$paralelos = [];
-$subniveles = [];
-$especialidades = [];
-$jornadas = [];
-$historiales = [];
-
 // Obtener datos de la base de datos
 try {
-    // Profesores (seleccionando solo los que están activos)
-    $result = $conn->query("
+    $profesores = $conn->query("
         SELECT p.id_profesor, CONCAT(p.nombres, ' ', p.apellidos) AS nombre_completo 
         FROM profesor p
         INNER JOIN usuario u ON p.id_usuario = u.id_usuario
         WHERE u.estado = 'A'
-    ");
-    if ($result->num_rows > 0) {
-        $profesores = $result->fetch_all(MYSQLI_ASSOC);
-    }
+    ")->fetch_all(MYSQLI_ASSOC);
 
-    // Materias (solo activas)
-    $result = $conn->query("SELECT id_materia, nombre FROM materia WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $materias = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Niveles (solo activos)
-    $result = $conn->query("SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $niveles = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Paralelos (solo activos)
-    $result = $conn->query("SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $paralelos = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Subniveles (solo activos)
-    $result = $conn->query("SELECT id_subnivel, nombre FROM subnivel WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $subniveles = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Especialidades (solo activas)
-    $result = $conn->query("SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $especialidades = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Jornadas (solo activas)
-    $result = $conn->query("SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $jornadas = $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    // Historiales académicos (solo activos)
-    $result = $conn->query("SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'");
-    if ($result->num_rows > 0) {
-        $historiales = $result->fetch_all(MYSQLI_ASSOC);
-    }
+    $materias = $conn->query("SELECT id_materia, nombre FROM materia WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $niveles = $conn->query("SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $paralelos = $conn->query("SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $subniveles = $conn->query("SELECT id_subnivel, nombre FROM subnivel WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $especialidades = $conn->query("SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $jornadas = $conn->query("SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
+    $historiales = $conn->query("SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'")->fetch_all(MYSQLI_ASSOC);
 } catch (Exception $e) {
     $error = "Error al obtener los datos: " . $e->getMessage();
 }
+
+// Manejar la inserción de un curso
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $id_profesor = $_POST['id_profesor'];
+    $id_materias = $_POST['id_materias'] ?? [];
+    $id_nivel = $_POST['id_nivel'];
+    $id_paralelo = $_POST['id_paralelo'];
+    $id_subnivel = $_POST['id_subnivel'];
+    $id_especialidad = $_POST['id_especialidad'];
+    $id_jornada = $_POST['id_jornada'];
+    $id_his_academico = $_POST['id_his_academico'];
+    $estado = 'A';
+    $usuario_ingreso = $_SESSION['cedula'];
+    $fecha_ingreso = date('Y-m-d H:i:s');
+
+    if (!empty($id_profesor) && !empty($id_materias) && !empty($id_nivel) && !empty($id_paralelo) &&
+        !empty($id_subnivel) && !empty($id_especialidad) && !empty($id_jornada) && !empty($id_his_academico)) {
+        
+        $conn->begin_transaction(); // Iniciar transacción
+
+        try {
+            foreach ($id_materias as $id_materia) {
+                $stmt_check = $conn->prepare("
+                    SELECT COUNT(*) 
+                    FROM curso 
+                    WHERE id_profesor = ? AND id_materia = ? AND id_nivel = ? 
+                    AND id_paralelo = ? AND id_subnivel = ? AND id_especialidad = ? 
+                    AND id_jornada = ? AND id_his_academico = ?
+                ");
+                $stmt_check->bind_param(
+                    "iiiiiiii", $id_profesor, $id_materia, $id_nivel, $id_paralelo,
+                    $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico
+                );
+                $stmt_check->execute();
+                $stmt_check->bind_result($count);
+                $stmt_check->fetch();
+                $stmt_check->close();
+
+                if ($count > 0) {
+                    throw new Exception("Ya existe un curso con estos datos para la materia: $id_materia.");
+                }
+
+                $stmt_insert = $conn->prepare("
+                    INSERT INTO curso (
+                        id_profesor, id_materia, id_nivel, id_paralelo, 
+                        id_subnivel, id_especialidad, id_jornada, id_his_academico, 
+                        estado, usuario_ingreso, fecha_ingreso
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt_insert->bind_param(
+                    "iiiiiiiisss", 
+                    $id_profesor, $id_materia, $id_nivel, $id_paralelo,
+                    $id_subnivel, $id_especialidad, $id_jornada, $id_his_academico,
+                    $estado, $usuario_ingreso, $fecha_ingreso
+                );
+                $stmt_insert->execute();
+                $stmt_insert->close();
+            }
+
+            $conn->commit(); // Confirmar la transacción
+            $success = "El curso ha sido creado exitosamente.";
+        } catch (Exception $e) {
+            $conn->rollback(); // Revertir la transacción
+            $error = "Error al guardar el curso: " . $e->getMessage();
+        }
+    } else {
+        $error = "Por favor, completa todos los campos.";
+    }
+}
+
+$conn->close();
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="es">

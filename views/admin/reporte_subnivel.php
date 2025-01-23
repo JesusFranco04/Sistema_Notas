@@ -25,8 +25,19 @@ $query = "
         id_subnivel ASC
 ";
 
-// Ejecutar la consulta
+// Consulta SQL para obtener los subniveles inactivos (para el resumen)
+$queryInactivos = "
+    SELECT 
+        id_subnivel 
+    FROM 
+        subnivel 
+    WHERE 
+        estado = 'I'
+";
+
+// Ejecutar las consultas
 $result = $conn->query($query);
+$resultInactivos = $conn->query($queryInactivos);
 
 // Definición de la clase PDF para el reporte
 class PDF extends FPDF {
@@ -97,11 +108,38 @@ class PDF extends FPDF {
         $this->Cell(40, 8, utf8_decode($row['usuario_ingreso']), 1, 0, 'L', true);
         $this->Cell(40, 8, date('d/m/Y', strtotime($row['fecha_ingreso'])), 1, 1, 'C', true);
     }
+
+    // Función para mostrar el cuadro de resumen de subniveles
+    function SummaryBox($activos, $inactivos, $total) {
+        // Título del cuadro
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(189, 10, 'Resumen de Subniveles', 0, 1, 'C', true);
+
+        // Resumen de subniveles activos, inactivos y total
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+
+        $this->Cell(63, 10, 'Subniveles Activos: ' . $activos, 1, 0, 'C', true);
+        $this->Cell(63, 10, 'Subniveles Inactivos: ' . $inactivos, 1, 0, 'C', true);
+        $this->Cell(63, 10, 'Total de Subniveles: ' . $total, 1, 1, 'C', true);
+        $this->Ln(10);
+    }
 }
 
 // Crear objeto PDF con orientación Vertical ('P' para portrait)
 $pdf = new PDF('P', 'mm', 'A4'); // 'P' para vertical, 'mm' para milímetros, 'A4' tamaño
 $pdf->AddPage();
+
+// Calcular el número de subniveles activos e inactivos
+$totalActivos = $result->num_rows;
+$totalInactivos = $resultInactivos->num_rows;
+$totalSubniveles = $totalActivos + $totalInactivos;
+
+// Mostrar el cuadro de resumen de subniveles
+$pdf->SummaryBox($totalActivos, $totalInactivos, $totalSubniveles);
 
 // Encabezados de la tabla
 $pdf->TableHeader();

@@ -18,16 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_periodo'])) {
     $sql_cerrar = $conn->prepare("UPDATE historial_academico SET estado = 'I', fecha_cierre_programada = ? WHERE id_his_academico = ?");
     $sql_cerrar->bind_param("si", $fecha_cierre, $id_periodo);
     
+    // Redirigir con el mensaje adecuado
     if ($sql_cerrar->execute()) {
-        echo json_encode(['mensaje' => 'Año cerrado correctamente.', 'tipo' => 'success']);
+        header('Location: http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Año cerrado correctamente.&tipo=success');
     } else {
-        echo json_encode(['mensaje' => 'Error al cerrar el año. Por favor, inténtelo de nuevo.', 'tipo' => 'error']);
+        header('Location: http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al cerrar el año. Por favor, inténtelo de nuevo.&tipo=error');
     }
 
     $sql_check->close();
     $sql_cerrar->close();
     $conn->close();
 } else {
-    echo json_encode(['mensaje' => 'Datos inválidos.', 'tipo' => 'error']);
+    header('Location: http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Datos inválidos.&tipo=error');
 }
 ?>

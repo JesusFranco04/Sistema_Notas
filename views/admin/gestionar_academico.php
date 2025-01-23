@@ -3,9 +3,6 @@ session_start();
 include '../../Crud/config.php';
 date_default_timezone_set('America/Guayaquil');
 
-// Inicializar las variables de mensaje
-$mensaje = '';
-$mensaje_tipo = '';
 // Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
@@ -20,25 +17,22 @@ function obtenerPeriodos($conn) {
 }
 
 // Función para verificar el éxito de una consulta
-function verificarConsulta($resultado, $conn, &$mensaje, &$mensaje_tipo) {
+function verificarConsulta($resultado, $conn, $mensaje) {
     if (!$resultado) {
-        $mensaje = "Error en la consulta: " . $conn->error;
-        $mensaje_tipo = "error"; // Puedes usar 'error' para indicar un mensaje de error
-    } else {
-        $mensaje = "Consulta realizada con éxito.";
-        $mensaje_tipo = "success"; // 'success' indica que fue exitoso
+        die($mensaje . " " . $conn->error);
     }
 }
 
 // Obtener los períodos académicos
 $result_periodos = obtenerPeriodos($conn);
-verificarConsulta($result_periodos, $conn, $mensaje, $mensaje_tipo);
+verificarConsulta($result_periodos, $conn, "Error en la consulta de períodos");
 
 // Obtener los años lectivos activos
 $sql_years = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'";
 $result_years = $conn->query($sql_years);
-verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
+verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos");
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -308,20 +302,24 @@ verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
         <div class="section">
             <h2>Gestión de Períodos Académicos</h2>
             <?php
-            // Mostrar mensajes de alerta si existen parámetros en la URL
-            if (isset($_GET['mensaje']) && isset($_GET['tipo'])) {
-                // Asignar el mensaje y el tipo desde la URL
-                $mensaje = htmlspecialchars($_GET['mensaje']);
-                $mensaje_tipo = htmlspecialchars($_GET['tipo']);
-            }
+            function mostrarMensaje() {
+                // Verificar si existen los parámetros 'mensaje' y 'tipo' en la URL
+                if (isset($_GET['mensaje']) && isset($_GET['tipo'])) {
+                    $mensaje = htmlspecialchars($_GET['mensaje']);
+                    $mensaje_tipo = htmlspecialchars($_GET['tipo']);
 
-            // Mostrar alerta si el mensaje y el tipo no están vacíos
-            if (!empty($mensaje) && !empty($mensaje_tipo)) {
-                // Determinar la clase de la alerta según el tipo
-                $alertClass = $mensaje_tipo === 'error' ? 'alert-danger' : 'alert-success';
-                echo "<div class='alert $alertClass' role='alert'>$mensaje</div>";
+                    // Asegurarse de que el mensaje y el tipo no están vacíos
+                    if (!empty($mensaje) && !empty($mensaje_tipo)) {
+                        // Determinar la clase de la alerta según el tipo
+                        $alertClass = ($mensaje_tipo === 'error') ? 'alert-danger' : 'alert-success';
+
+                        // Mostrar el mensaje con la clase correspondiente
+                        echo "<div class='alert $alertClass' role='alert'>$mensaje</div>";
+                    }
+                }
             }
             ?>
+
             <form id="form_periodos">
                 <table>
                     <tr>
@@ -374,6 +372,11 @@ verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
         <!-- Programar Cierre de Período -->
         <div class="section mt-4">
             <h3>Programación de Cierre de Año Escolar</h3>
+            <?php
+            // Llamada a la función para mostrar el mensaje de alerta
+            mostrarMensaje();
+            ?>
+
             <form id="form_cierre" method="post"
                 action="http://localhost/sistema_notas/Crud/admin/año_lectivo/programar_cierre.php"
                 onsubmit="return validateDate()">
@@ -492,26 +495,25 @@ verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
                     </div>
                     <div class="modal-body">
                         <h6><strong>¿Cómo programo el cierre de un año escolar?</strong></h6>
-                        <p>En la sección <strong>'Programación de Cierre de Año Escolar'</strong>, selecciona el año
-                            lectivo en el que
-                            deseas programar el cierre desde el desplegable <strong>'Año Lectivo'</strong>. Luego,
-                            ingresa la fecha y
-                            hora en que deseas que el cierre ocurra.</p>
-
-                        <h6><strong>¿Qué pasa si la fecha que selecciono está demasiado lejos?</strong></h6>
-                        <p>El sistema verifica que <strong>'la fecha de cierre no pueda ser más allá de 3 años a partir
-                                de la
-                                fecha actual.'</strong> Si intentas seleccionar una fecha fuera de este rango, recibirás
-                            una alerta
-                            informándote que la fecha de cierre no puede estar más allá de 3 años en el futuro.</p>
+                        <p>En <strong>'Programación de Cierre'</strong>, selecciona el año en <strong>'Año
+                                Lectivo'</strong> y elige la fecha y hora. <strong>No debe superar 3 años a partir
+                                de la fecha actual.</strong></p>
 
                         <h6><strong>¿Qué sucede cuando programo el cierre?</strong></h6>
-                        <p>Al programar el cierre, el sistema guardará la fecha y hora que has seleccionado. El cierre
-                            se realizará automáticamente en ese momento.</p>
+                        <p>El sistema lo ejecutará automáticamente en la fecha y hora elegidas y actualizará el estado
+                            del año.</p>
 
-                        <h6><strong>¿Qué pasa si el cierre ya está programado?</strong></h6>
-                        <p>Si el año ya tiene una fecha de cierre programada, no podrás cambiarla hasta que se haya
-                            ejecutado o se haya realizado alguna modificación.</p>
+                        <h6><strong>¿Cómo cierro el año escolar manualmente?</strong></h6>
+                        <p>En la lista de años, haz clic en <strong>"Cerrar Año"</strong> si no hay una fecha
+                            programada. El sistema lo cerrará al instante.</p>
+
+                        <h6><strong>¿Qué pasa si ya está cerrado o programado?</strong></h6>
+                        <p>El botón <strong>"Cerrar Año"</strong> aparecerá como <strong>"Cerrado"</strong> y estará
+                            desactivado.</p>
+
+                        <h6><strong>Importante:</strong></h6>
+                        <p>Una vez cerrado, el año no se puede reabrir ni modificar. Asegúrate de elegir correctamente
+                            la fecha y hora del cierre, ya que es irreversible.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary font-weight-bold"
@@ -551,26 +553,22 @@ verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    const existingAlert = document.querySelector('.alert');
-                    if (existingAlert) {
-                        existingAlert.remove();
+                .then(response => {
+                    // Redirigir al usuario con los parámetros mensaje y tipo
+                    if (response.ok) {
+                        // Esto es para simular la redirección
+                        window.location.href =
+                            'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Año cerrado correctamente.&tipo=success';
+                    } else {
+                        window.location.href =
+                            'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al cerrar el año. Por favor, inténtelo de nuevo.&tipo=error';
                     }
-                    const alertDiv = document.createElement('div');
-                    alertDiv.className = `alert ${data.tipo === 'error' ? 'alert-danger' : 'alert-success'}`;
-                    alertDiv.textContent = data.mensaje;
-                    document.body.prepend(alertDiv);
-                    if (data.tipo === 'success') {
-                        boton.disabled = true;
-                        boton.textContent = 'Cerrado';
-                    }
-                    setTimeout(() => {
-                        alertDiv.remove();
-                        location.reload();
-                    }, 3000);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.href =
+                        'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al intentar cerrar el año.&tipo=error';
+                });
         }
     }
 
@@ -581,37 +579,21 @@ verificarConsulta($result_years, $conn, $mensaje, $mensaje_tipo);
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.text())
-            .then(data => {
-                const existingAlert = document.querySelector('.alert');
-                if (existingAlert) {
-                    existingAlert.remove();
+            .then(response => {
+                if (response.ok) {
+                    // Redirigir con mensaje de éxito
+                    window.location.href =
+                        'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Período activado correctamente.&tipo=success';
+                } else {
+                    // Redirigir con mensaje de error
+                    window.location.href =
+                        'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al activar el período. Por favor, inténtelo de nuevo.&tipo=error';
                 }
-
-                var newAlert = document.createElement('div');
-                newAlert.className = 'alert alert-success';
-                newAlert.textContent = 'Períodos actualizados correctamente.';
-                document.body.prepend(newAlert);
-
-                setTimeout(() => {
-                    newAlert.remove();
-                    location.reload();
-                }, 3000);
             })
             .catch(error => {
                 console.error('Error:', error);
-                const existingAlert = document.querySelector('.alert');
-                if (existingAlert) {
-                    existingAlert.remove();
-                }
-                var newAlert = document.createElement('div');
-                newAlert.className = 'alert alert-danger';
-                newAlert.textContent = 'Error: ' + error.message;
-                document.body.prepend(newAlert);
-
-                setTimeout(() => {
-                    newAlert.remove();
-                }, 3000);
+                window.location.href =
+                    'http://localhost/sistema_notas/views/admin/gestionar_academico.php?mensaje=Error al intentar actualizar los períodos.&tipo=error';
             });
     }
     </script>

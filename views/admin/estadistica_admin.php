@@ -1,4 +1,5 @@
 <?php
+// Verificar si ya se ha iniciado la sesión
 session_start();
 include('../../Crud/config.php'); // Ruta absoluta
 
@@ -101,9 +102,7 @@ if ($result === false) {
     echo "Error en la consulta: " . $conn->error;
     exit;
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -448,27 +447,44 @@ if ($result === false) {
                 </thead>
                 <tbody>
                     <?php 
-                    $counter = 1;
-                    if ($result->num_rows > 0): 
-                        while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td>
-                            <?php 
-                                echo htmlspecialchars($row['Nombre']);
-                                if ($counter == 1) echo " <span class='badge gold'>🥇</span>";
-                                elseif ($counter == 2) echo " <span class='badge silver'>🥈</span>";
-                                elseif ($counter == 3) echo " <span class='badge bronze'>🥉</span>";
-                                $counter++;
-                                ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($row['Apellido']); ?></td>
-                        <td><?php echo htmlspecialchars($row['Subnivel']); ?></td>
-                        <td><?php echo htmlspecialchars($row['Nivel']); ?></td>
-                        <td><?php echo htmlspecialchars($row['Curso']); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($row['NotaFinal'], 2)); ?></td>
-                    </tr>
-                    <?php endwhile; ?>
-                    <?php else: ?>
+                // Verificar si hay resultados
+                if ($result->num_rows > 0):
+                    // Agrupar los estudiantes por nivel
+                    $students_by_level = [];
+                    while ($row = $result->fetch_assoc()) {
+                        $students_by_level[$row['Nivel']][] = $row;
+                    }
+
+                // Iterar sobre los niveles y asignar las medallas
+                foreach ($students_by_level as $nivel => $students) {
+                    // Ordenamos por nota en orden descendente
+                    usort($students, function($a, $b) {
+                        return $b['NotaFinal'] - $a['NotaFinal'];
+                    });
+
+                    // Solo mostrar los dos mejores estudiantes por nivel
+                    $students = array_slice($students, 0, 2);
+
+                    // Asignar medallas
+                    $counter = 0;
+                    foreach ($students as $student) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($student['Nombre']);
+                        // Asignar medalla de oro al primer puesto
+                        if ($counter == 0) echo " <span class='badge gold'>🥇</span>";
+                        // Asignar medalla de plata al segundo puesto
+                        elseif ($counter == 1) echo " <span class='badge silver'>🥈</span>";
+                        echo "</td>";
+                        echo "<td>" . htmlspecialchars($student['Apellido']) . "</td>";
+                        echo "<td>" . htmlspecialchars($student['Subnivel']) . "</td>";
+                        echo "<td>" . htmlspecialchars($student['Nivel']) . "</td>";
+                        echo "<td>" . htmlspecialchars($student['Curso']) . "</td>";
+                        echo "<td>" . htmlspecialchars(number_format($student['NotaFinal'], 2)) . "</td>";
+                        echo "</tr>";
+                        $counter++;
+                    }
+                }
+                else: ?>
                     <tr>
                         <td colspan="6">No se encontraron registros con el criterio buscado.</td>
                     </tr>
@@ -476,6 +492,7 @@ if ($result === false) {
                 </tbody>
             </table>
         </div>
+
         <!-- Alerta de error en caso de no cumplir el criterio de búsqueda -->
         <?php if ($result->num_rows > 0 && empty($searchResults)): ?>
         <div id="alert" class="alert-error" style="display: none;">
@@ -592,18 +609,38 @@ if ($result === false) {
     });
 
     function filterTable() {
-        const input = document.getElementById('search').value.toLowerCase();
-        const rows = document.querySelectorAll('#recordTable tbody tr');
-        let matchFound = false;
+        const input = document.getElementById('search').value.toLowerCase(); // Obtener el texto del filtro
+        const rows = document.querySelectorAll('#recordTable tbody tr'); // Seleccionar todas las filas de la tabla
+        let matchFound = false; // Variable para verificar si se encontraron coincidencias
+
+        // Función para normalizar el texto (eliminar tildes)
+        function normalizeText(text) {
+            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
 
         rows.forEach(row => {
-            const cells = Array.from(row.querySelectorAll('td'));
-            const match = cells.some(cell => cell.textContent.toLowerCase().includes(input));
-            row.style.display = match ? '' : 'none';
-            if (match) matchFound = true;
+            const cells = row.querySelectorAll('td'); // Seleccionar las celdas de la fila
+
+            // Obtener solo las celdas relevantes: Nombre (índice 0), Apellido (índice 1), Nivel (índice 3)
+            const nameCell = normalizeText(cells[0].textContent); // Nombre
+            const surnameCell = normalizeText(cells[1].textContent); // Apellido
+            const levelCell = normalizeText(cells[3].textContent); // Nivel
+
+            // Verificar si el texto de búsqueda está en alguna de las celdas relevantes
+            const match = nameCell.includes(input) || surnameCell.includes(input) || levelCell.includes(input);
+
+            row.style.display = match ? '' : 'none'; // Mostrar o ocultar la fila según el filtro
+
+            if (match) matchFound = true; // Si se encuentra una coincidencia, marcar matchFound como true
         });
 
-        document.getElementById('alert').style.display = matchFound ? 'none' : 'block';
+        // Mostrar el mensaje si no se encuentran coincidencias
+        const alert = document.getElementById('alert');
+        if (!matchFound) {
+            alert.style.display = 'block'; // Mostrar el mensaje si no se encuentran registros
+        } else {
+            alert.style.display = 'none'; // Ocultar el mensaje si se encuentran coincidencias
+        }
     }
     </script>
     <script src="http://localhost/sistema_notas/vendor/jquery/jquery.min.js"></script>

@@ -16,6 +16,17 @@ function calcularEdad($fechaNacimiento) {
     return $diferencia->y;  // Retorna la edad en años
 }
 
+// Consultas para obtener el resumen de administradores
+$queryResumen = "SELECT 
+                     (SELECT COUNT(*) FROM administrador a INNER JOIN usuario u ON a.id_usuario = u.id_usuario WHERE u.estado = 'A') AS activos,
+                     (SELECT COUNT(*) FROM administrador a INNER JOIN usuario u ON a.id_usuario = u.id_usuario WHERE u.estado = 'I') AS inactivos,
+                     (SELECT COUNT(*) FROM administrador a INNER JOIN usuario u ON a.id_usuario = u.id_usuario) AS total
+                 FROM dual"; // Consulta para obtener los totales de activos, inactivos y el total
+
+// Ejecutar la consulta de resumen
+$resumenResult = $conn->query($queryResumen);
+$resumen = $resumenResult->fetch_assoc();
+
 // Consulta para obtener todos los administradores activos con todos los campos
 $query = "SELECT a.id_administrador, a.nombres, a.apellidos, u.cedula, u.contraseña, a.telefono, a.correo_electronico, 
                  a.direccion, a.fecha_nacimiento, a.genero, a.discapacidad, u.id_usuario
@@ -23,7 +34,7 @@ $query = "SELECT a.id_administrador, a.nombres, a.apellidos, u.cedula, u.contras
           INNER JOIN usuario u ON a.id_usuario = u.id_usuario
           WHERE u.estado = 'A'";  // Solo administradores activos
 
-// Ejecutar la consulta
+// Ejecutar la consulta de administradores
 $result = $conn->query($query);
 
 // Definición de la clase PDF para el reporte
@@ -78,12 +89,40 @@ class PDF extends FPDF {
         $this->Cell(20, 8, 'Discapacidad', 1, 0, 'C', true);
         $this->Cell(20, 8, 'ID Usuario', 1, 1, 'C', true);  // ID Usuario
     }
+
+    function TableSummary($activos, $inactivos, $total) {
+        // Mostrar el resumen de administradores
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34); // Rojo
+        $this->SetTextColor(255, 255, 255); // Blanco
+        $this->Cell(276, 10, 'Resumen de Administradores', 0, 1, 'C', true);
+
+        // Establecer el estilo para los cuadros de resumen
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245); // Color de fondo suave (gris claro)
+        $this->SetTextColor(0, 0, 0); // Color de texto negro
+
+        // Cuadro para "Administradores Activos"
+        $this->Cell(92, 10, utf8_decode('Administradores Activos: ' . $activos), 1, 0, 'C', true);
+
+        // Cuadro para "Administradores Inactivos"
+        $this->Cell(92, 10, utf8_decode('Administradores Inactivos: ' . $inactivos), 1, 0, 'C', true);
+
+        // Cuadro para "Total de Administradores"
+        $this->Cell(92, 10, utf8_decode('Total de Administradores: ' . $total), 1, 1, 'C', true);
+
+        // Insertar un espacio antes de la tabla
+        $this->Ln(10);
+    }
 }
 
 // Crear objeto PDF con orientación horizontal (L para Landscape)
 $pdf = new PDF('L', 'mm', 'A4');
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 8);  // Fuente más grande para los datos
+
+// Mostrar el resumen de administradores
+$pdf->TableSummary($resumen['activos'], $resumen['inactivos'], $resumen['total']);
 
 // Encabezados de la tabla
 $pdf->TableHeader();

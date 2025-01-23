@@ -16,6 +16,24 @@ function calcularEdad($fechaNacimiento) {
     return $diferencia->y;  // Retorna la edad en años
 }
 
+// Consulta para obtener el total de profesores activos
+$queryActivos = "SELECT COUNT(*) AS total_activos 
+                 FROM profesor p 
+                 INNER JOIN usuario u ON p.id_usuario = u.id_usuario 
+                 WHERE u.estado = 'A'";
+$resultActivos = $conn->query($queryActivos);
+$totalActivos = $resultActivos->fetch_assoc()['total_activos'];
+
+// Consulta para obtener el total de profesores inactivos
+$queryInactivos = "SELECT COUNT(*) AS total_inactivos 
+                   FROM profesor p 
+                   INNER JOIN usuario u ON p.id_usuario = u.id_usuario 
+                   WHERE u.estado = 'I'";
+$resultInactivos = $conn->query($queryInactivos);
+$totalInactivos = $resultInactivos->fetch_assoc()['total_inactivos'];
+
+// Calcular el total de profesores
+$totalProfesores = $totalActivos + $totalInactivos;
 // Consulta para obtener todos los profesores activos con todos los campos, incluyendo la contraseña
 $query = "SELECT p.id_profesor, p.nombres, p.apellidos, p.cedula, p.telefono, 
                  p.correo_electronico, p.direccion, p.fecha_nacimiento, 
@@ -79,6 +97,24 @@ class PDF extends FPDF {
         $this->Cell(20, 8, 'Discapacidad', 1, 0, 'C', true);
         $this->Cell(20, 8, 'ID Usuario', 1, 1, 'C', true);  // ID Usuario
     }
+    function Resumen($activos, $inactivos, $total) {
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(0, 10, 'Resumen de Profesores', 0, 1, 'C', true);
+
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+
+        $ancho = ($this->GetPageWidth() - 20) / 3;
+
+        $this->Cell($ancho, 10, utf8_decode('Profesores Activos: ' . $activos), 1, 0, 'C', true);
+        $this->Cell($ancho, 10, utf8_decode('Profesores Inactivos: ' . $inactivos), 1, 0, 'C', true);
+        $this->Cell($ancho, 10, utf8_decode('Total de Profesores: ' . $total), 1, 1, 'C', true);
+
+        $this->Ln(10);
+    }
 }
 
 // Crear objeto PDF con orientación horizontal (L para Landscape)
@@ -86,7 +122,10 @@ $pdf = new PDF('L', 'mm', 'A4');
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 8);  // Fuente más grande para los datos
 
-// Encabezados de la tabla
+// Resumen
+$pdf->Resumen($totalActivos, $totalInactivos, $totalProfesores);
+
+// Encabezado de la tabla
 $pdf->TableHeader();
 
 // Mostrar los datos de los profesores activos

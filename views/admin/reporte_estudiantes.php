@@ -1,4 +1,5 @@
 <?php
+// Iniciar sesión
 session_start();
 
 require('../../fphp/fpdf.php'); // Ruta al archivo FPDF
@@ -14,6 +15,20 @@ function calcularEdad($fechaNacimiento) {
     $diferencia = $hoy->diff($fechaNacimiento);
     return $diferencia->y;
 }
+
+// Consultas para obtener estudiantes activos e inactivos
+$queryActivos = "SELECT COUNT(*) AS total_activos FROM estudiante WHERE estado = 'A'";
+$queryInactivos = "SELECT COUNT(*) AS total_inactivos FROM estudiante WHERE estado = 'I'";
+
+// Ejecutar las consultas
+$resultActivos = $conn->query($queryActivos);
+$totalActivos = $resultActivos->fetch_assoc()['total_activos'];
+
+$resultInactivos = $conn->query($queryInactivos);
+$totalInactivos = $resultInactivos->fetch_assoc()['total_inactivos'];
+
+// Calcular el total de estudiantes
+$totalEstudiantes = $totalActivos + $totalInactivos;
 
 // Consulta SQL para obtener los estudiantes activos, agrupados por nivel y ordenados por paralelo y año lectivo
 $queryEstudiantes = "
@@ -62,6 +77,7 @@ class PDF extends FPDF {
     }
 
     function Footer() {
+        // Pie de página
         $this->SetY(-15);
         $this->SetFont('Arial', 'I', 8);
         $this->SetTextColor(178, 34, 34);
@@ -69,6 +85,7 @@ class PDF extends FPDF {
     }
 
     function TableHeader() {
+        // Encabezado de la tabla con colores y fuentes
         $this->SetFont('Arial', 'B', 6);
         $this->SetFillColor(178, 34, 34);
         $this->SetTextColor(255, 255, 255);
@@ -89,16 +106,37 @@ class PDF extends FPDF {
         $this->Cell(15, 5, 'Jornada', 1, 0, 'C', true);
         $this->Cell(18, 5, 'Periodo Lectivo', 1, 1, 'C', true);
     }
+    function Resumen($activos, $inactivos, $total) {
+        $this->SetFont('Arial', 'B', 12);
+        $this->SetFillColor(178, 34, 34);
+        $this->SetTextColor(255, 255, 255);
+        $this->Cell(0, 10, 'Resumen de Estudiantes', 0, 1, 'C', true);
+
+        $this->SetFont('Arial', '', 10);
+        $this->SetFillColor(245, 245, 245);
+        $this->SetTextColor(0, 0, 0);
+
+        $ancho = ($this->GetPageWidth() - 20) / 3;
+
+        $this->Cell($ancho, 10, utf8_decode('Estudiantes Activos: ' . $activos), 1, 0, 'C', true);
+        $this->Cell($ancho, 10, utf8_decode('Estudiantes Inactivos: ' . $inactivos), 1, 0, 'C', true);
+        $this->Cell($ancho, 10, utf8_decode('Total de Estudiantes: ' . $total), 1, 1, 'C', true);
+
+        $this->Ln(10);
+    }
 }
 
 $pdf = new PDF('L', 'mm', 'A4');
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 6);
 
+// Resumen
+$pdf->Resumen($totalActivos, $totalInactivos, $totalEstudiantes);
+
+// Encabezado de la tabla
 $pdf->TableHeader();
 
-$nivelActual = '';
-
+$nivelActual = ''; // Inicializamos la variable
 while ($estudiante = $resultEstudiantes->fetch_assoc()) {
     if ($nivelActual != $estudiante['nivel']) {
         $nivelActual = $estudiante['nivel'];
@@ -129,5 +167,8 @@ while ($estudiante = $resultEstudiantes->fetch_assoc()) {
     $pdf->Cell(18, 5, utf8_decode($estudiante['historial_academico']), 1, 1, 'C');
 }
 
+// Salida del PDF
 $pdf->Output('D', 'Reporte_Matriculas_Estudiantes.pdf');
+// Cerrar la conexión
+$conn->close();
 ?>
