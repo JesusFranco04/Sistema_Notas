@@ -126,7 +126,7 @@ if ($result === false) {
     <style>
     /* Estilos personalizados */
     body {
-        font-family: 'Arial', sans-serif;
+        font-family: 'Roboto', sans-serif;
         background: linear-gradient(to bottom right, #f9f9fb, #e6e6f2);
         margin: 0;
         padding: 0;

@@ -59,8 +59,10 @@ if (!$resultado) {
     <style>
     /* Estilo general del cuerpo */
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
     }
 
     .container-fluid {

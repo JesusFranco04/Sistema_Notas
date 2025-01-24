@@ -264,6 +264,8 @@ $conn->close();
     .container {
         width: 85%;
         margin: 30px auto;
+        padding: 15px 0;
+        /* Espaciado arriba y abajo */
     }
 
     .content {
@@ -466,7 +468,6 @@ $conn->close();
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        /* Sombra más pronunciada */
     }
 
     footer p {
@@ -491,7 +492,7 @@ $conn->close();
                     <div class="filter-group">
                         <label for="tabla"><i class="bx bx-table"></i> Tabla:</label>
                         <select name="tabla" id="tabla" onchange="this.form.submit()">
-                            <option value=""  selected>Seleccionar tabla</option>
+                            <option value="" selected>Seleccionar tabla</option>
                             <?php 
                             // Mostrar las tablas obtenidas de la base de datos en el filtro
                             foreach ($tablas as $tabla): 
@@ -595,10 +596,12 @@ $conn->close();
             </nav>
         </div>
     </div>
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos
             los derechos reservados.</p>
     </footer>
+
     <script>
     // Hacemos que el formulario se envíe automáticamente al cambiar cualquier filtro
     document.getElementById("tabla").addEventListener("change", function() {

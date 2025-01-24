@@ -61,9 +61,10 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
     }
 
     body {
-        font-family: Arial, sans-serif;
-        background-color: #ffffff;
-        /* Cambiado a blanco puro */
+        font-family: 'Roboto', sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
     }
 
     /* === Estilos del Slider === */
