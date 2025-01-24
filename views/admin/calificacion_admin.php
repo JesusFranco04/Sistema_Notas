@@ -11,11 +11,11 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
 }
 
 // Obtener valores de filtros
-$materia = isset($_GET['materia']) ? $_GET['materia'] : '';
-$nivel = isset($_GET['nivel']) ? $_GET['nivel'] : '';
-$anioLectivo = isset($_GET['anioLectivo']) ? $_GET['anioLectivo'] : '';
-$cedula = isset($_GET['cedula']) ? $_GET['cedula'] : '';
-$curso = isset($_GET['curso']) ? $_GET['curso'] : ''; // Definición de $curso
+$materia = isset($_GET['materia']) ? $conn->real_escape_string($_GET['materia']) : '';
+$nivel = isset($_GET['nivel']) ? $conn->real_escape_string($_GET['nivel']) : '';
+$anioLectivo = isset($_GET['anioLectivo']) ? $conn->real_escape_string($_GET['anioLectivo']) : '';
+$cedula = isset($_GET['cedula']) ? $conn->real_escape_string($_GET['cedula']) : '';
+$curso = isset($_GET['curso']) ? $conn->real_escape_string($_GET['curso']) : '';
 
 // Consultar las materias
 $materiasQuery = "SELECT nombre FROM materia WHERE estado = 'A'";
@@ -38,43 +38,86 @@ $result = null;
 
 // Construir la consulta SQL para los resultados solo si se han aplicado filtros
 if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
-$sql = "SELECT c.id_curso, r.id_estudiante, e.nombres AS estudiante_nombre, e.apellidos AS estudiante_apellido,
-        r.nota1_primer_parcial, r.nota2_primer_parcial, r.examen_primer_parcial,
-        r.nota1_segundo_parcial, r.nota2_segundo_parcial, r.examen_segundo_parcial,
-        cal.promedio_primer_quimestre, cal.promedio_segundo_quimestre, cal.nota_final, cal.estado_calificacion
-        FROM registro_nota r
-        INNER JOIN calificacion cal ON r.id_estudiante = cal.id_estudiante AND r.id_curso = cal.id_curso 
-            AND r.id_materia = cal.id_materia AND r.id_his_academico = cal.id_his_academico
-        INNER JOIN curso c ON r.id_curso = c.id_curso
-        INNER JOIN estudiante e ON r.id_estudiante = e.id_estudiante
-        WHERE c.estado = 'A'";
+    $sql = "
+    SELECT 
+        c.id_curso, 
+        r.id_estudiante, 
+        e.nombres AS estudiante_nombre, 
+        e.apellidos AS estudiante_apellido,
+        -- Notas Primer Quimestre
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.nota1_primer_parcial END) AS nota1_primer_parcial,
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.nota2_primer_parcial END) AS nota2_primer_parcial,
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.examen_primer_parcial END) AS examen_primer_parcial,
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.nota1_segundo_parcial END) AS nota1_segundo_parcial,
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.nota2_segundo_parcial END) AS nota2_segundo_parcial,
+        MAX(CASE WHEN r.id_periodo = 1 THEN r.examen_segundo_parcial END) AS examen_segundo_parcial,
+        
+        -- Notas Segundo Quimestre
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.nota1_primer_parcial END) AS nota1_primer_parcial_2Q,
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.nota2_primer_parcial END) AS nota2_primer_parcial_2Q,
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.examen_primer_parcial END) AS examen_primer_parcial_2Q,
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.nota1_segundo_parcial END) AS nota1_segundo_parcial_2Q,
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.nota2_segundo_parcial END) AS nota2_segundo_parcial_2Q,
+        MAX(CASE WHEN r.id_periodo = 2 THEN r.examen_segundo_parcial END) AS examen_segundo_parcial_2Q,
+    
+        -- Calificaciones finales
+        MAX(cal.promedio_primer_quimestre) AS promedio_primer_quimestre,
+        MAX(cal.promedio_segundo_quimestre) AS promedio_segundo_quimestre,
+        MAX(cal.nota_final) AS nota_final, 
+        MAX(cal.estado_calificacion) AS estado_calificacion
+    FROM 
+        registro_nota r
+    INNER JOIN 
+        calificacion cal ON r.id_estudiante = cal.id_estudiante 
+        AND r.id_curso = cal.id_curso 
+        AND r.id_materia = cal.id_materia 
+        AND r.id_his_academico = cal.id_his_academico
+    INNER JOIN 
+        curso c ON r.id_curso = c.id_curso
+    INNER JOIN 
+        estudiante e ON r.id_estudiante = e.id_estudiante
+    WHERE 
+        c.estado = 'A' AND e.estado = 'A'
+        -- Excluir estudiantes sin notas
+        AND (
+            r.nota1_primer_parcial IS NOT NULL OR
+            r.nota2_primer_parcial IS NOT NULL OR
+            r.examen_primer_parcial IS NOT NULL OR
+            r.nota1_segundo_parcial IS NOT NULL OR
+            r.nota2_segundo_parcial IS NOT NULL OR
+            r.examen_segundo_parcial IS NOT NULL
+        )
+    ";
 
-// Aplicar los filtros
-if ($materia) {
-    $sql .= " AND c.id_materia = (SELECT id_materia FROM materia WHERE nombre = '$materia' AND estado = 'A')";
-}
-if ($nivel) {
-    $sql .= " AND c.id_nivel = (SELECT id_nivel FROM nivel WHERE nombre = '$nivel' AND estado = 'A')";
-}
-if ($anioLectivo) {
-    $sql .= " AND c.id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = '$anioLectivo' AND estado = 'A')";
-}
-if ($curso) {
-    $sql .= " AND c.id_curso = '$curso'";
-}
-if ($cedula) {
-    $sql .= " AND e.cedula = '$cedula'";
-}
+    // Aplicar los filtros
+    if ($materia) {
+        $sql .= " AND r.id_materia = (SELECT id_materia FROM materia WHERE nombre = '$materia' AND estado = 'A')";
+    }
+    if ($nivel) {
+        $sql .= " AND c.id_nivel = (SELECT id_nivel FROM nivel WHERE nombre = '$nivel' AND estado = 'A')";
+    }
+    if ($anioLectivo) {
+        $sql .= " AND cal.id_his_academico = (SELECT id_his_academico FROM historial_academico WHERE año = '$anioLectivo' AND estado = 'A')";
+    }
+    if ($curso) {
+        $sql .= " AND c.id_curso = '$curso'";
+    }
+    if ($cedula) {
+        $sql .= " AND e.cedula = '$cedula'";
+    }
 
-// Ejecutar consulta
-$result = $conn->query($sql);
+    $sql .= " GROUP BY c.id_curso, r.id_estudiante, e.nombres, e.apellidos";
 
-// Verificar si la consulta tuvo éxito
-if (!$result) {
-    die("Error en la consulta: " . $conn->error);
+    // Ejecutar consulta
+    $result = $conn->query($sql);
+
+    // Verificar si la consulta tuvo éxito
+    if (!$result) {
+        die("Error en la consulta: " . $conn->error);
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -159,40 +202,76 @@ if (!$result) {
         margin-bottom: 20px;
     }
 
+    /* Contenedor de la tabla */
     .table-container {
-        max-height: 600px;
-        overflow-y: auto;
+        margin: 30px auto;
+        max-width: 90%;
         overflow-x: auto;
-        border: 1px solid #dcdcdc;
-        border-radius: 5px;
+        background-color: #f9f9f9;
+        /* Fondo suave y claro */
+        border-radius: 8px;
+        /* Bordes redondeados para suavizar la apariencia */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Sombra sutil para dar profundidad */
+        padding: 20px;
     }
 
-    table {
+    /* Estilos básicos para la tabla */
+    table.table {
         width: 100%;
-        min-width: 1200px;
         border-collapse: collapse;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        /* Color de texto oscuro para un buen contraste */
     }
 
+    /* Estilo para las celdas de la tabla */
     th,
     td {
+        padding: 12px 16px;
         text-align: center;
-        vertical-align: middle;
-        padding: 12px;
-        border: 1px solid #dcdcdc;
+        border: 1px solid #f1f1f1;
+        font-size: 13px;
+        /* Tamaño de fuente legible */
     }
 
+    /* Estilo para los encabezados de la tabla */
     th {
-        background-color: #E62433;
-        color: #fff;
-        font-weight: 600;
+        background-color: #a20000;
+        /* Rojo como color principal */
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        /* Textos en mayúsculas para claridad */
     }
 
+    /* Estilo para las filas de la tabla */
     tr:nth-child(even) {
-        background-color: #f9f9f9;
+        background-color: #f2f2f2;
+        /* Gris claro para las filas pares */
     }
 
     tr:nth-child(odd) {
         background-color: #ffffff;
+        /* Blanco para las filas impares */
+    }
+
+    /* Resaltar fila cuando se pasa el mouse (sin efecto de movimiento) */
+    tr:hover {
+        background-color: #ee7e86;
+        /* Rojo suave */
+    }
+
+    /* Bordes de la tabla */
+    .table-bordered {
+        border: 2px solid #a20000;
+        /* Borde rojo para la tabla */
+    }
+
+    table.table th,
+    table.table td {
+        border: 1px solid #ddd;
+        /* Bordes sutiles */
     }
 
     /* Estilos generales para los modales */
@@ -313,13 +392,17 @@ if (!$result) {
             min-width: 100%;
         }
 
-        table {
-            min-width: 600px;
+        .table-container {
+            padding: 10px;
+        }
+
+        table.table {
+            font-size: 14px;
         }
 
         th,
         td {
-            font-size: 0.9rem;
+            padding: 10px;
         }
     }
 
@@ -444,16 +527,27 @@ if (!$result) {
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Curso</th>
-                        <th>Estudiante</th>
-                        <th>Nota 1er Parcial</th>
-                        <th>Nota 2do Parcial</th>
-                        <th>Examen 1er Parcial</th>
-                        <th>Nota 1er Parcial</th>
-                        <th>Nota 2do Parcial</th>
-                        <th>Examen 2do Parcial</th>
-                        <th>Promedio 1er Quimestre</th>
-                        <th>Promedio 2do Quimestre</th>
+                        <th rowspan="2">Curso</th>
+                        <th rowspan="2">Estudiante</th>
+                        <th colspan="6">Primer Quimestre</th>
+                        <th colspan="6">Segundo Quimestre</th>
+                        <th colspan="4">Evaluaciones Finales</th>
+                    </tr>
+                    <tr>
+                        <th>Parcial 1 - Nota 1</th>
+                        <th>Parcial 1 - Nota 2</th>
+                        <th>Parcial 1 - Examen</th>
+                        <th>Parcial 2 - Nota 1</th>
+                        <th>Parcial 2 - Nota 2</th>
+                        <th>Parcial 2 - Examen</th>
+                        <th>Parcial 1 - Nota 1</th>
+                        <th>Parcial 1 - Nota 2</th>
+                        <th>Parcial 1 - Examen</th>
+                        <th>Parcial 2 - Nota 1</th>
+                        <th>Parcial 2 - Nota 2</th>
+                        <th>Parcial 2 - Examen</th>
+                        <th>Promedio 1Q</th>
+                        <th>Promedio 2Q</th>
                         <th>Nota Final</th>
                         <th>Estado Calificación</th>
                     </tr>
@@ -470,6 +564,13 @@ if (!$result) {
                         echo "<td>" . htmlspecialchars($row['nota1_segundo_parcial']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['nota2_segundo_parcial']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['examen_segundo_parcial']) . "</td>";
+                        // Para el segundo quimestre
+                        echo "<td>" . htmlspecialchars($row['nota1_primer_parcial_2Q']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['nota2_primer_parcial_2Q']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['examen_primer_parcial_2Q']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['nota1_segundo_parcial_2Q']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['nota2_segundo_parcial_2Q']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['examen_segundo_parcial_2Q']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['promedio_primer_quimestre']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['promedio_segundo_quimestre']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['nota_final']) . "</td>";
@@ -484,14 +585,15 @@ if (!$result) {
         <p>No se encontraron registros con los filtros aplicados.</p>
         <?php endif; ?>
 
-        <!-- Modal 1 - Manual de Uso de la Gestión de Calificaciones (1/3) -->
+
+        <!-- Modal 1 - Manual de Uso de la Gestión de Calificaciones (1/2) -->
         <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
             aria-labelledby="modalInstruccionesLabel1" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalInstruccionesLabel1">Manual de Uso - Gestión de Calificaciones
-                            (1/3)</h5>
+                            (1/2)</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -520,14 +622,14 @@ if (!$result) {
             </div>
         </div>
 
-        <!-- Modal 2 - Manual de Uso de la Gestión de Calificaciones (2/3) -->
+        <!-- Modal 2 - Manual de Uso de la Gestión de Calificaciones (2/2) -->
         <div class="modal fade" id="modalInstrucciones2" tabindex="-1" role="dialog"
             aria-labelledby="modalInstruccionesLabel2" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalInstruccionesLabel2">Manual de Uso - Gestión de Calificaciones
-                            (2/3)</h5>
+                            (2/2)</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -589,6 +691,7 @@ if (!$result) {
         }
     }
     </script>
+
 </body>
 
 </html>
