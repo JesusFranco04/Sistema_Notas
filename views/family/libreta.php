@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // Verificar si el usuario ha iniciado sesión y si su rol es "Padre"
@@ -11,33 +11,61 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Padre'])) {
 // Incluir el archivo de conexión
 include('../../Crud/config.php'); // Ruta a tu archivo de configuración de conexión
 
-// Obtener el id_estudiante desde la URL
-if (isset($_GET['id_estudiante'])) {
-    $id_estudiante = intval($_GET['id_estudiante']);
-} else {
-    die("ID del estudiante no proporcionado.");
+
+// Función para mostrar los errores en la misma página
+function mostrarError($mensaje) {
+    echo "<div style='
+        color: #d9534f; 
+        background-color: #f8d7da;
+        /* Fondo rosado elegante */
+        color: #70070a;
+        /* Texto rojo oscuro y sofisticado */
+        border: 1px solid #f5c6cb;
+        border-radius: 10px;
+        padding: 15px 20px; 
+        margin: 15px 0; 
+        font-family: Arial, sans-serif; 
+        font-size: 16px; 
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        text-align: left; 
+        max-width: 600px;
+        margin-left: auto; 
+        margin-right: auto;
+    '>
+        <strong>¡Error!</strong> $mensaje
+    </div>";
+}
+
+// Obtener id_estudiante de la URL
+$id_estudiante = isset($_GET['id_estudiante']) ? intval($_GET['id_estudiante']) : null;
+if (!$id_estudiante) {
+    mostrarError('ID del estudiante no proporcionado.');
+    exit();
 }
 
 // Consultar la información del estudiante
-$query_estudiante = "
-    SELECT e.id_estudiante, e.nombres, e.apellidos, e.id_nivel, e.id_paralelo, e.id_jornada, e.id_his_academico, n.nombre AS nombre_nivel, p.nombre AS nombre_paralelo, s.nombre AS nombre_subnivel, esp.nombre AS nombre_especialidad, j.nombre AS nombre_jornada, h.año
-    FROM estudiante e
-    JOIN nivel n ON e.id_nivel = n.id_nivel
-    JOIN paralelo p ON e.id_paralelo = p.id_paralelo
-    JOIN subnivel s ON e.id_subnivel = s.id_subnivel
-    JOIN especialidad esp ON e.id_especialidad = esp.id_especialidad
-    JOIN jornada j ON e.id_jornada = j.id_jornada
-    JOIN historial_academico h ON e.id_his_academico = h.id_his_academico
-    WHERE e.id_estudiante = ?
-";
+function obtenerEstudiante($conn, $id_estudiante) {
+    $query = "
+        SELECT e.id_estudiante, e.nombres, e.apellidos, e.id_nivel, e.id_paralelo, e.id_jornada, e.id_his_academico, n.nombre AS nombre_nivel, p.nombre AS nombre_paralelo, s.nombre AS nombre_subnivel, esp.nombre AS nombre_especialidad, j.nombre AS nombre_jornada, h.año
+        FROM estudiante e
+        JOIN nivel n ON e.id_nivel = n.id_nivel
+        JOIN paralelo p ON e.id_paralelo = p.id_paralelo
+        JOIN subnivel s ON e.id_subnivel = s.id_subnivel
+        JOIN especialidad esp ON e.id_especialidad = esp.id_especialidad
+        JOIN jornada j ON e.id_jornada = j.id_jornada
+        JOIN historial_academico h ON e.id_his_academico = h.id_his_academico
+        WHERE e.id_estudiante = ?
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id_estudiante);
+    $stmt->execute();
+    return $stmt->get_result();
+}
 
-$stmt_estudiante = $conn->prepare($query_estudiante);
-$stmt_estudiante->bind_param("i", $id_estudiante);
-$stmt_estudiante->execute();
-$result_estudiante = $stmt_estudiante->get_result();
-
+$result_estudiante = obtenerEstudiante($conn, $id_estudiante);
 if ($result_estudiante->num_rows === 0) {
-    die('Estudiante no encontrado.');
+    mostrarError('Estudiante no encontrado.');
+    exit();
 }
 
 $estudiante = $result_estudiante->fetch_assoc();
@@ -55,7 +83,6 @@ $query_materias = "
       AND r.id_his_academico = ?
     GROUP BY m.id_materia, m.nombre
 ";
-
 $stmt_materias = $conn->prepare($query_materias);
 $stmt_materias->bind_param("ii", $id_estudiante, $id_his_academico);
 $stmt_materias->execute();
@@ -72,7 +99,6 @@ $query_calificaciones = "
     WHERE r.id_estudiante = ? 
       AND r.id_his_academico = ?
 ";
-
 $stmt_calificaciones = $conn->prepare($query_calificaciones);
 $stmt_calificaciones->bind_param("ii", $id_estudiante, $id_his_academico);
 $stmt_calificaciones->execute();
@@ -87,28 +113,42 @@ $query_calificacion_final = "
     WHERE c.id_estudiante = ? 
       AND c.id_his_academico = ?
 ";
-
 $stmt_calificacion_final = $conn->prepare($query_calificacion_final);
 $stmt_calificacion_final->bind_param("ii", $id_estudiante, $id_his_academico);
 $stmt_calificacion_final->execute();
 $result_calificacion_final = $stmt_calificacion_final->get_result();
 
-// Obtener el nivel del próximo año
-$query_nivel_siguiente = "SELECT id_nivel FROM nivel WHERE id_nivel = ? + 1";
-$stmt_nivel_siguiente = $conn->prepare($query_nivel_siguiente);
-$stmt_nivel_siguiente->bind_param("i", $id_nivel_actual);
-$stmt_nivel_siguiente->execute();
-$result_nivel_siguiente = $stmt_nivel_siguiente->get_result();
-$nivel_siguiente = $result_nivel_siguiente->fetch_assoc();
+// Procesar los resultados obtenidos
+$calificaciones_finales = $result_calificacion_final->fetch_all(MYSQLI_ASSOC);
 
-$mensaje_nivel = '';
+// Inicializar mensaje y color de alerta
+$mensaje_alerta = 'Nota importante: No se encontraron las calificaciones del estudiante. Por favor, póngase en contacto con un administrador para obtener más información.';
+$color_alerta = 'orange';
 
-if ($nivel_siguiente) {
-    // Estudiante pasó de nivel
-    $mensaje_nivel = 'Nota: Este estudiante se quedó de año. Imprima la libreta y espere el proceso de matriculación para que lo pueda inscribir en el nuevo año lectivo.';
-} else {
-    // Estudiante no pasó de nivel
-    $mensaje_nivel = 'Nota: Este estudiante ha pasado de año. Imprima la libreta y espere el proceso de matriculación para que lo pueda inscribir en el nuevo año lectivo.';
+// Verificar si hay calificaciones
+if (count($calificaciones_finales) > 0) {
+    // Si hay calificaciones, procesar el estado general
+    $estado_general = 'aprobado'; // Suponer aprobado por defecto
+
+    foreach ($calificaciones_finales as $fila) {
+        // Si alguna calificación tiene estado "R", cambiar estado a reprobado
+        if (isset($fila['estado_calificacion']) && $fila['estado_calificacion'] === 'R') {
+            $estado_general = 'reprobado';
+            break;
+        }
+    }
+
+    // Ajustar mensaje y color según el estado general
+    switch ($estado_general) {
+        case 'aprobado':
+            $mensaje_alerta = '¡Felicidades! Este estudiante ha aprobado el año lectivo. Por favor, imprima la libreta y espere el inicio del proceso de matriculación.';
+            $color_alerta = 'green';
+            break;
+        case 'reprobado':
+            $mensaje_alerta = 'Nota importante: Este estudiante no aprobó el año lectivo. Por favor, imprima la libreta y espere las indicaciones para el proceso de matriculación.';
+            $color_alerta = 'red';
+            break;
+    }
 }
 ?>
 
@@ -340,17 +380,73 @@ if ($nivel_siguiente) {
         /* Limitar el ancho del cuadro de búsqueda */
     }
 
-    .note {
+    /* Estilo base para las alertas */
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
         margin-top: 20px;
-        padding: 10px;
-        background-color: #edffea;
-        /* Verde claro */
-        border: 1px solid #c0d9b6;
-        /* Verde */
-        border-radius: 4px;
-        color: #002500;
-        /* Verde oscuro */
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        /* Alinea el texto a la izquierda */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
+    .alert:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Icono dentro de la alerta */
+    .alert .alert-icon {
+        font-size: 24px;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Colores personalizados para cada tipo de alerta */
+    .alert.orange {
+        background-color: #FFAA00;
+        color: #540e00;
+        border-left: 5px solid #E69500;
+    }
+
+    .alert.green {
+        background-color: #abffb7;
+        color: #002f00;
+        border-left: 5px solid #218838;
+    }
+
+    .alert.red {
+        background-color: #dc3545;
+        color: #FFFFFF;
+        border-left: 5px solid #b71c1c;
+    }
+
+    /* Colores de los íconos */
+    .alert.orange .alert-icon {
+        color: #540e00;
+    }
+
+    .alert.green .alert-icon {
+        color: #002f00;
+    }
+
+    .alert.red .alert-icon {
+        color: #fbe8e9;
+    }
+
+
+    .button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
 
     /* Estilos responsivos */
     @media (max-width: 768px) {
@@ -432,28 +528,28 @@ if ($nivel_siguiente) {
             <table class="grades-table">
                 <thead>
                     <tr>
-                        <th rowspan="2">Materia</th>
+                        <th rowspan="2">Asignatura</th>
                         <th colspan="6">Primer Quimestre</th>
                         <th colspan="6">Segundo Quimestre</th>
-                        <th colspan="4">Nota Final</th>
+                        <th colspan="4">Calificación Final</th>
                     </tr>
                     <tr>
-                        <th>Nota 1 Primer Parcial</th>
-                        <th>Nota 2 Primer Parcial</th>
-                        <th>Examen Primer Parcial</th>
-                        <th>Nota 1 Segundo Parcial</th>
-                        <th>Nota 2 Segundo Parcial</th>
-                        <th>Examen Segundo Parcial</th>
-                        <th>Nota 1 Primer Parcial</th>
-                        <th>Nota 2 Primer Parcial</th>
-                        <th>Examen Primer Parcial</th>
-                        <th>Nota 1 Segundo Parcial</th>
-                        <th>Nota 2 Segundo Parcial</th>
-                        <th>Examen Segundo Parcial</th>
-                        <th>Promedio Primer Q.</th>
-                        <th>Promedio Segundo Q.</th>
-                        <th>Nota Final</th>
-                        <th>Estado Calificación</th>
+                        <th>Primer<br>Parcial<br>-<br>Nota 1</th>
+                        <th>Primer<br>Parcial<br>-<br>Nota 2</th>
+                        <th>Primer Parcial<br>- Examen Final</th>
+                        <th>Segundo<br>Parcial<br>-<br>Nota 1</th>
+                        <th>Segundo<br>Parcial<br>-<br>Nota 2</th>
+                        <th>Segundo Parcial<br>- Examen Final</th>
+                        <th>Primer<br>Parcial<br>-<br>Nota 1</th>
+                        <th>Primer<br>Parcial<br>-<br>Nota 2</th>
+                        <th>Primer Parcial<br>- Examen Final</th>
+                        <th>Segundo<br>Parcial<br>-<br>Nota 1</th>
+                        <th>Segundo<br>Parcial<br>-<br>Nota 2</th>
+                        <th>Segundo Parcial<br>- Examen Final</th>
+                        <th>Prom.<br> Primer Quimestre</th>
+                        <th>Prom.<br> Segundo Quimestre</th>
+                        <th>Promedio Final</th>
+                        <th>Resultado</th>
                     </tr>
                 </thead>
                 <tbody id="grades-table-body">
@@ -481,6 +577,7 @@ if ($nivel_siguiente) {
                             ];
                         }
 
+                        // Asignar las notas de los primeros dos periodos
                         if ($id_periodo == 1) {
                             $notas[$materia]['nota1_primer_parcial'] = htmlspecialchars($row['nota1_primer_parcial']);
                             $notas[$materia]['nota2_primer_parcial'] = htmlspecialchars($row['nota2_primer_parcial']);
@@ -517,6 +614,7 @@ if ($nivel_siguiente) {
                             ];
                         }
 
+                    // Asignar los valores finales
                         $notas[$materia]['promedio_primer_quimestre'] = htmlspecialchars($row['promedio_primer_quimestre']);
                         $notas[$materia]['promedio_segundo_quimestre'] = htmlspecialchars($row['promedio_segundo_quimestre']);
                         $notas[$materia]['nota_final'] = htmlspecialchars($row['nota_final']);
@@ -525,25 +623,39 @@ if ($nivel_siguiente) {
 
                     // Mostrar las notas
                     foreach ($notas as $materia => $notas_materia) {
-                        echo "<tr>";
-                        echo "<td>" . $materia . "</td>";
-                        echo "<td>" . $notas_materia['nota1_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota2_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['examen_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota1_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota2_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['examen_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota1_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota2_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['examen_primer_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota1_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['nota2_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['examen_segundo_parcial'] . "</td>";
-                        echo "<td>" . $notas_materia['promedio_primer_quimestre'] . "</td>";
-                        echo "<td>" . $notas_materia['promedio_segundo_quimestre'] . "</td>";
-                        echo "<td>" . $notas_materia['nota_final'] . "</td>";
-                        echo "<td>" . $notas_materia['estado_calificacion'] . "</td>";
-                        echo "</tr>";
+                    echo "<tr>";
+                    echo "<td>" . $materia . "</td>";
+	                echo "<td>" . ($notas_materia['nota1_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota2_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['examen_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota1_segundo_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota2_segundo_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['examen_segundo_parcial'] ?? '-') . "</td>";
+			        echo "<td>" . ($notas_materia['nota1_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota2_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['examen_primer_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota1_segundo_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['nota2_segundo_parcial'] ?? '-') . "</td>";
+	                echo "<td>" . ($notas_materia['examen_segundo_parcial'] ?? '-') . "</td>";
+			
+                    // Mostrar el promedio del primer quimestre
+                    echo "<td>" . htmlspecialchars($fila['promedio_primer_quimestre'] ?? '-') . "</td>";
+
+                                    // Mostrar el promedio del segundo quimestre
+                    echo "<td>" . htmlspecialchars($fila['promedio_segundo_quimestre'] ?? '-') . "</td>";
+
+                                    // Mostrar el promedio final
+                    echo "<td>" . htmlspecialchars($fila['nota_final'] ?? '-') . "</td>";
+
+                                    // Mostrar el estado de la calificación (Aprobado/Reprobado)
+                    if (isset($fila['estado_calificacion'])) {
+                        $resultado = ($fila['estado_calificacion'] === 'A') ? 'Aprobado' : 'Reprobado';
+                        echo "<td>" . $resultado . "</td>";
+                    } else {
+                        echo "<td>-</td>";
+                    }
+
+                    echo "</tr>";
                     }
                     ?>
                 </tbody>
@@ -554,13 +666,23 @@ if ($nivel_siguiente) {
         <div class="actions">
             <!-- Botón para imprimir -->
             <button class="button button-print" onclick="printFile(this)" data-id-estudiante="<?= $id_estudiante; ?>"
-                data-id-his-academico="<?= $id_his_academico; ?>">
+                data-id-his-academico="<?= $id_his_academico; ?>"
+                <?php if ($mensaje_alerta === 'Nota importante: No se encontraron las calificaciones del estudiante. Por favor, póngase en contacto con un administrador para obtener más información.') { ?>
+                disabled <?php } ?>>
                 Imprimir
             </button>
 
-            <!-- Mensaje de Estado Académico -->
-            <div class="note">
-                <p><?php echo htmlspecialchars($mensaje_nivel); ?></p>
+            <!-- Mostrar el mensaje de alerta -->
+            <div class="alert <?php echo $color_alerta; ?>">
+                <!-- Ícono dinámico -->
+                <i class="alert-icon 
+            <?php 
+                if ($color_alerta === 'orange') echo 'bx bx-info-circle'; 
+                if ($color_alerta === 'green') echo 'bx bx-check-circle'; 
+                if ($color_alerta === 'red') echo 'bx bx-error-circle'; 
+            ?>">
+                </i>
+                <p><?php echo htmlspecialchars($mensaje_alerta); ?></p>
             </div>
         </div>
     </div>

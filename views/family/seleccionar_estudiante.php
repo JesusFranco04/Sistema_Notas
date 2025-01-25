@@ -345,7 +345,8 @@ $id_estudiante = isset($_GET['id_estudiante']) ? $_GET['id_estudiante'] : '';
         <!-- Mostrar alerta si no hay estudiantes registrados -->
         <div class="alert">
             <i class='bx bx-error-alt'></i>
-            <p>No tienes hijos registrados en el sistema.</p>
+            <p>No tenemos hijos registrados con tu cuenta. Por favor, comunícate con un administrador para que te ayude
+                a registrarlos.</p>
         </div>
         <?php } ?>
         <?php } ?>

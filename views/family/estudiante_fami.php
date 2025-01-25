@@ -371,7 +371,8 @@ if ($result_estudiantes === false) {
         <?php else: ?>
         <div class="alert">
             <i class='bx bx-error-alt'></i>
-            <p>No tienes hijos registrados en el sistema.</p>
+            <p>No tienes estudiantes registrados en el sistema. Si se trata de un hijo o varios, por favor, comunícate
+                con un administrador para que te ayude a registrarlos.</p>
         </div>
         <?php endif; ?>
     </div>
