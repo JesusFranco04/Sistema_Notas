@@ -185,7 +185,7 @@ class PDF extends FPDF {
         // Primera fila con dimensiones específicas
         $this->SetX($startX);
         $header = [
-            '', 'Primer Quimestre', 'Segundo Quimestre', 'Calificación Final'
+            '', 'Primer Quimestre', 'Segundo Quimestre', 'Evaluación Final'
         ];
     
         $this->SetFont('Arial', 'B', 10); // Establecer la fuente Arial, negrita y tamaño ajustado a 10
