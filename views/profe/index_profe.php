@@ -1189,9 +1189,9 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
         style="background-color: #003366; color: white; padding: 40px 20px; text-align: center; width: 100%; margin: 0; border-top: 3px solid #E62433; border-bottom: 3px solid #E62433;">
         <h2 style="font-size: 28px; margin-bottom: 20px;">Gestione y Revise sus Cursos</h2>
         <p style="font-size: 18px; max-width: 800px; margin: 0 auto;">
-            Aquí podrá acceder a la lista completa de los cursos que está impartiendo. Revise detalladamente las listas
-            de los estudiantes que se encuentran en sus clases, gestione las calificaciones y mantenga actualizada toda
-            la información necesaria para el seguimiento académico de sus estudiantes.
+            Acceda fácilmente a la lista completa de los cursos que imparte. Consulte de manera detallada las listas de
+            estudiantes inscritos, administre las calificaciones y mantenga actualizada toda la información necesaria
+            para un seguimiento académico eficiente.
         </p>
         <a href="http://localhost/sistema_notas/views/profe/curso_profe.php" style="text-decoration: none;">
             <button class="ver-cursos-btn"

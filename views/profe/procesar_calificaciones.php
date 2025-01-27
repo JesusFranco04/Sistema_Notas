@@ -79,17 +79,108 @@ try {
     exit();
 }
 
-function eliminarRegistros($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico) {
-    $query_delete_registro_nota = "
-        DELETE FROM registro_nota
-        WHERE id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?
-    ";
-    $stmt = $conn->prepare($query_delete_registro_nota);
+function eliminarRegistroNota($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico) {
+    // Verificar si existen registros en la tabla registro_nota antes de intentar eliminar
+    $check_query = "SELECT COUNT(*) FROM registro_nota WHERE id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
+    $stmt_check = $conn->prepare($check_query);
+    $stmt_check->bind_param("iiii", $id_curso, $id_materia, $id_periodo, $id_his_academico);
+    $stmt_check->execute();
+    $stmt_check->bind_result($count);
+    $stmt_check->fetch();
+    $stmt_check->close();
+
+    if ($count == 0) {
+        throw new Exception("No existen registros para eliminar en la tabla registro_nota.");
+    }
+
+    // Eliminar los registros de la tabla registro_nota
+    $query = "DELETE FROM registro_nota WHERE id_curso = ? AND id_materia = ? AND id_periodo = ? AND id_his_academico = ?";
+    $stmt = $conn->prepare($query);
     $stmt->bind_param("iiii", $id_curso, $id_materia, $id_periodo, $id_his_academico);
     if (!$stmt->execute()) {
-        throw new Exception("Error al eliminar las calificaciones: " . $stmt->error);
+        throw new Exception("Error al eliminar registro_nota: " . $stmt->error);
     }
     $stmt->close();
+}
+
+function actualizarCalificacion($conn, $id_curso, $id_materia, $id_his_academico, $id_periodo) {
+    // Consultar los promedios y la nota_final
+    $query = "
+        SELECT promedio_primer_quimestre, promedio_segundo_quimestre, nota_final
+        FROM calificacion
+        WHERE id_curso = ? AND id_materia = ? AND id_his_academico = ?
+    ";
+    $stmt_check = $conn->prepare($query);
+    $stmt_check->bind_param("iii", $id_curso, $id_materia, $id_his_academico);
+    $stmt_check->execute();
+    $stmt_check->bind_result($promedio_primer_quimestre, $promedio_segundo_quimestre, $nota_final);
+    $stmt_check->fetch();
+    $stmt_check->close();
+
+    // Si se eliminan las notas de id_periodo = 1
+    if ($id_periodo == 1) {
+        $query = "
+            UPDATE calificacion
+            SET
+                promedio_primer_quimestre = NULL,
+                nota_final = CASE
+                    WHEN promedio_segundo_quimestre IS NOT NULL THEN promedio_segundo_quimestre
+                    ELSE NULL
+                END,
+                supletorio = NULL,
+                estado_calificacion = CASE
+                    WHEN nota_final < 7 THEN 'R'
+                    WHEN nota_final >= 7 THEN 'A'
+                    ELSE NULL
+                END
+            WHERE id_curso = ? AND id_materia = ? AND id_his_academico = ?
+        ";
+    } 
+    // Si se eliminan las notas de id_periodo = 2
+    else if ($id_periodo == 2) {
+        $query = "
+            UPDATE calificacion
+            SET
+                promedio_segundo_quimestre = NULL,
+                nota_final = CASE
+                    WHEN promedio_primer_quimestre IS NOT NULL THEN promedio_primer_quimestre
+                    ELSE NULL
+                END,
+                supletorio = NULL,
+                estado_calificacion = CASE
+                    WHEN nota_final < 7 THEN 'R'
+                    WHEN nota_final >= 7 THEN 'A'
+                    ELSE NULL
+                END
+            WHERE id_curso = ? AND id_materia = ? AND id_his_academico = ?
+        ";
+    }
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("iii", $id_curso, $id_materia, $id_his_academico);
+    if (!$stmt->execute()) {
+        throw new Exception("Error al actualizar la calificación en la tabla calificacion: " . $stmt->error);
+    }
+    $stmt->close();
+}
+
+function eliminarRegistros($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico) {
+    try {
+        $conn->begin_transaction();
+        
+        // Eliminar registros de registro_nota
+        eliminarRegistroNota($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico);
+        
+        // Actualizar registros de calificacion
+        actualizarCalificacion($conn, $id_curso, $id_materia, $id_his_academico, $id_periodo);
+        
+        // Confirmar transacción
+        $conn->commit();
+    } catch (Exception $e) {
+        // Si hay un error, revertir la transacción
+        $conn->rollback();
+        throw new Exception("Error en la eliminación de registros: " . $e->getMessage());
+    }
 }
 
 function guardarNotas($conn, $id_curso, $id_materia, $id_periodo, $id_his_academico) {
@@ -137,40 +228,19 @@ function guardarNotas($conn, $id_curso, $id_materia, $id_periodo, $id_his_academ
     }
 }
 
-function guardarSupletorio($conn, $id_curso, $id_materia, $id_his_academico) {
-    $calificaciones = $_POST['calificaciones'];
-
-    foreach ($calificaciones as $id_estudiante => $datos) {
-        $supletorio = isset($datos['supletorio']) ? (float) $datos['supletorio'] : 0;
-
-        $query = "SELECT promedio_primer_quimestre, promedio_segundo_quimestre FROM calificacion 
-                  WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_his_academico = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("iiii", $id_estudiante, $id_curso, $id_materia, $id_his_academico);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($promedio_primer_quimestre, $promedio_segundo_quimestre);
-        $stmt->fetch();
-
-        $nota_final = calcularNotaFinal($promedio_primer_quimestre, $promedio_segundo_quimestre, $supletorio);
-        $estado_calificacion = determinarEstado($nota_final);
-
-        $stmt = $conn->prepare("
-            UPDATE calificacion 
-            SET supletorio = ?, nota_final = ?, estado_calificacion = ?
-            WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_his_academico = ?
-        ");
-        $stmt->bind_param("ddsiiii", $supletorio, $nota_final, $estado_calificacion, $id_estudiante, $id_curso, $id_materia, $id_his_academico);
-        if (!$stmt->execute()) {
-            throw new Exception("Error al guardar la nota de supletorio: " . $stmt->error);
+function validarNotas($notas) {
+    foreach ($notas as $nota) {
+        if (is_null($nota)) {
+            return false; // Si alguna nota es NULL, la validación falla
         }
-        $stmt->close();
     }
+    return true; // Todas las notas están completas
 }
 
 function calcularNotasFinales($conn, $id_curso, $id_materia, $id_his_academico) {
     // Obtener datos de la tabla registro_nota
-    $query = "SELECT id_estudiante, nota1_primer_parcial, nota2_primer_parcial, examen_primer_parcial, 
+    $query = "SELECT id_estudiante, id_periodo, 
+                     nota1_primer_parcial, nota2_primer_parcial, examen_primer_parcial, 
                      nota1_segundo_parcial, nota2_segundo_parcial, examen_segundo_parcial
               FROM registro_nota
               WHERE id_curso = ? AND id_materia = ? AND id_his_academico = ?";
@@ -178,19 +248,59 @@ function calcularNotasFinales($conn, $id_curso, $id_materia, $id_his_academico) 
     $stmt->bind_param("iii", $id_curso, $id_materia, $id_his_academico);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($id_estudiante, $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial, 
-                        $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial);
+    $stmt->bind_result($id_estudiante, $id_periodo, 
+                       $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial, 
+                       $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial);
 
+    // Arreglo para guardar los datos de cada estudiante
+    $calificaciones = [];
+
+    // Recorrer las filas de la consulta
     while ($stmt->fetch()) {
-        // Cálculos
-        $promedio_primer_quimestre = round((($nota1_primer_parcial + $nota2_primer_parcial) / 2) * 0.8 + $examen_primer_parcial * 0.2, 2);
-        $promedio_segundo_quimestre = round((($nota1_segundo_parcial + $nota2_segundo_parcial) / 2) * 0.8 + $examen_segundo_parcial * 0.2, 2);
-        $nota_final = round(($promedio_primer_quimestre + $promedio_segundo_quimestre) / 2, 2);
-        $estado_calificacion = determinarEstado($nota_final);
+        // Inicializar datos del estudiante si no existen en el arreglo
+        if (!isset($calificaciones[$id_estudiante])) {
+            $calificaciones[$id_estudiante] = [
+                'promedio_primer_quimestre' => null,
+                'promedio_segundo_quimestre' => null,
+            ];
+        }
 
+        // Calcular el promedio del Primer Quimestre (id_periodo = 1)
+        if ($id_periodo == 1) {
+            $notas_primer_quimestre = [
+                $nota1_primer_parcial, $nota2_primer_parcial, $examen_primer_parcial
+            ];
+            if (validarNotas($notas_primer_quimestre)) {
+                $promedio_parcial1 = (($nota1_primer_parcial + $nota2_primer_parcial) / 2) * 0.7 + $examen_primer_parcial * 0.3;
+                $calificaciones[$id_estudiante]['promedio_primer_quimestre'] = round($promedio_parcial1, 2);
+            }
+        }
+
+        // Calcular el promedio del Segundo Quimestre (id_periodo = 2)
+        if ($id_periodo == 2) {
+            $notas_segundo_quimestre = [
+                $nota1_segundo_parcial, $nota2_segundo_parcial, $examen_segundo_parcial
+            ];
+            if (validarNotas($notas_segundo_quimestre)) {
+                $promedio_parcial2 = (($nota1_segundo_parcial + $nota2_segundo_parcial) / 2) * 0.7 + $examen_segundo_parcial * 0.3;
+                $calificaciones[$id_estudiante]['promedio_segundo_quimestre'] = round($promedio_parcial2, 2);
+            }
+        }
+    }
+
+    // Guardar las calificaciones en la tabla 'calificacion'
+    foreach ($calificaciones as $id_estudiante => $datos) {
+        $nota_final = null;
+        if (!is_null($datos['promedio_primer_quimestre']) && !is_null($datos['promedio_segundo_quimestre'])) {
+            $nota_final = round(($datos['promedio_primer_quimestre'] + $datos['promedio_segundo_quimestre']) / 2, 2);
+        }
+
+        $estado_calificacion = is_null($nota_final) ? null : ($nota_final >= 7.0 ? "A" : "R");
+
+        // Insertar o actualizar en la tabla 'calificacion'
         $stmt_update = $conn->prepare("
-            INSERT INTO calificacion (id_estudiante, id_curso, id_materia, id_his_academico, promedio_primer_quimestre, 
-                                      promedio_segundo_quimestre, nota_final, estado_calificacion)
+            INSERT INTO calificacion (id_estudiante, id_curso, id_materia, id_his_academico, 
+                                      promedio_primer_quimestre, promedio_segundo_quimestre, nota_final, estado_calificacion)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE 
                 promedio_primer_quimestre = VALUES(promedio_primer_quimestre), 
@@ -199,20 +309,92 @@ function calcularNotasFinales($conn, $id_curso, $id_materia, $id_his_academico) 
                 estado_calificacion = VALUES(estado_calificacion)
         ");
         $stmt_update->bind_param("iiiiddds", $id_estudiante, $id_curso, $id_materia, $id_his_academico, 
-                                  $promedio_primer_quimestre, $promedio_segundo_quimestre, $nota_final, $estado_calificacion);
+                                  $datos['promedio_primer_quimestre'], $datos['promedio_segundo_quimestre'], $nota_final, $estado_calificacion);
+
         if (!$stmt_update->execute()) {
-            throw new Exception("Error al calcular las notas finales: " . $stmt_update->error);
+            throw new Exception("Error al guardar la calificación del estudiante con ID $id_estudiante: " . $stmt_update->error);
         }
         $stmt_update->close();
     }
+
     $stmt->close();
 }
 
-function calcularNotaFinal($promedio_primer_quimestre, $promedio_segundo_quimestre, $supletorio) {
-    if ($promedio_primer_quimestre < 7 || $promedio_segundo_quimestre < 7) {
-        return round(($promedio_primer_quimestre + $promedio_segundo_quimestre + $supletorio) / 3, 2);
+function guardarSupletorio($conn, $id_curso, $id_materia, $id_his_academico) {
+    $calificaciones = $_POST['calificaciones'];
+
+    foreach ($calificaciones as $id_estudiante => $datos) {
+        try {
+            // Verificar si ya se ha registrado un supletorio
+            $query_verificar = "
+                SELECT supletorio 
+                FROM calificacion 
+                WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_his_academico = ?
+            ";
+            $stmt_verificar = $conn->prepare($query_verificar);
+            $stmt_verificar->bind_param("iiii", $id_estudiante, $id_curso, $id_materia, $id_his_academico);
+            $stmt_verificar->execute();
+            $stmt_verificar->bind_result($supletorio_existente);
+            $stmt_verificar->fetch();
+            $stmt_verificar->close();
+
+            // Si ya existe un supletorio, evitar modificarlo
+            if (!is_null($supletorio_existente)) {
+                throw new Exception("El supletorio ya fue ingresado para el estudiante con ID $id_estudiante. No se puede modificar.");
+            }
+
+            // Verificar que el supletorio sea un número válido
+            if (!isset($datos['supletorio']) || !is_numeric($datos['supletorio'])) {
+                throw new Exception("El valor del supletorio para el estudiante con ID $id_estudiante debe ser un número válido.");
+            }
+
+            // Convertir el supletorio a número flotante
+            $supletorio = (float) $datos['supletorio'];
+
+            // Validar que el valor del supletorio esté entre 0 y 10
+            if ($supletorio < 0 || $supletorio > 10) {
+                throw new Exception("El valor del supletorio debe estar entre 0 y 10 para el estudiante con ID $id_estudiante.");
+            }
+
+            // Consultar calificaciones actuales
+            $query = "SELECT promedio_primer_quimestre, promedio_segundo_quimestre FROM calificacion 
+                      WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_his_academico = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("iiii", $id_estudiante, $id_curso, $id_materia, $id_his_academico);
+            $stmt->execute();
+            $stmt->store_result();
+
+            // Verificar si existen registros
+            if ($stmt->num_rows === 0) {
+                throw new Exception("No se encontraron calificaciones para el estudiante con ID $id_estudiante.");
+            }
+
+            $stmt->bind_result($promedio_primer_quimestre, $promedio_segundo_quimestre);
+            $stmt->fetch();
+            $stmt->close();
+
+            // Calcular la nueva nota final con supletorio
+            $nota_final = round(($promedio_primer_quimestre + $promedio_segundo_quimestre + $supletorio) / 3, 2);
+
+            // Determinar el estado de la calificación
+            $estado_calificacion = $nota_final >= 7 ? 'A' : 'R';
+
+            // Actualizar calificaciones en la base de datos
+            $stmt = $conn->prepare("
+                UPDATE calificacion 
+                SET supletorio = ?, nota_final = ?, estado_calificacion = ?
+                WHERE id_estudiante = ? AND id_curso = ? AND id_materia = ? AND id_his_academico = ?
+            ");
+            $stmt->bind_param("ddsiiii", $supletorio, $nota_final, $estado_calificacion, $id_estudiante, $id_curso, $id_materia, $id_his_academico);
+            if (!$stmt->execute()) {
+                throw new Exception("Error al guardar el supletorio para el estudiante con ID $id_estudiante: " . $stmt->error);
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            // Registrar el error y continuar con el siguiente estudiante
+            error_log("Error procesando al estudiante con ID $id_estudiante: " . $e->getMessage());
+        }
     }
-    return round(($promedio_primer_quimestre + $promedio_segundo_quimestre) / 2, 2);
 }
 
 function determinarEstado($nota_final) {
@@ -220,14 +402,6 @@ function determinarEstado($nota_final) {
         return 'A'; // Aprobado
     } elseif ($nota_final < 7) {
         return 'R'; // Reprobado
-    }
-}
-
-function validarNotas($notas) {
-    foreach ($notas as $nota) {
-        if ($nota !== NULL && ($nota < 0 || $nota > 10)) {
-            throw new Exception("Las notas deben estar entre 0 y 10.");
-        }
     }
 }
 ?>
