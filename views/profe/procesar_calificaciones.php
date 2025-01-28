@@ -190,7 +190,12 @@ function guardarNotas($conn, $id_curso, $id_materia, $id_periodo, $id_his_academ
         foreach ($notas as $id_estudiante => $notas_estudiante) {
             // Validación y asignación de valores por defecto
             $notas_estudiante = array_map(function($valor) {
-                return $valor === "" ? NULL : floatval($valor);
+                $valor = $valor === "" ? NULL : floatval($valor);
+                // Validar que el valor esté entre 0 y 10
+                if (!is_null($valor) && ($valor < 0 || $valor > 10)) {
+                    throw new Exception("La nota debe estar entre 0 y 10. Valor recibido: $valor");
+                }
+                return $valor;
             }, $notas_estudiante);
 
             validarNotas($notas_estudiante);

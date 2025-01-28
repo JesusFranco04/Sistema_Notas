@@ -246,20 +246,27 @@ $conn->close();
     <style>
     body {
         background-color: #f8f9fa;
-        margin-bottom: 80px;
-        /* Asegura que el contenido no quede oculto detrás del footer fijo */
+        margin: 0;
+        min-height: 100vh;
+        /* Asegura que el body ocupe al menos el 100% de la altura de la pantalla */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        /* Centra el contenido verticalmente */
     }
 
     .banner {
-        background-color: #E62433;
+        background-color: #c61e1e;
         color: white;
         padding: 20px;
         text-align: center;
         font-size: 28px;
         font-weight: bold;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        border-bottom: 3px solid #003366;
+        border-bottom: 3px solid #0052aa;
+        text-transform: uppercase;
     }
+
 
     .container {
         background-color: #ffffff;
@@ -267,37 +274,46 @@ $conn->close();
         border-radius: 0.5rem;
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
         margin-top: 20px;
+        margin-bottom: 45px;
+        /* Espacio entre el contenedor y el footer */
         text-align: center;
         /* Centra el texto del contenedor */
     }
+
 
     h2 {
         color: #E62433;
     }
 
-    .table th,
-    .table td {
-        vertical-align: middle;
+    .botones-accion {
+        display: flex;
+        justify-content: flex-end;
+        /* Alinea los botones a la derecha */
+        gap: 15px;
+        /* Espacio estándar entre los botones */
     }
 
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #e9faff;
-        /* Color azul claro para filas impares */
-    }
-
-    .table-striped tbody tr:nth-of-type(even) {
-        background-color: #f4f9fc;
-        /* Color azul muy claro para filas pares */
+    .btn-primary,
+    .btn-danger,
+    .btn-success,
+    .btn-secondary,
+    .btn-regresar,
+    .btn-enviar {
+        /* Aseguramos que todos los botones tengan el mismo estilo visual y espaciado */
+        margin: 0;
+        /* Elimina márgenes extra */
     }
 
     .btn-primary {
-        background-color: #E62433;
-        border-color: #E62433;
+        background-color: #a21616;
+        border-color: #a21616;
+        color: white;
     }
 
     .btn-primary:hover {
-        background-color: #c72c24;
-        border-color: #c72c24;
+        background-color: #8a1313;
+        border-color: #8a1313;
+        color: white;
     }
 
     .btn-danger {
@@ -312,84 +328,169 @@ $conn->close();
     }
 
     .btn-success {
-        background-color: #4CAF50;
+        background-color: #23650f;
         /* Verde */
-        border-color: #4CAF50;
+        border-color: #23650f;
+        color: white;
     }
 
     .btn-success:hover {
-        background-color: #45a049;
-        border-color: #45a049;
+        background-color: #1c560c;
+        /* Verde */
+        border-color: #1c560c;
+        color: white;
     }
 
     .btn-secondary {
-        background-color: #003366;
-        /* Gris */
-        border-color: #003366;
+        background-color: #0052aa;
+        border-color: #0052aa;
+        color: white;
     }
 
     .btn-secondary:hover {
-        background-color: #434b52;
-        border-color: #434b52;
+        background-color: #062f63;
+        border-color: #062f63;
+        color: white;
     }
 
     .btn-regresar,
     .btn-enviar {
-        background-color: #003366;
+        background-color: #0052aa;
         /* Azul */
-        border-color: #003366;
+        border-color: #0052aa;
         color: white;
         /* Color del texto */
     }
 
     .btn-regresar:hover,
     .btn-enviar:hover {
-        background-color: #002244;
+        background-color: #062f63;
         /* Azul más oscuro para el hover */
-        border-color: #001122;
+        border-color: #062f63;
+        color: white;
     }
 
-    .partial-header {
-        text-align: center;
-        color: #E62433;
-        font-weight: bold;
+    /* Contenedor de la tabla */
+    .table-container {
+        margin: 20px auto;
+        padding: 15px;
+        background-color: #ffffff;
+        /* Fondo blanco */
+        border-radius: 12px;
+        /* Bordes redondeados */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        /* Sombra moderna */
+        overflow-x: auto;
+        /* Permitir desplazamiento horizontal en pantallas pequeñas */
     }
 
-    .small-text {
-        font-size: 0.8rem;
-    }
-
-    .botones-accion {
-        margin-top: 1rem;
-        text-align: right;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.75rem;
-        /* Ajuste de espaciado para mayor consistencia */
-    }
-
-    .input-number {
+    /* Tabla */
+    .table {
         width: 100%;
-        box-sizing: border-box;
+        border-collapse: collapse;
+        /* Sin espacio entre celdas */
+        font-family: 'Roboto', sans-serif;
+        /* Fuente moderna */
+        font-size: 15px;
+        color: #333333;
+        /* Color del texto */
+        text-align: left;
     }
+
+    /* Encabezado */
+    .table thead {
+        background-color: #b71c1c;
+        /* Rojo oscuro elegante */
+        color: #ffffff;
+        /* Texto blanco */
+    }
+
+    .table thead th {
+        padding: 15px;
+        font-weight: bold;
+        font-size: 16px;
+        text-transform: uppercase;
+        border-bottom: 3px solid #811b1b;
+        /* Línea inferior */
+        border-right: 1px solid #811b1b;
+        /* Separador lateral */
+        position: sticky;
+        /* Encabezado fijo */
+        top: 0;
+        z-index: 2;
+        white-space: nowrap;
+        /* Evitar que el texto se corte */
+    }
+
+    /* Filas del cuerpo */
+    .table tbody tr {
+        border-bottom: 1px solid #ddd;
+        /* Línea divisoria sutil */
+        transition: background-color 0.3s ease;
+    }
+
+    .table tbody tr:nth-of-type(odd) {
+        background-color: #fdecea;
+        /* Rojo muy claro */
+    }
+
+    .table tbody tr:nth-of-type(even) {
+        background-color: #fff5f5;
+        /* Rojo clarísimo */
+    }
+
+    /* Efecto hover */
+    .table tbody tr:hover {
+        background-color: #ffebee;
+        /* Fondo destacado */
+        transform: scale(1.02);
+        /* Ligeramente más grande */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        /* Sombras ligeras */
+    }
+
+    /* Celdas */
+    .table td,
+    .table th {
+        padding: 12px;
+        border-right: 1px solid #ddd;
+        /* Separador lateral */
+        white-space: nowrap;
+        /* Evitar cortes de texto */
+    }
+
+    .table td:last-child,
+    .table th:last-child {
+        border-right: none;
+        /* Sin borde en la última columna */
+    }
+
+    /* Encabezados parciales */
+    .partial-header {
+        background-color: #b71c1c;
+        /* Rojo elegante */
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 10px;
+
+    }
+
 
     footer {
-        border-top: 3px solid #003366;
+        border-top: 3px solid #073b73;
         /* Borde en la parte superior */
-        background-color: #E62433;
+        background-color: #ad0f0f;
         color: white;
         text-align: center;
-        /* Centrar el texto */
         padding: 20px 0;
-        /* Espaciado interno vertical */
         width: 100%;
         /* Ancho completo */
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         /* Sombra más pronunciada */
-        position: fixed;
-        bottom: 0;
+        margin-top: auto;
+        /* Empuja el footer hacia el fondo */
     }
 
     footer p {
@@ -403,6 +504,38 @@ $conn->close();
         /* Scroll horizontal */
         overflow-y: auto;
         /* Scroll vertical */
+    }
+
+    .alert {
+        padding: 15px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        color: #d32f2f;
+        /* Rojo más moderno */
+        background-color: #fdecea;
+        /* Fondo rojo claro */
+        border-color: #d32f2f;
+    }
+
+    .alert-success {
+        color: #388e3c;
+        /* Verde más moderno */
+        background-color: #e8f5e9;
+        /* Fondo verde claro */
+        border-color: #388e3c;
+    }
+
+    .alert-warning {
+        color: #f57c00;
+        /* Naranja más vibrante */
+        background-color: #fff4e5;
+        /* Fondo naranja claro */
+        border-color: #f57c00;
     }
 
     .alert {
