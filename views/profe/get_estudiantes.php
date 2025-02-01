@@ -71,7 +71,27 @@ if ($curso) {
 
     // Mostrar la información del curso y la lista de estudiantes
     echo "<h3>Lista de Estudiantes</h3>";
-    echo "<p><strong>Total de Estudiantes:</strong> {$total_estudiantes}</p>";
+    echo "<p class='total-estudiantes'><strong>Total de Estudiantes:</strong> {$total_estudiantes}</p>";
+
+
+    // Estilos CSS directamente dentro de la página
+    echo "<style>
+            /* Estilo para los títulos y detalles de la lista */
+            h3 {
+                color: #083787; /* Color azul para el título */
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+                
+            .total-estudiantes {
+                color: #1565c0; /* Color azul para la línea específica */
+            }
+
+            strong {
+                font-weight: bold;
+            }
+        </style>";
     if (!empty($estudiantes)) {
         echo "<div class='table-wrapper'>
                 <table class='table table-striped'>

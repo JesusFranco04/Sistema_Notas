@@ -108,15 +108,17 @@ $stmt_estudiantes->close();
         line-height: 1.6;
     }
 
-    /* Estilos del Header */
     header .banner {
-        background-color: #3A8DFF;
+        background-color: #c61e1e;
         color: white;
         text-align: center;
         padding: 25px 0;
         font-size: 2.5rem;
         font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-bottom: 3px solid #0052aa;
     }
 
     /* Contenedor principal */
@@ -132,81 +134,90 @@ $stmt_estudiantes->close();
     /* Títulos */
     h2 {
         font-size: 2.5rem;
-        color: #3A8DFF;
+        color: #c61e1e;
         font-weight: bold;
         margin-bottom: 35px;
         text-align: center;
     }
 
     /* Contenedor del formulario */
-    form {
+    .search-form {
         display: flex;
-        flex-wrap: nowrap;
-        /* Evita que los elementos se apilen en pantallas grandes */
-        gap: 10px;
-        align-items: center;
         justify-content: center;
-        max-width: 800px;
-        /* Expansión sin perder control */
-        margin: auto;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* Contenedor principal */
+    .search-container {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        /* Fondo rojo claro */
+        border: 2px solid #B71C1C;
+        /* Borde rojo */
+        border-radius: 25px;
+        /* Bordes redondeados */
+        padding: 5px 10px;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     /* Campo de entrada */
-    form .form-control {
-        flex-grow: 1;
-        min-width: 300px;
-        max-width: 100%;
-        padding: 14px;
-        border: 2px solid #B71C1C;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        height: 50px;
-        /* Mismo alto que el botón */
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        vertical-align: middle;
-    }
-
-    form .form-control:focus {
-        border-color: #3A8DFF;
-        box-shadow: 0 0 12px rgba(58, 141, 255, 0.3);
-        outline: none;
-    }
-
-    /* Botón */
-    form button {
-        background-color: #3A8DFF;
-        /* Color de fondo azul */
-        color: white;
-        /* Texto en color blanco */
+    .search-input {
+        flex: 1;
+        /* Ocupa todo el espacio disponible */
         border: none;
-        /* Elimina el borde del botón */
-        padding: 14px 30px;
-        /* Espaciado interno: 14px arriba/abajo, 30px izquierda/derecha */
-        border-radius: 10px;
-        /* Bordes redondeados para una apariencia moderna */
-        /* Más cuadrado para coincidir con el campo de entrada */
-        font-size: 1.2rem;
-        /* Tamaño del texto del botón */
+        /* Sin borde */
+        background: none;
+        /* Sin fondo adicional */
+        padding: 12px 15px;
+        font-size: 1.1rem;
+        color: #B71C1C;
+        /* Texto rojo */
+        outline: none;
+        /* Sin borde al enfocar */
+    }
+
+    .search-input::placeholder {
+        color: #B71C1C;
+        /* Color del texto del placeholder */
+        opacity: 0.8;
+    }
+
+    /* Botón de búsqueda */
+    .search-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #B71C1C;
+        /* Fondo rojo */
+        color: white;
+        /* Texto blanco */
+        border: none;
+        /* Sin borde */
+        border-radius: 20px;
+        /* Bordes redondeados */
+        padding: 10px 20px;
+        font-size: 1.1rem;
         font-weight: bold;
-        /* Hace que el texto sea más grueso */
         cursor: pointer;
-        /* Cambia el cursor a una mano al pasar sobre el botón */
-        height: 60px;
-        /* Ajusta la altura del botón para que coincida con la caja de texto */
-        /* Efectos de transición para suavizar cambios al interactuar con el botón */
-        transition: background-color 0.3s ease, transform 0.3s ease;
-        /* Sombra para dar un efecto elevado al botón */
+        transition: all 0.3s ease;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        vertical-align: middle;
-        /* Asegura que el botón esté alineado verticalmente con la caja de texto */
     }
 
-
-    form button:hover {
-        background-color: #287BCC;
-        transform: translateY(-3px);
+    .search-button i {
+        margin-right: 8px;
+        font-size: 1.2rem;
     }
 
+    .search-button:hover {
+        background-color: #D32F2F;
+        /* Rojo más oscuro al pasar el mouse */
+        transform: translateY(-2px);
+    }
 
 
     /* Tabla estilizada */
@@ -241,8 +252,10 @@ $stmt_estudiantes->close();
     /* Estilo de los botones en general */
     .btn-custom {
         background-color: #ffffff;
-        color: #3A8DFF;
-        border: 2px solid #3A8DFF;
+        color: #D32F2F;
+        /* Cambiado de azul a rojo */
+        border: 2px solid #D32F2F;
+        /* Cambiado de azul a rojo */
         padding: 16px 32px;
         border-radius: 35px;
         font-size: 1.1rem;
@@ -261,7 +274,111 @@ $stmt_estudiantes->close();
     }
 
     .btn-custom:hover {
-        background-color: #3A8DFF;
+        background-color: #D32F2F;
+        /* Cambiado de azul a rojo */
+        color: white;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* NUEVO: Botón Lista de Asistencia (color rojo, con estado deshabilitado) */
+    .btn-asistencia {
+        background-color: #ffffff;
+        color: #D32F2F;
+        border: 2px solid #D32F2F;
+        padding: 16px 32px;
+        border-radius: 35px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        margin-top: 15px;
+    }
+
+    .btn-asistencia i {
+        margin-right: 10px;
+    }
+
+    .btn-asistencia:hover {
+        background-color: #D32F2F;
+        color: white;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos para el botón deshabilitado */
+    .btn-asistencia:disabled {
+        background-color: #f1f1f1;
+        /* Color de fondo cuando está deshabilitado */
+        color: #ccc;
+        /* Color de texto cuando está deshabilitado */
+        border: 2px solid #ccc;
+        /* Color del borde cuando está deshabilitado */
+        cursor: not-allowed;
+        /* Cursor en forma de prohibido */
+        pointer-events: none;
+        /* Desactiva cualquier interacción con el botón */
+        opacity: 0.6;
+        /* Añade un efecto visual para que parezca más deshabilitado */
+    }
+
+    /* NUEVO: Botón Reporte (color azul) */
+    .btn-reporte {
+        background-color: #ffffff;
+        color: #1565c0;
+        /* Azul */
+        border: 2px solid #1565c0;
+        /* Azul */
+        padding: 16px 32px;
+        border-radius: 35px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        margin-top: 15px;
+    }
+
+    .btn-reporte:hover {
+        background-color: #1565c0;
+        /* Azul */
+        color: white;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+
+
+    /* NUEVO: Botón Exportar a CSV (color verde) */
+    .btn-exportar-csv {
+        background-color: #ffffff;
+        color: #388e3c;
+        /* Verde */
+        border: 2px solid #388e3c;
+        /* Verde */
+        padding: 16px 32px;
+        border-radius: 35px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        margin-top: 15px;
+    }
+
+    .btn-exportar-csv:hover {
+        background-color: #388e3c;
+        /* Verde */
         color: white;
         transform: translateY(-4px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -269,13 +386,16 @@ $stmt_estudiantes->close();
 
     /* Footer */
     footer {
-        background: #333;
+        border-top: 3px solid #073b73;
+        /* Borde en la parte superior */
+        background-color: #ad0f0f;
         color: white;
         text-align: center;
         padding: 25px;
         margin-top: 60px;
         font-size: 1.1rem;
-        border-top: 5px solid #E62433;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        /* Sombra más pronunciada */
     }
     </style>
 </head>
@@ -300,21 +420,21 @@ $stmt_estudiantes->close();
             </section>
 
             <!-- Formulario de búsqueda -->
-            <form id="searchForm" class="mb-3 mt-3" role="search">
-                <div class="input-group">
-                    <label for="searchQuery" class="visually-hidden">Buscar por cédula, apellido o nombre</label>
-                    <input type="text" id="searchQuery" class="form-control"
-                        placeholder="Buscar por cédula, apellido o nombre" aria-label="Buscar estudiantes">
-                    <button type="submit" class="btn btn-buscar btn-custom" aria-label="Buscar">
+            <form id="searchForm" class="search-form">
+                <div class="search-container">
+                    <input type="text" id="searchQuery" class="search-input"
+                        placeholder="Buscar por cédula, apellido o nombre" aria-label="Buscar estudiantes" />
+                    <button type="submit" class="search-button" aria-label="Buscar">
                         <i class='bx bx-search'></i> Buscar
                     </button>
                 </div>
             </form>
 
             <!-- Botón para ver lista de asistencia -->
-            <a href="asistencia_estudiantes.php?id_curso=<?php echo $id_curso; ?>" class="btn btn-primary btn-custom">
+            <button id="btn-asistencia" class="btn btn-asistencia"
+                onclick="location.href='asistencia_estudiantes.php?id_curso=<?php echo urlencode($id_curso); ?>'">
                 <i class='bx bx-list-check'></i> Lista de Asistencia
-            </a>
+            </button>
 
             <!-- Verificar si hay mensajes de error -->
             <?php
@@ -346,10 +466,10 @@ $stmt_estudiantes->close();
                     data-id-curso="<?php echo $id_curso; ?>">
                     <i class='bx bx-pencil'></i> Calificar
                 </button>
-                <a href="nomina_estudiantes.php?id_curso=<?php echo $id_curso; ?>" class="btn btn-success btn-custom">
+                <a href="nomina_estudiantes.php?id_curso=<?php echo $id_curso; ?>" class="btn btn-reporte btn-custom">
                     <i class='bx bx-file'></i> Reporte
                 </a>
-                <button id="btn-exportar" class="btn btn-exportar btn-custom">
+                <button id="btn-exportar" class="btn btn-exportar-csv btn-custom">
                     <i class='bx bx-export'></i> Exportar a CSV
                 </button>
             </div>
@@ -448,23 +568,85 @@ $(document).ready(function() {
             var data = JSON.parse(response);
 
             var ctx = document.getElementById('chartEstudiantes').getContext('2d');
+
+            // Definimos el color de fondo con un degradado sutil
+            var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, '#a5d6a7'); // Verde claro
+            gradient.addColorStop(1, '#388e3c'); // Verde más oscuro
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: Object.keys(data.edades), // Etiquetas para el gráfico
                     datasets: [{
                         label: 'Número de Estudiantes por Edad',
-                        data: Object.values(data
-                            .edades), // Datos para el gráfico
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
+                        data: Object.values(data.edades), // Datos para el gráfico
+                        backgroundColor: gradient, // Aplicamos el color degradado
+                        borderColor: '#388e3c', // Borde de las barras verde
+                        borderWidth: 2, // Borde más fino
+                        hoverBackgroundColor: '#66bb6a', // Color más claro en hover
+                        hoverBorderColor: '#388e3c', // Borde en hover
+                        barThickness: 30, // Aumentamos el grosor de las barras
+                        borderRadius: 8, // Bordes redondeados en las barras para suavizar el aspecto
+                        shadowOffsetX: 5, // Sombra más pronunciada para dar un efecto de profundidad
+                        shadowOffsetY: 5, // Sombra más pronunciada para dar un efecto de profundidad
+                        shadowBlur: 6, // Aumentamos el desenfoque de la sombra
+                        shadowColor: 'rgba(0, 0, 0, 0.2)' // Color suave de sombra
                     }]
                 },
                 options: {
+                    responsive: true, // Hace que el gráfico sea responsivo
+                    maintainAspectRatio: false, // Permite que el gráfico cambie de tamaño según el contenedor
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#388e3c', // Color verde para los números en el eje Y
+                                font: {
+                                    size: 14, // Tamaño de la fuente
+                                    weight: '600', // Peso de la fuente (semi-negrita)
+                                    family: 'Arial, sans-serif', // Fuente limpia y moderna
+                                }
+                            },
+                            grid: {
+                                color: '#c8e6c9', // Color suave para las líneas de la cuadrícula
+                                borderColor: '#388e3c', // Color del borde del gráfico
+                                borderWidth: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#388e3c', // Color de los números en el eje X
+                                font: {
+                                    size: 14, // Tamaño de la fuente
+                                    weight: '600', // Peso de la fuente (semi-negrita)
+                                    family: 'Arial, sans-serif', // Fuente limpia y moderna
+                                }
+                            },
+                            grid: {
+                                color: '#c8e6c9', // Color suave para las líneas de la cuadrícula
+                                borderColor: '#388e3c', // Color del borde del gráfico
+                                borderWidth: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#388e3c', // Color verde para las etiquetas
+                                font: {
+                                    size: 14, // Tamaño de la fuente de la leyenda
+                                    weight: '600', // Peso de la fuente
+                                    family: 'Arial, sans-serif', // Fuente limpia
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1200, // Duración de la animación
+                        easing: 'easeOutQuart', // Tipo de animación (suave)
+                        onComplete: function() {
+                            console.log('Gráfico cargado con éxito.');
                         }
                     }
                 }

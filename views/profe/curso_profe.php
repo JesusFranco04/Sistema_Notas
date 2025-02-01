@@ -107,12 +107,12 @@ $conn->close();
         box-sizing: border-box;
     }
 
+    /* Body y fondo general */
     body {
-        font-family: 'Arial', sans-serif;
-        line-height: 1.6;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f6f9;
         color: #333;
-        background-color: #f9f9f9;
-        /* Fondo más claro */
+        line-height: 1.6;
     }
 
     .main-container {
@@ -210,7 +210,17 @@ $conn->close();
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid #ddd;
+        /* Agregar scroll vertical */
+        max-height: 300px;
+        /* Ajusta la altura según necesidad */
+        overflow-y: auto;
+        /* Activa el scroll vertical */
+        position: absolute;
+        /* Evita que altere la estructura de la página */
+        z-index: 1000;
+        /* Asegura que el dropdown esté sobre otros elementos */
     }
+
 
     .dropdown-menu .dropdown-item {
         padding: 1rem;
@@ -291,7 +301,7 @@ $conn->close();
         /* Rojo más profundo */
         color: #fff;
         padding: 1rem;
-        font-size: 1rem;
+        font-size: 0.9rem;
         /* Tamaño ligeramente reducido */
         font-weight: bold;
         position: relative;
@@ -331,7 +341,7 @@ $conn->close();
     }
 
     .card-footer .btn-view-students {
-        background: linear-gradient(135deg, #1976d2, #1e88e5);
+        background: linear-gradient(135deg, #083787, #1877d1);
         color: #fff;
         padding: 1rem 2rem;
         border: none;
@@ -344,8 +354,17 @@ $conn->close();
     }
 
     .card-footer .btn-view-students:hover {
-        background: linear-gradient(135deg, #1565c0, #1e88e5);
+        background: linear-gradient(135deg, #083787, #1877d1);
         transform: translateY(-5px);
+    }
+
+    .card-footer .btn-view-students:active {
+        color: #fff;
+        /* Mantiene el color blanco en las letras */
+        background: linear-gradient(135deg, #083787, #1877d1);
+        /* O puedes definir el color que desees para el fondo */
+        transform: translateY(0);
+        /* Elimina el efecto de movimiento al presionar */
     }
 
     /* Contenedor de cada tarjeta para que estén centradas */

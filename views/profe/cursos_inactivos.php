@@ -164,6 +164,7 @@ $conn->close();
     <style>
     /* Estilos CSS */
     body {
+        font-family: 'Roboto', sans-serif;
         background-color: #f8f9fa;
         margin: 0;
         min-height: 100vh;
@@ -208,30 +209,64 @@ $conn->close();
         display: flex;
         justify-content: flex-end;
         gap: 15px;
+        /* Alinea los botones a la derecha y agrega espacio entre ellos */
     }
 
+    /* Estilo común para todos los botones */
+    .btn-primary,
+    .btn-secondary {
+        margin: 0;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background-color: white;
+        /* Fondo blanco */
+        border: 2px solid;
+        /* Borde que se ajusta al color del texto */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        /* Sombra suave para más profundidad */
+    }
+
+    /* Estilo para el botón primary */
     .btn-primary {
-        background-color: #a21616;
         border-color: #a21616;
-        color: white;
+        color: #a21616;
+        /* El borde y texto son del mismo color */
     }
 
     .btn-primary:hover {
-        background-color: #8a1313;
-        border-color: #8a1313;
+        background-color: #a21616;
+        /* Fondo con el color del borde */
         color: white;
+        /* El texto cambia a blanco */
+        border-color: #a21616;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
+    /* Estilo para el botón secondary */
     .btn-secondary {
-        background-color: #0052aa;
         border-color: #0052aa;
-        color: white;
+        color: #0052aa;
+        /* El borde y texto son del mismo color */
     }
 
     .btn-secondary:hover {
-        background-color: #062f63;
-        border-color: #062f63;
+        background-color: #0052aa;
+        /* Fondo con el color del borde */
         color: white;
+        /* El texto cambia a blanco */
+        border-color: #0052aa;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
     .table-container {

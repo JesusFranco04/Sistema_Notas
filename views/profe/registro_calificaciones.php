@@ -244,7 +244,9 @@ $conn->close();
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
+    /* Body y fondo general */
     body {
+        font-family: 'Roboto', sans-serif;
         background-color: #f8f9fa;
         margin: 0;
         min-height: 100vh;
@@ -284,6 +286,7 @@ $conn->close();
 
     h2 {
         color: #E62433;
+        font-size: 1.9rem;
     }
 
     .botones-accion {
@@ -294,95 +297,124 @@ $conn->close();
         /* Espacio estándar entre los botones */
     }
 
+    /* Estilo común para todos los botones */
     .btn-primary,
     .btn-danger,
     .btn-success,
     .btn-secondary,
     .btn-regresar,
     .btn-enviar {
-        /* Aseguramos que todos los botones tengan el mismo estilo visual y espaciado */
         margin: 0;
-        /* Elimina márgenes extra */
+        padding: 12px 24px;
+        /* Tamaño de padding intermedio */
+        border-radius: 8px;
+        /* Forma rectangular */
+        font-size: 1rem;
+        /* Tamaño de fuente ajustado */
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background-color: white;
+        /* Fondo blanco */
+        border: 2px solid;
+        /* Borde que se ajusta al color del texto */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        /* Sombra suave para más profundidad */
     }
 
+    /* Estilo para el botón primary */
     .btn-primary {
-        background-color: #a21616;
         border-color: #a21616;
-        color: white;
+        color: #a21616;
+        /* Color del texto */
     }
 
     .btn-primary:hover {
-        background-color: #8a1313;
-        border-color: #8a1313;
+        background-color: #a21616;
+        /* Fondo con el color del borde */
         color: white;
+        /* El texto cambia a blanco */
+        border-color: #a21616;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
+    /* Estilo para el botón danger */
     .btn-danger {
-        background-color: #E62433;
-        /* Rojo */
         border-color: #E62433;
+        color: #E62433;
+        /* Color del texto */
     }
 
     .btn-danger:hover {
-        background-color: #c72c24;
-        border-color: #c72c24;
+        background-color: #E62433;
+        /* Fondo con el color del borde */
+        color: white;
+        /* El texto cambia a blanco */
+        border-color: #E62433;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
+    /* Estilo para el botón success */
     .btn-success {
-        background-color: #23650f;
-        /* Verde */
         border-color: #23650f;
-        color: white;
+        color: #23650f;
+        /* Color del texto */
     }
 
     .btn-success:hover {
-        background-color: #1c560c;
-        /* Verde */
-        border-color: #1c560c;
+        background-color: #23650f;
+        /* Fondo con el color del borde */
         color: white;
+        /* El texto cambia a blanco */
+        border-color: #23650f;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
+    /* Estilo para el botón secondary */
     .btn-secondary {
-        background-color: #0052aa;
         border-color: #0052aa;
-        color: white;
+        color: #0052aa;
+        /* Color del texto */
     }
 
     .btn-secondary:hover {
-        background-color: #062f63;
-        border-color: #062f63;
+        background-color: #0052aa;
+        /* Fondo con el color del borde */
         color: white;
+        /* El texto cambia a blanco */
+        border-color: #0052aa;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
+    /* Estilo para los botones regresar y enviar */
     .btn-regresar,
     .btn-enviar {
-        background-color: #0052aa;
-        /* Azul */
         border-color: #0052aa;
-        color: white;
+        color: #0052aa;
         /* Color del texto */
     }
 
     .btn-regresar:hover,
     .btn-enviar:hover {
-        background-color: #062f63;
-        /* Azul más oscuro para el hover */
-        border-color: #062f63;
+        background-color: #0052aa;
+        /* Fondo con el color del borde */
         color: white;
-    }
-
-    /* Contenedor de la tabla */
-    .table-container {
-        margin: 20px auto;
-        padding: 15px;
-        background-color: #ffffff;
-        /* Fondo blanco */
-        border-radius: 12px;
-        /* Bordes redondeados */
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        /* Sombra moderna */
-        overflow-x: auto;
-        /* Permitir desplazamiento horizontal en pantallas pequeñas */
+        /* El texto cambia a blanco */
+        border-color: #0052aa;
+        /* Aseguramos que el borde no cambie */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        /* Sombra más fuerte en hover */
     }
 
     /* Tabla */
@@ -631,6 +663,13 @@ $conn->close();
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if (empty($estudiantes)): ?>
+                        <tr>
+                            <td colspan="19" class="alert alert-error show">Actualmente no existen estudiantes
+                                registrados en este curso para calificar. Por favor, contacte a un administrador para
+                                obtener asistencia.</td>
+                        </tr>
+                        <?php else: ?>
                         <?php $i = 1; foreach ($estudiantes as $estudiante): ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
@@ -703,11 +742,12 @@ $conn->close();
                                 <?php echo $estado === 'A' ? 'Aprobado' : 'Reprobado'; ?>
                             </td>
                             <?php endif; ?>
-
                         </tr>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
+
                 <!-- Botones de acción -->
                 <div class="botones-accion">
                     <?php if ($id_periodo == 1 || $id_periodo == 2): ?>

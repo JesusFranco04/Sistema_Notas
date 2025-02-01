@@ -1,4 +1,4 @@
-<?php  
+<?php 
 // Iniciar sesión
 session_start();
 
@@ -8,18 +8,15 @@ include('../../Crud/config.php');
 
 // Verificar si el profesor está autenticado
 if (!isset($_SESSION['id_profesor'])) {
-    $mensaje_error = urlencode("No tienes permiso para acceder a este reporte. Es posible que no hayas iniciado sesión como profesor.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("No tienes permiso para acceder a este reporte.");
 }
 
 $id_profesor = $_SESSION['id_profesor'];
 
+
 // Verificar que el parámetro id_curso esté presente y sea un número entero
 if (!isset($_GET['id_curso']) || !filter_var($_GET['id_curso'], FILTER_VALIDATE_INT)) {
-    $mensaje_error = urlencode("Error: El parámetro 'id_curso' no está presente o no es válido. Asegúrate de que la URL contenga el identificador correcto del curso.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: El parámetro 'id_curso' no está presente o no es válido.");
 }
 
 // Obtener el id_curso desde la URL
@@ -32,9 +29,7 @@ $año_academico = $result->fetch_assoc()['año'] ?? null;
 
 // Si no hay un año académico activo, mostrar error
 if (!$año_academico) {
-    $mensaje_error = urlencode("Error: No se encontró un año académico activo. Puede que no haya registros en el sistema o que el año académico esté inactivo.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: No se encontró un año académico activo.");
 }
 
 // Eliminar espacios al principio y al final
@@ -45,9 +40,7 @@ $año_academico = str_replace(' ', '', $año_academico);
 
 // Validar el formato del año académico
 if (!preg_match('/^\d{4}-\d{4}$/', $año_academico)) {
-    $mensaje_error = urlencode("Error: Formato de año académico no válido. El valor obtenido es: " . $año_academico . ". Asegúrate de que el año académico siga el formato 'YYYY-YYYY'.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: Formato de año académico no válido. El valor obtenido es: " . $año_academico);
 }
 
 // Dividir el rango de años
@@ -55,10 +48,9 @@ list($primer_ano, $segundo_ano) = explode("-", $año_academico);
 
 // Si la división de los años falla, mostrar un mensaje de error
 if (!is_numeric($primer_ano) || !is_numeric($segundo_ano)) {
-    $mensaje_error = urlencode("Error: Los años académicos no son números válidos. El valor obtenido es: $año_academico. Revisa el formato.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: Los años académicos no son números válidos.");
 }
+
 
 // Intentar encontrar el historial académico con el año exacto
 $sql_historial = "SELECT id_his_academico FROM historial_academico WHERE año = ? AND estado = 'A' LIMIT 1";
@@ -78,14 +70,13 @@ if (!$historial_data) {
 
 // Si aún así no se encuentra un historial activo, mostrar error
 if (!$historial_data) {
-    $mensaje_error = urlencode("Error: No se encontró ningún historial académico activo. Verifica si el historial académico está registrado y activo en el sistema.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: No se encontró ningún historial académico activo.");
 }
 
 // Asignar el ID del historial académico activo
 $id_his_academico = $historial_data['id_his_academico'];
 $año_academico = $historial_data['año']; // Actualizar el año en caso de haber tomado el último activo
+
 
 // Obtener información del curso y profesor en una sola consulta
 $sql_curso = "SELECT c.id_curso, c.id_profesor, p.nombres AS profesor_nombres, p.apellidos AS profesor_apellidos,
@@ -109,9 +100,7 @@ $stmt_curso->close();
 
 // Verificar que se encontró el curso y profesor
 if (!$curso_data) {
-    $mensaje_error = urlencode("Error: No se encontró el curso o el profesor. Verifica que el curso esté registrado correctamente y que el profesor esté asociado a él.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: No se encontró el curso o el profesor.");
 }
 
 // Asignar las variables de curso y profesor
@@ -152,11 +141,8 @@ while ($row = $result_estudiantes->fetch_assoc()) {
 // Cerrar la consulta
 $stmt_estudiantes->close();
 
-// Verificar si no hay estudiantes
 if (empty($estudiantes)) {
-    $mensaje_error = urlencode("Error: No se encontraron estudiantes para el curso. Asegúrate de que todos los estudiantes estén matriculados en el curso con el año académico correcto.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: No se encontraron estudiantes para el curso.");
 }
 
 // Consulta para obtener el nombre de la materia
@@ -176,9 +162,7 @@ $nombre_materia = $materia_data['nombre_materia'] ?? 'Materia no encontrada';
 
 // Verificar si hay estudiantes
 if (empty($estudiantes)) {
-    $mensaje_error = urlencode("Error: No se encontraron estudiantes para el curso.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die("Error: No se encontraron estudiantes para el curso.");
 }
 
 // Definir las fechas de inicio y fin con los cambios solicitados
@@ -186,9 +170,7 @@ $fecha_inicio = DateTime::createFromFormat('d-m-Y', "01-01-$primer_ano"); // Com
 $fecha_fin = DateTime::createFromFormat('d-m-Y', "31-03-$segundo_ano"); // Termina el 31 de marzo del segundo año
 // Verificar si la creación de fechas fue exitosa
 if (!$fecha_inicio || !$fecha_fin) {
-    $mensaje_error = urlencode("Error al formatear las fechas. Verifique el formato de las fechas.");
-    header("Location: ver_estudiantes.php?id_curso=<?php echo $id_curso; ?>&error=$mensaje_error");
-    exit;
+    die('Error al formatear las fechas. Verifique el formato de las fechas.');
 }
 
 // Crear el array de fechas dinámicamente
@@ -203,7 +185,6 @@ while ($current_date <= $fecha_fin) {
     // Avanzar un día
     $current_date->modify('+1 day');
 }
-
 
 // Clase personalizada de PDF
 class PDF extends FPDF {
