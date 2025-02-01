@@ -161,7 +161,7 @@ $conn->close();
     }
 
     .text-center h2 {
-        color: #e53935;
+        color: #ad0f0f;
         /* Rojo vibrante */
         font-size: 2rem;
         font-weight: bold;
