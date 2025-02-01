@@ -1,53 +1,187 @@
 <?php
 session_start();
 include '../../Crud/config.php';
-// Inicializar las variables de mensaje
-$mensaje = '';
+
+// Inicializar variables para mensajes
+$mensaje = [];
 $mensaje_tipo = '';
 
-// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+// Verificar si el usuario tiene permiso para realizar esta acción
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
     header("Location: ../../login.php");
     exit();
-
 }
 
-// Función para subir de nivel a un estudiante
-function subir_nivel($id_estudiante, $id_nivel, $conn) {
+// Función para manejar la transacción de subir nivel
+function subir_nivel_estudiantes($ids_estudiantes, $id_his_academico, $conn) {
     global $mensaje, $mensaje_tipo;
+
+    // Iniciar transacción
+    $conn->begin_transaction();
+
+    try {
+        $estudiantes_subidos = []; // Para rastrear los estudiantes que subieron de nivel
+        foreach ($ids_estudiantes as $id_estudiante) {
+            // Verificar si el estudiante puede subir de nivel
+            if (!intentar_subir_nivel($id_estudiante, $id_his_academico, $conn)) {
+                // Si no puede subir, mostrar mensaje de error
+                continue;
+            }
+
+            // Subir nivel si tiene todas las materias aprobadas
+            $id_nivel_actual = obtener_nivel_estudiante($id_estudiante, $conn); // Obtener nivel actual del estudiante
+            if (subir_nivel($id_estudiante, $id_nivel_actual, $conn)) {
+                $estudiantes_subidos[] = $id_estudiante;
+            }
+        }
+
+        // Confirmar la transacción solo si hubo estudiantes que subieron
+        if (!empty($estudiantes_subidos)) {
+            $conn->commit();
+            $mensaje[] = 'Los estudiantes seleccionados han subido de nivel exitosamente.';
+            $mensaje_tipo = 'exito'; // Mensaje de éxito general
+        } else {
+            throw new Exception('No se pudo subir el nivel de ningún estudiante.');
+        }
+
+    } catch (Exception $e) {
+        // Revertir la transacción en caso de error
+        $conn->rollback();
+        $mensaje[] = 'Error al procesar la solicitud: ' . $e->getMessage();
+        $mensaje_tipo = 'error'; // Mensaje de error general
+    }
+}
+
+// Función para intentar subir de nivel a un estudiante
+function intentar_subir_nivel($id_estudiante, $id_his_academico, $conn) {
+    global $mensaje, $mensaje_tipo;
+
+    // Validar que los parámetros no estén vacíos
+    if (empty($id_estudiante) || empty($id_his_academico)) {
+        $mensaje[] = "Faltan datos necesarios para procesar la solicitud.";
+        $mensaje_tipo = 'error';
+        return false;
+    }
+
+    // Verificar si el estudiante tiene materias reprobadas
+    if (verificar_materias_reprobadas($id_estudiante, $id_his_academico, $conn)) {
+    $mensaje[] = "El estudiante con ID $id_estudiante no ha aprobado todas las materias. No puede avanzar al siguiente nivel.";
+        $mensaje_tipo = 'error';
+        return false;
+    }
+
+    // Verificar si el estudiante ya subió de nivel en el mismo año lectivo
+    if (verificar_subida_ano_lectivo($id_estudiante, $id_his_academico, $conn)) {
+        $mensaje[] = "El estudiante con ID $id_estudiante ya ha subido de nivel en este año lectivo.";
+        $mensaje_tipo = 'error';
+        return false;
+    }
+
+    // Verificar si el estudiante tiene todas las materias aprobadas
+    if (verificar_materias_aprobadas($id_estudiante, $id_his_academico, $conn)) {
+        // Si el estudiante tiene todas las materias aprobadas, permitir la subida de nivel
+        return true;
+    }
+
+    // Si no tiene todas las materias aprobadas, no se puede subir de nivel
+    $mensaje[] = "El estudiante con ID $id_estudiante no ha aprobado todas las materias. No puede avanzar al siguiente nivel.";
+    $mensaje_tipo = 'error';
+    return false;
+}
+
+// Verificar si un estudiante tiene materias reprobadas
+function verificar_materias_reprobadas($id_estudiante, $id_his_academico, $conn) {
+    $sql = "
+        SELECT COUNT(*) AS materias_reprobadas
+        FROM calificacion
+        WHERE id_estudiante = ? 
+        AND id_his_academico = ? 
+        AND estado_calificacion = 'R'";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $id_estudiante, $id_his_academico);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $materias_reprobadas = $result->fetch_assoc()['materias_reprobadas'];
+    $stmt->close();
+
+    return $materias_reprobadas > 0; // Si hay reprobadas, retorna verdadero
+}
+
+// Verificar si un estudiante tiene todas las materias aprobadas
+function verificar_materias_aprobadas($id_estudiante, $id_his_academico, $conn) {
+    $sql = "
+        SELECT COUNT(*) AS materias_aprobadas
+        FROM calificacion
+        WHERE id_estudiante = ? 
+        AND id_his_academico = ? 
+        AND estado_calificacion = 'A'";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $id_estudiante, $id_his_academico);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $materias_aprobadas = $result->fetch_assoc()['materias_aprobadas'];
+
+    // Obtener el total de materias
+    $sql_total_materias = "
+        SELECT COUNT(*) AS total_materias
+        FROM calificacion
+        WHERE id_estudiante = ? 
+        AND id_his_academico = ?";
+
+    $stmt_total = $conn->prepare($sql_total_materias);
+    $stmt_total->bind_param("ii", $id_estudiante, $id_his_academico);
+    $stmt_total->execute();
+    $result_total = $stmt_total->get_result();
+    $total_materias = $result_total->fetch_assoc()['total_materias'];
+    $stmt_total->close();
+
+    return $materias_aprobadas == $total_materias; // Si todas las materias están aprobadas, retorna verdadero
+}
+
+// Subir nivel de un estudiante
+function subir_nivel($id_estudiante, $conn) {
+    global $mensaje;
+    // Obtener el nivel actual del estudiante
+    $sql_nivel = "SELECT id_nivel FROM estudiante WHERE id_estudiante = ?";
+    $stmt_nivel = $conn->prepare($sql_nivel);
+    $stmt_nivel->bind_param("i", $id_estudiante);
+    $stmt_nivel->execute();
+    $result_nivel = $stmt_nivel->get_result();
+    $row_nivel = $result_nivel->fetch_assoc();
+    $id_nivel = $row_nivel['id_nivel'];
+    $stmt_nivel->close();
+
     $nuevo_nivel = $id_nivel + 1;
+
     // Verificar si el nuevo nivel está dentro del rango permitido
     if ($nuevo_nivel > 6) {
-        $mensaje = 'No se puede subir de nivel. El estudiante ya está en el nivel máximo.';
-        $mensaje_tipo = 'danger';
-        return;
+        $mensaje[] = "El estudiante con ID $id_estudiante ya está en el nivel máximo.";
+        return false;
     }
 
-    // Actualiza el nivel directamente en la tabla 'estudiante'
-    $sql_subir_nivel = "UPDATE estudiante 
-                        SET id_nivel = ? 
-                        WHERE id_estudiante = ? 
-                        AND id_nivel = ?";
-
+    // Actualizar el nivel en la tabla 'estudiante'
+    $sql_subir_nivel = "UPDATE estudiante SET id_nivel = ? WHERE id_estudiante = ?";
     if ($stmt_subir_nivel = $conn->prepare($sql_subir_nivel)) {
-        $stmt_subir_nivel->bind_param("iii", $nuevo_nivel, $id_estudiante, $id_nivel);
+        $stmt_subir_nivel->bind_param("ii", $nuevo_nivel, $id_estudiante);
         $stmt_subir_nivel->execute();
         $stmt_subir_nivel->close();
-    } else {
-        $mensaje = 'Error al intentar subir de nivel: ' . $conn->error;
-        $mensaje_tipo = 'danger';
-        $conn->close();
-        exit();
+        $mensaje[] = "El estudiante con ID $id_estudiante ha subido al nivel $nuevo_nivel.";
+        return true;
     }
+
+    return false;
 }
 
-// Obtener datos para los filtros
+// Consultas para los filtros
 $sql_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A'";
 $sql_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A'";
 $sql_especialidades = "SELECT id_especialidad, nombre FROM especialidad WHERE estado = 'A'";
 $sql_jornadas = "SELECT id_jornada, nombre FROM jornada WHERE estado = 'A'";
 $sql_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A'";
 
+// Procesamiento de los filtros
 $nivelesResult = $conn->query($sql_niveles);
 $paralelosResult = $conn->query($sql_paralelos);
 $especialidadesResult = $conn->query($sql_especialidades);
@@ -55,30 +189,17 @@ $jornadasResult = $conn->query($sql_jornadas);
 $historialesResult = $conn->query($sql_historiales);
 
 // Procesamiento del formulario
-$estudiantes = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Inicializar variables de filtro con valores predeterminados si no están presentes
     $id_his_academico = $_POST['id_his_academico'] ?? '';
     $id_nivel = $_POST['id_nivel'] ?? '';
     $id_paralelo = $_POST['id_paralelo'] ?? '';
     $id_especialidad = $_POST['id_especialidad'] ?? '';  
     $id_jornada = $_POST['id_jornada'] ?? '';
 
-    // Verificar que se han seleccionado todos los filtros
-    if (
-        (empty($id_his_academico) && !empty($id_nivel)) ||
-        (empty($id_nivel) && !empty($id_his_academico)) ||
-        (empty($id_paralelo) && !empty($id_his_academico)) ||
-        (empty($id_jornada) && !empty($id_his_academico)) ||
-        (empty($id_especialidad) && !empty($id_his_academico))
-    ) {
-        $mensaje = 'Por favor, seleccione todos los filtros para una búsqueda precisa.';
-        $mensaje_tipo = 'danger';
-    } elseif (empty($id_his_academico) || empty($id_nivel) || empty($id_paralelo) || empty($id_jornada)) {
-        $mensaje = 'Por favor, seleccione todos los filtros.';
-        $mensaje_tipo = 'danger';
+    // Validación de filtros
+    if (empty($id_his_academico) || empty($id_nivel) || empty($id_paralelo) || empty($id_especialidad) || empty($id_jornada)) {
     } else {
-        // Consulta para obtener los estudiantes con los filtros proporcionados
+        // Obtener estudiantes con filtros seleccionados
         $sql_estudiantes = "
             SELECT e.id_estudiante, e.nombres, e.apellidos, m.nombre AS materia, c.estado_calificacion
             FROM estudiante e
@@ -88,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             AND e.id_nivel = ? 
             AND e.id_paralelo = ? 
             AND e.id_especialidad = ? 
-            AND e.id_jornada = ?
-            ORDER BY e.id_estudiante, m.nombre ASC";
+            AND e.id_jornada = ? 
+            ORDER BY e.id_estudiante ASC, m.nombre ASC";
 
         if ($stmt_estudiantes = $conn->prepare($sql_estudiantes)) {
             $stmt_estudiantes->bind_param("iiiii", $id_his_academico, $id_nivel, $id_paralelo, $id_especialidad, $id_jornada);
@@ -105,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         'nombres' => $row['nombres'],
                         'apellidos' => $row['apellidos'],
                         'materias' => [],
-                        'calificaciones' => [],
+                        'calificaciones' => []
                     ];
                 }
 
@@ -114,77 +235,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             if (empty($estudiantes)) {
-                $mensaje = 'No existe ningún grupo de estudiantes con los filtros seleccionados.';
-                $mensaje_tipo = 'danger';
+                $mensaje[] = 'No existe ningún grupo de estudiantes con los filtros seleccionados.';
+                $mensaje_tipo = 'error';
             }
 
             $stmt_estudiantes->close();
         } else {
-            $mensaje = 'Error en la preparación de la consulta de estudiantes: ' . $conn->error;
-            $mensaje_tipo = 'danger';
-            $conn->close();
-            exit();
+            $mensaje[] = 'Error en la preparación de la consulta de estudiantes: ' . $conn->error;
+            $mensaje_tipo = 'error';
         }
     }
 
-    // Procesar la subida de nivel si se ha enviado el formulario con selección de estudiantes
+    // Procesar la subida de nivel si se ha enviado el formulario
     if (isset($_POST['submit_selected'])) {
         $ids_estudiantes = $_POST['estudiantes'] ?? [];
 
         if (empty($ids_estudiantes)) {
-            $mensaje = 'Debe seleccionar al menos un estudiante para subir de nivel.';
-            $mensaje_tipo = 'danger';
+            $mensaje[] = 'Debe seleccionar al menos un estudiante para subir de nivel.';
+            $mensaje_tipo = 'error';
         } else {
-            foreach ($ids_estudiantes as $id_estudiante) {
-                // Consultar el nivel actual del estudiante
-                $sql_nivel_estudiante = "SELECT id_nivel FROM estudiante WHERE id_estudiante = ?";
-                if ($stmt_nivel = $conn->prepare($sql_nivel_estudiante)) {
-                    $stmt_nivel->bind_param("i", $id_estudiante);
-                    $stmt_nivel->execute();
-                    $result_nivel = $stmt_nivel->get_result();
-                    $nivel_actual = $result_nivel->fetch_assoc()['id_nivel'];
-                    $stmt_nivel->close();
-                }
-
-                // Verificar si el estudiante tiene materias con calificación 'R'
-                $sql_calificaciones = "
-                    SELECT c.estado_calificacion
-                    FROM calificacion c
-                    WHERE c.id_estudiante = ? 
-                    AND c.id_his_academico = ?
-                    AND c.estado_calificacion = 'A'";
-
-                if ($stmt_calificaciones = $conn->prepare($sql_calificaciones)) {
-                    $stmt_calificaciones->bind_param("ii", $id_estudiante, $id_his_academico);
-                    $stmt_calificaciones->execute();
-                    $result_calificaciones = $stmt_calificaciones->get_result();
-
-                    if ($result_calificaciones->num_rows > 0) {
-                        // Subir de nivel
-                        subir_nivel($id_estudiante, $nivel_actual, $conn);
-                        $mensaje = "El estudiante con ID $id_estudiante ha subido de nivel con éxito.";
-                        $mensaje_tipo = 'success';
-                    } else {
-                        $mensaje = "El estudiante con ID $id_estudiante no tiene todas las materias aprobadas.";
-                        $mensaje_tipo = 'danger';
-                    }
-
-                    $stmt_calificaciones->close();
-                } else {
-                    $mensaje = 'Error en la preparación de la consulta de calificaciones: ' . $conn->error;
-                    $mensaje_tipo = 'danger';
-                    $conn->close();
-                    exit();
-                }
-            }
-            // Deshabilitar el botón después de la acción
-            echo "<script>document.getElementById('submit-btn').disabled = true;</script>";
+            subir_nivel_estudiantes($ids_estudiantes, $id_his_academico, $conn);
         }
     }
 }
 
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -423,6 +500,16 @@ $conn->close();
         padding-bottom: 8px;
     }
 
+    .aprobado {
+        color: #045d05;
+        font-weight: bold;
+    }
+
+    .reprobado {
+        color: #cf1d29;
+        font-weight: bold;
+    }
+
     /* Estilos generales para los modales */
     .modal-content {
         border-radius: 8px;
@@ -555,10 +642,12 @@ $conn->close();
 
         <form method="POST" action="">
             <?php if ($mensaje): ?>
-            <div class="alert alert-<?php echo $mensaje_tipo === 'exito' ? 'success' : 'danger'; ?>">
-                <?php echo $mensaje; ?>
+            <div
+                class="alert alert-<?php echo $mensaje_tipo === 'exito' ? 'success' : ($mensaje_tipo === 'error' ? 'danger' : 'warning'); ?>">
+                <?php echo implode('<br>', $mensaje); ?>
             </div>
             <?php endif; ?>
+
             <div class="form-group">
                 <label for="id_nivel"><i class="bx bx-layer"></i> Nivel:</label>
                 <select name="id_nivel" id="id_nivel" required>
@@ -643,7 +732,14 @@ $conn->close();
                         <td><?php echo $info['nombres']; ?></td>
                         <td><?php echo $info['apellidos']; ?></td>
                         <td><?php echo implode(', ', $info['materias']); ?></td>
-                        <td><?php echo implode(', ', $info['calificaciones']); ?></td>
+                        <td>
+                            <?php 
+                            foreach ($info['calificaciones'] as $calificacion) {
+                                $clase = ($calificacion == 'A') ? 'aprobado' : 'reprobado';
+                                echo "<span class='$clase'>$calificacion</span> ";
+                            }
+                            ?>
+                        </td>
                     </tr>
                     <?php } ?>
                 </tbody>
@@ -766,6 +862,11 @@ $conn->close();
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Cargar jQuery primero -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Luego carga sb-admin-2.min.js -->
+    <script src="path_to_your/js/sb-admin-2.min.js"></script>
+
 
 
     <script>

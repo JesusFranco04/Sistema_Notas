@@ -553,31 +553,38 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
+                <?php
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id_curso']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['estudiante_nombre']) . " " . htmlspecialchars($row['estudiante_apellido']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota1_primer_parcial']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota2_primer_parcial']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['examen_primer_parcial']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota1_segundo_parcial']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota2_segundo_parcial']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['examen_segundo_parcial']) . "</td>";
+
+                        // Uso de operador ternario para manejar valores vacíos
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota1_primer_parcial']) ? number_format($row['nota1_primer_parcial'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota2_primer_parcial']) ? number_format($row['nota2_primer_parcial'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['examen_primer_parcial']) ? number_format($row['examen_primer_parcial'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota1_segundo_parcial']) ? number_format($row['nota1_segundo_parcial'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota2_segundo_parcial']) ? number_format($row['nota2_segundo_parcial'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['examen_segundo_parcial']) ? number_format($row['examen_segundo_parcial'], 2) : '-') . "</td>";
+
                         // Para el segundo quimestre
-                        echo "<td>" . htmlspecialchars($row['nota1_primer_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota2_primer_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['examen_primer_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota1_segundo_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota2_segundo_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['examen_segundo_parcial_2Q']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['promedio_primer_quimestre']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['promedio_segundo_quimestre']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['nota_final']) . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota1_primer_parcial_2Q']) ? number_format($row['nota1_primer_parcial_2Q'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota2_primer_parcial_2Q']) ? number_format($row['nota2_primer_parcial_2Q'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['examen_primer_parcial_2Q']) ? number_format($row['examen_primer_parcial_2Q'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota1_segundo_parcial_2Q']) ? number_format($row['nota1_segundo_parcial_2Q'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['nota2_segundo_parcial_2Q']) ? number_format($row['nota2_segundo_parcial_2Q'], 2) : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(is_numeric($row['examen_segundo_parcial_2Q']) ? number_format($row['examen_segundo_parcial_2Q'], 2) : '-') . "</td>";
+
+                        // Para el promedio de cada quimestre
+                        echo "<td>" . htmlspecialchars(!empty($row['promedio_primer_quimestre']) ? $row['promedio_primer_quimestre'] : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(!empty($row['promedio_segundo_quimestre']) ? $row['promedio_segundo_quimestre'] : '-') . "</td>";
+                        echo "<td>" . htmlspecialchars(!empty($row['nota_final']) ? $row['nota_final'] : '-') . "</td>";
+
+                        // Estado de calificación (deja el valor tal cual porque no es numérico)
                         echo "<td>" . htmlspecialchars($row['estado_calificacion']) . "</td>";
                         echo "</tr>";
                     }
-                    ?>
+                ?>
                 </tbody>
             </table>
         </div>
@@ -650,7 +657,7 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
                                     </li>
                                 </ul>
                             </li>
-                            <li>Si ves varios estudiantes, puedes buscar por nombre, curso o estado de calificación para
+                            <li>Si ves varios estudiantes, puedes buscar por cédula para
                                 encontrar a uno en particular.</li>
                         </ol>
                     </div>

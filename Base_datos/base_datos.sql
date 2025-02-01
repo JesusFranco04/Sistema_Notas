@@ -33,7 +33,6 @@ CREATE TABLE usuario (
 );
 
 
-
 CREATE TABLE nivel ( -- En esta tabla se guardara los datos por ejemplo: Octavo, Noveno, Decimo, Primero de Bachillerato, Segundo de Bachillerato, Tercero de Bachillerato.
 	id_nivel INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(40) NOT NULL,
@@ -100,7 +99,7 @@ CREATE TABLE historial_academico ( -- En esta tabla se guardara los datos de los
     fecha_cierre_programada DATETIME NULL
 );
 
--- Crear la tabla de registro event_log
+-- Crear la tabla de registro event_log --- Esto sirve para programar la fecha de cierre en Ciclos Academicos 
 CREATE TABLE IF NOT EXISTS event_log (
     id INT AUTO_INCREMENT PRIMARY KEY,
     message VARCHAR(255),
@@ -274,7 +273,7 @@ CREATE TABLE calificacion (
     FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
-CREATE TABLE historial_log (
+CREATE TABLE historial_log (   -- Esto es la tabla para la página de Perfil (PERFIL ADMINISTRADOR)
     id_actividad INT AUTO_INCREMENT PRIMARY KEY,  -- ID de la actividad en el historial
     id_usuario INT NULL,                         -- Permitimos que el id_usuario sea NULL
     tabla VARCHAR(50) NOT NULL,                   -- Nombre de la tabla afectada
@@ -476,3 +475,30 @@ BEGIN
 END $$
 DELIMITER ;
 
+
+-- Índices compuestos para búsquedas por filtros
+CREATE INDEX idx_estudiante_filtros ON estudiante (id_his_academico, id_nivel, id_paralelo, id_especialidad, id_jornada);
+
+-- Índice para búsquedas por nombre/apellidos (si son búsquedas frecuentes)
+CREATE INDEX idx_estudiante_nombres_apellidos ON estudiante (nombres, apellidos);
+
+-- Índices compuestos para búsquedas por estudiante y estado de calificación
+CREATE INDEX idx_calificacion_estudiante_his ON calificacion (id_estudiante, id_his_academico, estado_calificacion);
+
+-- Índice para búsquedas relacionadas con materias aprobadas/reprobadas
+CREATE INDEX idx_calificacion_materia_estado ON calificacion (id_materia, estado_calificacion);
+
+-- Índice compuesto para búsquedas frecuentes (estudiante + curso/materia)
+CREATE INDEX idx_calificacion_estudiante_materia ON calificacion (id_estudiante, id_materia);
+
+-- Índice para búsquedas por año académico
+CREATE INDEX idx_historial_anio ON historial_academico (año);
+
+-- Índice para filtrar por estado (años activos/inactivos)
+CREATE INDEX idx_historial_estado ON historial_academico (estado);
+
+-- Índice para consultas por usuario que registró
+CREATE INDEX idx_historial_usuario ON historial_academico (usuario_ingreso);
+
+-- Índice para búsquedas por fechas de cierre programadas
+CREATE INDEX idx_historial_fecha_cierre ON historial_academico (fecha_cierre_programada);

@@ -17,6 +17,20 @@ if ($id_curso <= 0 || empty($año)) {
     exit();
 }
 
+// Verificar el estado del año lectivo
+$sql_año = "SELECT estado FROM historial_academico WHERE año = ?";
+$stmt_año = $conn->prepare($sql_año);
+$stmt_año->bind_param("s", $año);
+$stmt_año->execute();
+$result_año = $stmt_año->get_result();
+$estado_año = $result_año->fetch_assoc()['estado']; // "activo" o "inactivo"
+$stmt_año->close();
+
+// Si el año lectivo es inactivo, evitar modificar la lista o realizar ciertas acciones
+if ($estado_año === 'inactivo') {
+    echo "<p>El año lectivo seleccionado está inactivo. No se pueden realizar modificaciones, pero puedes visualizar la lista de estudiantes.</p>";
+}
+
 // Obtener los detalles del curso
 $sql_detalles = "SELECT id_nivel, id_paralelo, id_jornada 
                  FROM curso 

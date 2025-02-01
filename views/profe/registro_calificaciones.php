@@ -255,18 +255,19 @@ $conn->close();
         /* Centra el contenido verticalmente */
     }
 
+    /* Banner */
     .banner {
         background-color: #c61e1e;
         color: white;
-        padding: 20px;
+        padding: 2rem;
         text-align: center;
-        font-size: 28px;
+        font-size: 1.8rem;
         font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         border-bottom: 3px solid #0052aa;
-        text-transform: uppercase;
     }
-
 
     .container {
         background-color: #ffffff;
@@ -472,11 +473,29 @@ $conn->close();
         color: #ffffff;
         text-align: center;
         font-weight: bold;
-        font-size: 15px;
+        font-size: 24px;
         padding: 10px;
 
     }
 
+    th {
+        text-align: center;
+        /* Centra el texto horizontalmente */
+        vertical-align: middle;
+        /* Centra el contenido verticalmente */
+        white-space: pre-line;
+        /* Respeta los saltos de línea */
+        padding: 5px;
+        /* Espaciado adicional para mejorar la legibilidad */
+    }
+
+    /* Estilo para los porcentajes */
+    .porcentaje {
+        font-size: 0.9em;
+        /* Hace el texto más pequeño */
+        color: white;
+        /* Cambia el color a blanco */
+    }
 
     footer {
         border-top: 3px solid #073b73;
@@ -585,29 +604,29 @@ $conn->close();
                             <th></th>
                             <th></th>
                             <?php if ($id_periodo == 1 || $id_periodo == 2): ?>
-                            <th colspan="3" class="partial-header">1er Parcial</th>
-                            <th colspan="3" class="partial-header">2do Parcial</th>
+                            <th colspan="3" class="partial-header">Primer Parcial</th>
+                            <th colspan="3" class="partial-header">Segundo Parcial</th>
                             <?php elseif ($id_periodo == 3): ?>
                             <th colspan="5" class="partial-header">Evaluaciones Finales</th>
                             <?php endif; ?>
                         </tr>
                         <tr>
                             <th>N°</th>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
                             <?php if ($id_periodo == 1 || $id_periodo == 2): ?>
-                            <th>Nota 1<span class="small-text"> (35%)</span></th>
-                            <th>Nota 2<span class="small-text"> (35%)</span></th>
-                            <th>1er Examen<span class="small-text"> (30%)</span></th>
-                            <th>Nota 1<span class="small-text"> (35%)</span></th>
-                            <th>Nota 2<span class="small-text"> (35%)</span></th>
-                            <th>2do Examen<span class="small-text"> (30%)</span></th>
+                            <th>Nota 1<br> <span class="porcentaje">(35%)</span></th>
+                            <th>Nota 2<br> <span class="porcentaje">(35%)</span></th>
+                            <th>1er Examen Final<br> <span class="porcentaje">(30%)</span></th>
+                            <th>Nota 1<br> <span class="porcentaje">(35%)</span></th>
+                            <th>Nota 2<br> <span class="porcentaje">(35%)</span></th>
+                            <th>2do Examen Final<br> <span class="porcentaje">(30%)</span></th>
                             <?php elseif ($id_periodo == 3): ?>
-                            <th>Promedio 1er Q.</th>
-                            <th>Promedio 2do Q.</th>
-                            <th>Nota Final</th>
+                            <th>1er Quimestre<br> <span class="porcentaje">Promedio</span></th>
+                            <th>2do Quimestre<br> <span class="porcentaje">Promedio</span></th>
+                            <th>Promedio Final</th>
                             <th>Supletorio</th>
-                            <th>Estado</th>
+                            <th>Estado<br> Calificación</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -680,7 +699,7 @@ $conn->close();
                                     value="<?php echo isset($calificaciones[$estudiante['id_estudiante']]) ? htmlspecialchars($calificaciones[$estudiante['id_estudiante']]['supletorio']) : ''; ?>"
                                     <?php echo $supletorio_habilitado; ?>>
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 <?php echo $estado === 'A' ? 'Aprobado' : 'Reprobado'; ?>
                             </td>
                             <?php endif; ?>

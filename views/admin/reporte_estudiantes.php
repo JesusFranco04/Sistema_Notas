@@ -60,7 +60,14 @@ class PDF extends FPDF {
         $this->SetFillColor(255, 255, 255);
         $this->Rect(0, 0, 297, 210, 'F');
 
-        $this->Image('../../imagenes/logo.png', 10, 10, 15);
+
+        // Logo de la institución 
+        $this->Image('../../imagenes/logo.png', 10, 10, 20);
+
+        $this->Image('../../imagenes/logo.png', 267, 10, 20);
+        // Agregar espacio antes de la fecha
+        $this->Ln(5);
+
 
         $this->SetFont('Arial', 'B', 10);
         $this->SetTextColor(178, 34, 34);

@@ -32,7 +32,7 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
     }
 
     header {
-        background-color: #E62433;
+        background-color: #c61e1e;
         color: white;
         padding: 20px;
         position: relative;
@@ -43,7 +43,7 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
         text-align: center;
         height: 150px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-bottom: 3px solid #003366;
+        border-bottom: 3px solid #0052aa;
     }
 
     header h1 {
@@ -1051,9 +1051,9 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
     }
 
     footer {
-        border-top: 3px solid #003366;
+        border-top: 3px solid #073b73;
         /* Borde en la parte superior */
-        background-color: #E62433;
+        background-color: #ad0f0f;
         color: white;
         text-align: center;
         /* Centrar el texto */
