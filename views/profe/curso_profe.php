@@ -116,8 +116,10 @@ $conn->close();
     }
 
     .main-container {
-        width: 90%;
-        max-width: 1200px;
+        width: 97%;
+        /* Aumenta ligeramente el ancho */
+        max-width: 1400px;
+        /* Incrementa el límite máximo */
         margin: 0 auto;
         padding: 3rem;
         background-color: #fff;
@@ -130,7 +132,6 @@ $conn->close();
         justify-content: center;
         /* Asegura buen espaciado */
     }
-
 
     /* Fondo para la página para dar contraste */
     body {
@@ -301,7 +302,7 @@ $conn->close();
         /* Rojo más profundo */
         color: #fff;
         padding: 1rem;
-        font-size: 0.9rem;
+        font-size: 1rem;
         /* Tamaño ligeramente reducido */
         font-weight: bold;
         position: relative;

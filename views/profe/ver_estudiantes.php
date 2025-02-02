@@ -123,7 +123,8 @@ $stmt_estudiantes->close();
 
     /* Contenedor principal */
     .container {
-        max-width: 1100px;
+        max-width: 1400px;
+        width: 90%;
         margin: 50px auto;
         padding: 25px;
         background: white;
@@ -396,6 +397,90 @@ $stmt_estudiantes->close();
         font-size: 1.1rem;
         box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
         /* Sombra más pronunciada */
+    }
+
+    /* Estilos responsivos */
+    @media (max-width: 768px) {
+        .search-container {
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .search-button {
+            width: 100%;
+        }
+
+        .btn-custom,
+        .btn-asistencia,
+        .btn-reporte,
+        .btn-exportar-csv {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        th,
+        td {
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 15px;
+        }
+
+        header .banner {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        th,
+        td {
+            padding: 10px;
+        }
+    }
+
+    /* Responsividad para botones */
+    @media (max-width: 768px) {
+
+        .btn-custom,
+        .btn-asistencia,
+        .btn-reporte,
+        .btn-exportar-csv {
+            width: 100%;
+            /* Ocupan todo el ancho disponible */
+            margin-right: 0;
+            /* Elimina márgenes laterales */
+            padding: 14px 20px;
+            /* Reduce el padding para adaptarse mejor */
+            font-size: 1rem;
+            /* Tamaño de texto más pequeño */
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .btn-custom,
+        .btn-asistencia,
+        .btn-reporte,
+        .btn-exportar-csv {
+            padding: 12px 16px;
+            /* Más compacto para móviles */
+            font-size: 0.9rem;
+            /* Ajusta el tamaño del texto */
+        }
     }
     </style>
 </head>

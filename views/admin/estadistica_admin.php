@@ -32,37 +32,67 @@ $total_profesores = $resultProfesores->fetch_assoc()['total'];
 $total_estudiantes = $resultEstudiantes->fetch_assoc()['total'];
 $total_usuarios = $resultUsuarios->fetch_assoc()['total'];
 
-// Consultas para obtener datos para el gráfico
-$queryEstadisticas = "SELECT a.año, 
-                            SUM(p.id_profesor) as profesores, 
-                            SUM(e.id_estudiante) as estudiantes, 
-                            COUNT(u.id_usuario) as usuarios
-                      FROM historial_academico a
-                      LEFT JOIN profesor p ON a.id_his_academico = p.id_usuario
-                      LEFT JOIN estudiante e ON a.id_his_academico = e.id_his_academico
-                      LEFT JOIN usuario u ON a.id_his_academico = u.id_rol
-                      GROUP BY a.año
-                      ORDER BY a.año DESC
-                      LIMIT 10";
+// Inicializar variables para mensajes
+$mensaje = [];
+$mensaje_tipo = '';
 
+// Consulta para obtener los últimos 10 años lectivos
+$queryEstadisticas = "
+    SELECT 
+        a.año, 
+        a.estado,
+        COUNT(DISTINCT CASE 
+            WHEN p.id_profesor IS NOT NULL AND c.id_his_academico = a.id_his_academico THEN p.id_profesor 
+        END) AS profesores,
+        COUNT(DISTINCT e.id_estudiante) AS estudiantes
+    FROM historial_academico a
+    LEFT JOIN curso c ON a.id_his_academico = c.id_his_academico
+    LEFT JOIN profesor p ON c.id_profesor = p.id_profesor
+    LEFT JOIN estudiante e ON a.id_his_academico = e.id_his_academico
+    GROUP BY a.año, a.estado
+    ORDER BY a.año ASC 
+    LIMIT 10"; // Ordenar los años del más antiguo al más reciente y limita para que solamente se pueda ver 10 registros nomas 
+
+// Consulta independiente para contar usuarios activos
+$queryUsuarios = "SELECT COUNT(*) as total FROM usuario WHERE estado = 'A'";
+
+// Ejecutar ambas consultas
 $resultEstadisticas = $conn->query($queryEstadisticas);
-$datosEstadisticas = [];
+$resultUsuarios = $conn->query($queryUsuarios);
 
-while ($row = $resultEstadisticas->fetch_assoc()) {
-    $datosEstadisticas[] = $row;
-}
+// Procesar resultados
+$totalUsuarios = $resultUsuarios->fetch_assoc()['total'];
 
-// Procesar datos para el gráfico
 $labels = [];
 $dataProfesores = [];
 $dataEstudiantes = [];
 $dataUsuarios = [];
 
-foreach ($datosEstadisticas as $data) {
-    $labels[] = $data['año'];
-    $dataProfesores[] = $data['profesores'];
-    $dataEstudiantes[] = $data['estudiantes'];
-    $dataUsuarios[] = $data['usuarios'];
+// Validar que la consulta de estadísticas tenga resultados
+if ($resultEstadisticas && $resultEstadisticas->num_rows > 0) {
+    while ($row = $resultEstadisticas->fetch_assoc()) {
+        // Mostrar solo años con estado 'A' (Activo) o 'I' (Inactivo)
+        if (in_array($row['estado'], ['A', 'I'])) {
+            $labels[] = $row['año'];
+            $dataProfesores[] = $row['profesores'];
+            $dataEstudiantes[] = $row['estudiantes'];
+            $dataUsuarios[] = $totalUsuarios; // Agregar el total de usuarios activos
+        }
+    }
+
+    // Validar si no se encontraron años activos
+    if (empty($labels)) {
+        $mensaje[] = "No hay años lectivos registrados. Por favor, registre un año lectivo para continuar.";
+        $mensaje_tipo = 'advertencia';
+    }
+} else {
+    // Si no hay datos disponibles, mostrar un mensaje de error
+    $labels[] = "-";
+    $dataProfesores[] = 0;
+    $dataEstudiantes[] = 0;
+    $dataUsuarios[] = 0;
+    $mensaje[] = "No se encontraron registros de años lectivos. Por favor, registre uno nuevo.";
+    $mensaje_tipo = 'error';
 }
 
 // Consulta para obtener los mejores estudiantes
@@ -103,6 +133,7 @@ if ($result === false) {
     exit;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -334,14 +365,51 @@ if ($result === false) {
         background-color: #CD7F32;
     }
 
-    .alert-error {
+    .alert {
         margin-top: 20px;
+        padding: 15px 20px;
+        /* Más espacio alrededor del mensaje */
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        /* Bordes más redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Sombra sutil */
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        /* Transición suave */
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        /* Verde claro para éxito */
+        color: #155724;
+        /* Color de texto verde oscuro */
+        border-left: 5px solid #28a745;
+        /* Línea izquierda verde */
+    }
+
+    .alert-error {
         background-color: #f8d7da;
         color: #721c24;
-        padding: 10px;
-        border: 1px solid #f5c6cb;
-        border-radius: 5px;
-        font-weight: bold;
+        border-left: 5px solid #dc3545;
+        /* Línea izquierda roja */
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        /* Amarillo claro para advertencias */
+        color: #856404;
+        /* Color de texto amarillo oscuro */
+        border-left: 5px solid #ffc107;
+        /* Línea izquierda amarilla */
+    }
+
+    /* Efecto al pasar el ratón */
+    .alert:hover {
+        transform: translateY(-5px);
+        /* Le da un pequeño levantamiento */
+        opacity: 0.9;
+        /* Hace que se vea un poco más sutil al pasar el ratón */
     }
 
     footer {
@@ -409,44 +477,52 @@ if ($result === false) {
             </div>
         </div>
 
-        <!-- Contenedor para el gráfico de área apilada -->
-        <div class="chart-container">
-            <canvas id="graficoAreaApilada"></canvas>
-        </div>
-    </div>
-
-    <!-- Línea horizontal -->
-    <hr style="margin-top: 1; margin-bottom: 20px;">
-
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1>Récord Académico</h1>
-                <p class="subtitle">¿Quieres conocer los mejores estudiantes de tu plantel de EBG y BTI?</p>
+        <div class="alert-container">
+            <?php if ($mensaje): ?>
+            <div
+                class="alert alert-<?php echo $mensaje_tipo === 'exito' ? 'success' : ($mensaje_tipo === 'error' ? 'error' : 'warning'); ?>">
+                <?php echo implode('<br>', $mensaje); ?>
             </div>
-            <div>
-                <i class='bx bxs-trophy' style='font-size: 3rem; color: #FFD700;'></i>
+            <?php endif; ?>
+
+            <!-- Contenedor para el gráfico de área apilada -->
+            <div class="chart-container">
+                <canvas id="graficoAreaApilada"></canvas>
             </div>
         </div>
-        <div class="filter-bar">
-            <input type="text" id="search" placeholder="Buscar por nombre o nivel"
-                aria-label="Buscar por nombre o nivel">
-            <button onclick="filterTable()">Buscar</button>
-        </div>
-        <div class="table-wrapper">
-            <table id="recordTable">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Subnivel</th>
-                        <th>Nivel</th>
-                        <th>Curso</th>
-                        <th>Nota Final</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php 
+
+        <!-- Línea horizontal -->
+        <hr style="margin-top: 1; margin-bottom: 20px;">
+
+        <div class="container">
+            <div class="header">
+                <div>
+                    <h1>Récord Académico</h1>
+                    <p class="subtitle">¿Quieres conocer los mejores estudiantes de tu plantel de EBG y BTI?</p>
+                </div>
+                <div>
+                    <i class='bx bxs-trophy' style='font-size: 3rem; color: #FFD700;'></i>
+                </div>
+            </div>
+            <div class="filter-bar">
+                <input type="text" id="search" placeholder="Buscar por nombre o nivel"
+                    aria-label="Buscar por nombre o nivel">
+                <button onclick="filterTable()">Buscar</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="recordTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Subnivel</th>
+                            <th>Nivel</th>
+                            <th>Curso</th>
+                            <th>Nota Final</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
                 // Verificar si hay resultados
                 if ($result->num_rows > 0):
                     // Agrupar los estudiantes por nivel
@@ -485,29 +561,31 @@ if ($result === false) {
                     }
                 }
                 else: ?>
-                    <tr>
-                        <td colspan="6">No se encontraron registros con el criterio buscado.</td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                        <tr>
+                            <td colspan="6">No se encontraron registros con el criterio buscado.</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Alerta de error en caso de no cumplir el criterio de búsqueda -->
-        <?php if ($result->num_rows > 0 && empty($searchResults)): ?>
-        <div id="alert" class="alert-error" style="display: none;">
-            No se encontraron registros con el criterio buscado.
-        </div>
-        <?php endif; ?>
+            <!-- Alerta de error en caso de no cumplir el criterio de búsqueda -->
+            <?php if ($result->num_rows > 0 && empty($searchResults)): ?>
+            <div id="alert" class="alert-error" style="display: none;">
+                No se encontraron registros con el criterio buscado.
+            </div>
+            <?php endif; ?>
 
-        <!-- Alerta de error cuando la base de datos está vacía -->
-        <?php if ($result->num_rows == 0): ?>
-        <div id="alert" class="alert-error" style="display: block; color: red; text-align: center; margin-top: 1rem;">
-            Actualmente no hay información disponible para mostrar.
+            <!-- Alerta de error cuando la base de datos está vacía -->
+            <?php if ($result->num_rows == 0): ?>
+            <div id="alert" class="alert-error"
+                style="display: block; color: red; text-align: center; margin-top: 1rem;">
+                Actualmente no hay información disponible para mostrar.
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
     </div>
-
+    </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
             Todos los derechos reservados.</p>
@@ -523,7 +601,6 @@ if ($result === false) {
     <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
     <!-- DataTables JS -->
-
 
 
     <script>
@@ -549,25 +626,28 @@ if ($result === false) {
         animateValue('totalEstudiantes', 0, <?php echo $total_estudiantes; ?>, 1000);
         animateValue('totalUsuarios', 0, <?php echo $total_usuarios; ?>, 1000);
 
-        // Datos para el gráfico de área apilada
+        // Datos para el gráfico de área apilada desde PHP
         var datosAreaApilada = {
             labels: <?php echo json_encode($labels); ?>,
             datasets: [{
-                label: 'Profesores',
-                backgroundColor: '#DE112D', // Color rojo llamativo
-                data: <?php echo json_encode($dataProfesores); ?>,
-                stack: 'Stack 1',
-            }, {
-                label: 'Estudiantes',
-                backgroundColor: '#32b54f', // Color verde
-                data: <?php echo json_encode($dataEstudiantes); ?>,
-                stack: 'Stack 1',
-            }, {
-                label: 'Usuarios',
-                backgroundColor: '#022be6', // Color azul oscuro
-                data: <?php echo json_encode($dataUsuarios); ?>,
-                stack: 'Stack 1',
-            }]
+                    label: 'Profesores',
+                    backgroundColor: '#c70e24', // Color rojo llamativo
+                    data: <?php echo json_encode($dataProfesores); ?>,
+                    stack: 'Stack 1',
+                },
+                {
+                    label: 'Estudiantes',
+                    backgroundColor: '#147c20', // Color verde
+                    data: <?php echo json_encode($dataEstudiantes); ?>,
+                    stack: 'Stack 1',
+                },
+                {
+                    label: 'Usuarios',
+                    backgroundColor: '#1137c1', // Color azul oscuro
+                    data: <?php echo json_encode($dataUsuarios); ?>,
+                    stack: 'Stack 1',
+                }
+            ]
         };
 
         // Configuración del gráfico de área apilada
@@ -591,7 +671,7 @@ if ($result === false) {
                 },
                 animation: {
                     onComplete: function(animation) {
-                        // Animación con Anime.js para mostrar el gráfico
+                        // Mantener la animación con Anime.js
                         anime({
                             targets: '#graficoAreaApilada',
                             opacity: 1,
@@ -600,13 +680,14 @@ if ($result === false) {
                         });
                     }
                 }
-            },
+            }
         };
 
         // Inicializar el gráfico de área apilada
         var ctxAreaApilada = document.getElementById('graficoAreaApilada').getContext('2d');
         new Chart(ctxAreaApilada, configAreaApilada);
     });
+
 
     function filterTable() {
         const input = document.getElementById('search').value.toLowerCase(); // Obtener el texto del filtro
@@ -627,7 +708,8 @@ if ($result === false) {
             const levelCell = normalizeText(cells[3].textContent); // Nivel
 
             // Verificar si el texto de búsqueda está en alguna de las celdas relevantes
-            const match = nameCell.includes(input) || surnameCell.includes(input) || levelCell.includes(input);
+            const match = nameCell.includes(input) || surnameCell.includes(input) || levelCell.includes(
+                input);
 
             row.style.display = match ? '' : 'none'; // Mostrar o ocultar la fila según el filtro
 
