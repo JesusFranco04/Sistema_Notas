@@ -571,18 +571,18 @@ if ($result === false) {
 
             <!-- Alerta de error en caso de no cumplir el criterio de búsqueda -->
             <?php if ($result->num_rows > 0 && empty($searchResults)): ?>
-            <div id="alert" class="alert-error" style="display: none;">
+            <div id="alert" class="alert alert-error hidden">
                 No se encontraron registros con el criterio buscado.
             </div>
             <?php endif; ?>
 
             <!-- Alerta de error cuando la base de datos está vacía -->
             <?php if ($result->num_rows == 0): ?>
-            <div id="alert" class="alert-error"
-                style="display: block; color: red; text-align: center; margin-top: 1rem;">
+            <div id="alert" class="alert alert-error">
                 Actualmente no hay información disponible para mostrar.
             </div>
             <?php endif; ?>
+
         </div>
     </div>
     </div>
