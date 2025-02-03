@@ -120,14 +120,14 @@
                         </a>
                         <a class="collapse-item"
                             href="http://localhost/sistema_notas/views/admin/curso_admin.php">
-                            <i class='bx bxs-school'></i> Cursos
+                            <i class='bx bxs-graduation'></i> Cursos
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/gestionar_academico.php">
                             <i class='bx bxs-calendar'></i> Ciclos Académicos
                         </a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/subir_nivel.php">
+                        <!--<a class="collapse-item" href="http://localhost/sistema_notas/views/admin/subir_nivel.php">
                             <i class='bx bxs-graduation'></i> Niveles Académicos
-                        </a>
+                        </a>-->
                     </div>
                     <!-- Sección de Usuarios por Agregar -->
                     <div class="submenu-section">
