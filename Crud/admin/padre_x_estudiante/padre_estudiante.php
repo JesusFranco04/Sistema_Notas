@@ -18,14 +18,64 @@ $mensaje_tipo = '';
 $query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A' ORDER BY nombre";
 $result_niveles = $conn->query($query_niveles);
 
+// Definir el orden basado en palabras clave
+$orden_niveles = [
+    'octavo' => 1,
+    'noveno' => 2,
+    'décimo' => 3,
+    'primer' => 4,  // "Primer Bachillerato"
+    'segundo' => 5, // "Segundo Bachillerato"
+    'tercer' => 6   // "Tercer Bachillerato"
+];
+
+// Convertir los resultados en un array
+$niveles = [];
+while ($row = $result_niveles->fetch_assoc()) {
+    $nombre = trim(mb_strtolower($row['nombre'])); // Normalizamos el nombre
+    $orden = 999; // Orden por defecto si no se encuentra coincidencia
+    
+    // Buscar la palabra clave en el nombre
+    foreach ($orden_niveles as $clave => $posicion) {
+        if (preg_match("/\b$clave\b/", $nombre)) { 
+            $orden = $posicion;
+            break; // Salimos del loop al encontrar coincidencia
+        }
+    }
+
+    // Guardar en el array con la posición asignada
+    $niveles[] = [
+        'id_nivel' => $row['id_nivel'],
+        'nombre' => $row['nombre'],
+        'orden' => $orden
+    ];
+}
+
+// Ordenar los niveles por la clave 'orden'
+usort($niveles, fn($a, $b) => $a['orden'] <=> $b['orden']);
+
+
+// Obtener los datos necesarios para los filtros
 $query_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A' ORDER BY nombre";
 $result_paralelos = $conn->query($query_paralelos);
+
+// Convertir los resultados en un array
+$paralelos = [];
+while ($row = $result_paralelos->fetch_assoc()) {
+    $row['nombre'] = trim($row['nombre']); // Eliminar espacios innecesarios
+    $paralelos[] = $row;
+}
+
+// Ordenar alfabéticamente asegurando que no haya problemas con mayúsculas/minúsculas
+usort($paralelos, fn($a, $b) => strcasecmp($a['nombre'], $b['nombre']));
+
 
 $query_jornadas = "SELECT id_jornada, nombre FROM jornada WHERE estado = 'A' ORDER BY nombre";
 $result_jornadas = $conn->query($query_jornadas);
 
-$query_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A' ORDER BY año";
+
+$query_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A' ORDER BY año DESC";
 $result_historiales = $conn->query($query_historiales);
+
 
 // Procesar el formulario de filtro
 $filters = [];
@@ -357,24 +407,24 @@ $result_relaciones = $conn->query($query_relaciones);
                             <label for="nivel" class="form-label">Nivel:</label>
                             <select id="nivel" name="nivel" class="form-select">
                                 <option value="">Selecciona un nivel</option>
-                                <?php while ($row = $result_niveles->fetch_assoc()): ?>
+                                <?php foreach ($niveles as $row): ?>
                                 <option value="<?php echo $row['id_nivel']; ?>"
                                     <?php echo (isset($_GET['nivel']) && $_GET['nivel'] == $row['id_nivel']) ? 'selected' : ''; ?>>
                                     <?php echo $row['nombre']; ?>
                                 </option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label for="paralelo" class="form-label">Paralelo:</label>
                             <select id="paralelo" name="paralelo" class="form-select">
                                 <option value="">Selecciona un paralelo</option>
-                                <?php while ($row = $result_paralelos->fetch_assoc()): ?>
+                                <?php foreach ($paralelos as $row): ?>
                                 <option value="<?php echo $row['id_paralelo']; ?>"
                                     <?php echo (isset($_GET['paralelo']) && $_GET['paralelo'] == $row['id_paralelo']) ? 'selected' : ''; ?>>
                                     <?php echo $row['nombre']; ?>
                                 </option>
-                                <?php endwhile; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-3">

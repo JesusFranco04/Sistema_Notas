@@ -1,6 +1,14 @@
 <?php
+session_start();
 // Incluir el archivo de conexión y verificar la conexión
-include('../../Crud/config.php'); // Ruta absoluta a tu archivo de configuración de base de datos
+include('../../Crud/config.php'); // Ruta absoluta 
+
+// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
+    header("Location: ../../login.php");
+    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
 
 // Configurar la zona horaria de Ecuador
 date_default_timezone_set('America/Guayaquil');
@@ -407,8 +415,8 @@ if (!$resultado) {
                                 <th>Estado</th>
                                 <th>Nivel</th>
                                 <th>Paralelo</th>
-                                <th>Especialidad</th>
                                 <th>Subnivel</th>
+                                <th>Especialidad</th>
                                 <th>Jornada</th>
                                 <th>Historial Académico</th>
                                 <th>Fecha de Creación</th>
@@ -419,25 +427,29 @@ if (!$resultado) {
                             <?php if ($resultado->num_rows > 0) { ?>
                             <?php while ($fila = $resultado->fetch_assoc()) { ?>
                             <tr>
-                                <td><?php echo $fila['id_estudiante']; ?></td>
-                                <td><?php echo $fila['nombres']; ?></td>
-                                <td><?php echo $fila['apellidos']; ?></td>
-                                <td><?php echo $fila['cedula']; ?></td>
-                                <td><?php echo $fila['telefono']; ?></td>
-                                <td><?php echo $fila['correo_electronico']; ?></td>
-                                <td><?php echo $fila['direccion']; ?></td>
-                                <td><?php echo $fila['fecha_nacimiento']; ?></td>
-                                <td><?php echo $fila['genero']; ?></td>
-                                <td><?php echo $fila['discapacidad']; ?></td>
-                                <td><?php echo $fila['estado_calificacion']; ?></td>
-                                <td><?php echo $fila['estado']; ?></td>
-                                <td><?php echo $fila['nivel']; ?></td>
-                                <td><?php echo $fila['subnivel']; ?></td>
-                                <td><?php echo $fila['especialidad']; ?></td>
-                                <td><?php echo $fila['paralelo']; ?></td>
-                                <td><?php echo $fila['jornada']; ?></td>
-                                <td><?php echo $fila['historial_academico']; ?></td>
-                                <td><?php echo $fila['fecha_ingreso']; ?></td>
+                                <td><?php echo empty($fila['id_estudiante']) ? '-' : $fila['id_estudiante']; ?></td>
+                                <td><?php echo empty($fila['nombres']) ? '-' : $fila['nombres']; ?></td>
+                                <td><?php echo empty($fila['apellidos']) ? '-' : $fila['apellidos']; ?></td>
+                                <td><?php echo empty($fila['cedula']) ? '-' : $fila['cedula']; ?></td>
+                                <td><?php echo empty($fila['telefono']) ? '-' : $fila['telefono']; ?></td>
+                                <td><?php echo empty($fila['correo_electronico']) ? '-' : $fila['correo_electronico']; ?>
+                                </td>
+                                <td><?php echo empty($fila['direccion']) ? '-' : $fila['direccion']; ?></td>
+                                <td><?php echo empty($fila['fecha_nacimiento']) ? '-' : $fila['fecha_nacimiento']; ?>
+                                </td>
+                                <td><?php echo empty($fila['genero']) ? '-' : $fila['genero']; ?></td>
+                                <td><?php echo empty($fila['discapacidad']) ? '-' : $fila['discapacidad']; ?></td>
+                                <td><?php echo empty($fila['estado_calificacion']) ? '-' : $fila['estado_calificacion']; ?>
+                                </td>
+                                <td><?php echo empty($fila['estado']) ? '-' : $fila['estado']; ?></td>
+                                <td><?php echo empty($fila['nivel']) ? '-' : $fila['nivel']; ?></td>
+                                <td><?php echo empty($fila['subnivel']) ? '-' : $fila['subnivel']; ?></td>
+                                <td><?php echo empty($fila['especialidad']) ? '-' : $fila['especialidad']; ?></td>
+                                <td><?php echo empty($fila['paralelo']) ? '-' : $fila['paralelo']; ?></td>
+                                <td><?php echo empty($fila['jornada']) ? '-' : $fila['jornada']; ?></td>
+                                <td><?php echo empty($fila['historial_academico']) ? '-' : $fila['historial_academico']; ?>
+                                </td>
+                                <td><?php echo empty($fila['fecha_ingreso']) ? '-' : $fila['fecha_ingreso']; ?></td>
                                 <td>
                                     <a href="http://localhost/sistema_notas/Crud/admin/estudiante/editar_estudiantes.php?cedula=<?php echo $fila['cedula']; ?>"
                                         class="btn btn-warning btn-action">Editar</a>

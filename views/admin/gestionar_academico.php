@@ -272,6 +272,53 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
         background-color: #31373e;
     }
 
+    .alert {
+        margin-top: 20px;
+        padding: 15px 20px;
+        /* Más espacio alrededor del mensaje */
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        /* Bordes más redondeados */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Sombra sutil */
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        /* Transición suave */
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        /* Verde claro para éxito */
+        color: #155724;
+        /* Color de texto verde oscuro */
+        border-left: 5px solid #28a745;
+        /* Línea izquierda verde */
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 5px solid #dc3545;
+        /* Línea izquierda roja */
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        /* Amarillo claro para advertencias */
+        color: #856404;
+        /* Color de texto amarillo oscuro */
+        border-left: 5px solid #ffc107;
+        /* Línea izquierda amarilla */
+    }
+
+    /* Efecto al pasar el ratón */
+    .alert:hover {
+        transform: translateY(-5px);
+        /* Le da un pequeño levantamiento */
+        opacity: 0.9;
+        /* Hace que se vea un poco más sutil al pasar el ratón */
+    }
+
     footer {
         background-color: white;
         /* Color de fondo blanco */
@@ -328,6 +375,16 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
+                    <?php if ($result_periodos->num_rows == 0) { ?>
+                    <tr>
+                        <td colspan="4">
+                            <div class="alert alert-warning">
+                                <strong>No hay periodos académicos registrados.</strong> Debes agregar uno para poder
+                                visualizarlos y gestionarlos correctamente.
+                            </div>
+                        </td>
+                    </tr>
+                    <?php } ?>
                     <?php if ($result_periodos->num_rows > 0) { ?>
                     <?php while ($row = $result_periodos->fetch_assoc()) { ?>
                     <tr>
@@ -343,13 +400,6 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                         </td>
                     </tr>
                     <?php } ?>
-                    <?php } else { ?>
-                    <tr>
-                        <td colspan="4" class="alert-message">
-                            <strong>No hay registros disponibles en este momento.</strong> Te invitamos a volver más
-                            tarde.
-                        </td>
-                    </tr>
                     <?php } ?>
                 </table>
                 <div class="text-right" style="margin-top: 10px;">
@@ -419,31 +469,37 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
                     </thead>
                     <tbody>
                         <?php
-                        $sql = "SELECT id_his_academico, año, estado, fecha_cierre_programada FROM historial_academico";
-                        $result = $conn->query($sql);
-                        
-                        if ($result) {
-                            while ($row = $result->fetch_assoc()) {
-                                echo '<tr>';
-                                echo '<td>' . htmlspecialchars($row['id_his_academico']) . '</td>';
-                                echo '<td>' . htmlspecialchars($row['año']) . '</td>';
-                                echo '<td>' . ($row['estado'] == 'A' ? 'Activo' : 'Inactivo') . '</td>';
-                                echo '<td>' . ($row['fecha_cierre_programada'] ? htmlspecialchars($row['fecha_cierre_programada']) : 'No Programada') . '</td>';
-                                echo '<td class="btn-center">';
-                                if ($row['fecha_cierre_programada'] !== null) {
-                                    echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)" disabled>Cerrado</button>';
-                                } else {
-                                    echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)">Cerrar Año</button>';
-                                }
-                                echo '</td>';
-                                echo '</tr>';
-                            }
+                $sql = "SELECT id_his_academico, año, estado, fecha_cierre_programada FROM historial_academico";
+                $result = $conn->query($sql);
+
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo '<tr>';
+                        echo '<td>' . htmlspecialchars($row['id_his_academico']) . '</td>';
+                        echo '<td>' . htmlspecialchars($row['año']) . '</td>';
+                        echo '<td>' . ($row['estado'] == 'A' ? 'Activo' : 'Inactivo') . '</td>';
+                        echo '<td>' . ($row['fecha_cierre_programada'] ? htmlspecialchars($row['fecha_cierre_programada']) : 'No Programada') . '</td>';
+                        echo '<td class="btn-center">';
+                        if ($row['fecha_cierre_programada'] !== null) {
+                            echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)" disabled>Cerrado</button>';
                         } else {
-                            echo '<tr><td colspan="5">Error al cargar los datos.</td></tr>';
+                            echo '<button class="btn btn-danger" onclick="cerrarAno(' . htmlspecialchars($row['id_his_academico']) . ', this)">Cerrar Año</button>';
                         }
-                        ?>
+                        echo '</td>';
+                        echo '</tr>';
+                    }
+                } else {
+                    echo '<tr><td colspan="5">No hay datos disponibles.</td></tr>';
+                }
+                ?>
                     </tbody>
                 </table>
+
+                <?php if ($result->num_rows == 0) { ?>
+                <div class="alert alert-warning mt-3">
+                    <strong>No hay años lectivos que mostrar.</strong> Añada un año académico nuevo.
+                </div>
+                <?php } ?>
             </div>
         </div>
 

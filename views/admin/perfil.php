@@ -457,9 +457,9 @@ $conn->close();
     }
 
     footer {
-        background-color: white;
+        background-color: #990007;
         /* Color de fondo blanco */
-        color: #737373;
+        color: white;
         /* Color del texto en gris oscuro */
         text-align: center;
         /* Centrar el texto */

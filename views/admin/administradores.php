@@ -119,6 +119,73 @@ if (!$resultado) {
         border-color: #d39e00;
     }
 
+    /* Estilos generales para los modales */
+    .modal-content {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        font-family: Arial, sans-serif;
+    }
+
+    .modal-header {
+        background-color: #DE112D;
+        padding: 15px;
+        color: white;
+        border-bottom: 2px solid #B50D22;
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+
+    .modal-header .close {
+        font-size: 1.5rem;
+        color: white;
+        background: none;
+        border: none;
+        opacity: 0.8;
+        outline: none;
+        transition: opacity 0.2s;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .modal-footer .btn {
+        border: none;
+        transition: background-color 0.3s ease;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .modal-footer .btn-secondary {
+        background-color: #0e2643;
+    }
+
+    .modal-footer .btn-secondary:hover {
+        background-color: #0b1e36;
+    }
+
+    .modal-footer .btn-success {
+        background-color: #0d5316;
+    }
+
+    .modal-footer .btn-success:hover {
+        background-color: #0a4312;
+    }
+
+    .modal-footer .btn-dark {
+        background-color: #3d454d;
+    }
+
+    .modal-footer .btn-dark:hover {
+        background-color: #31373e;
+    }
+
     /* Estilo de la tabla */
     .table {
         border-radius: 10px;
