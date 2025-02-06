@@ -5,46 +5,64 @@ include('Crud/config.php');
 define('SUPER_USER_KEY', '0954352185');
 define('SUPER_USER_PASSWORD', 'admin340');
 
+session_start(); // Iniciar sesión para manejar intentos fallidos
 $error_message = ''; // Inicializa la variable de mensaje de error
+
+// Inicializar la estructura de intentos fallidos si no existe
+if (!isset($_SESSION['intentos'])) {
+    $_SESSION['intentos'] = [];
+}
 
 // Verificar si se está enviando el formulario por método POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $cedula = $_POST['cedula'];
-    $contraseña = $_POST['contraseña'];
+    $cedula = trim($_POST['cedula']);
+    $contraseña = trim($_POST['contraseña']);
 
-    // Validación de superusuario
-    if ($cedula === SUPER_USER_KEY && $contraseña === SUPER_USER_PASSWORD) {
-        // Iniciar sesión para el superusuario
-        session_start();
-        $_SESSION['cedula'] = $cedula;
-        $_SESSION['rol'] = 'Superusuario';
-        // Redirigir al panel de administración
-        header('Location: http://localhost/sistema_notas/views/admin/index_admin.php');
-        exit;
+    // Bloqueo temporal por demasiados intentos
+    if (isset($_SESSION['intentos'][$cedula]) && $_SESSION['intentos'][$cedula]['bloqueado']) {
+        $ultimo_intento = $_SESSION['intentos'][$cedula]['ultimo_intento'];
+        $tiempo_bloqueo = strtotime($ultimo_intento) + 900; // 15 minutos de bloqueo
+
+        if (time() < $tiempo_bloqueo) {
+            $error_message = "Cuenta bloqueada temporalmente. Intente nuevamente en 15 minutos.";
+        } else {
+            // Desbloquear después de 15 minutos
+            unset($_SESSION['intentos'][$cedula]);
+        }
     }
 
-// Validación de usuarios regulares
-require 'Crud/config.php';
-// Validación de usuarios regulares
-    $sql = "SELECT u.id_usuario, u.cedula, u.contraseña, u.estado, r.nombre AS nombre_rol 
-            FROM usuario u
-            JOIN rol r ON u.id_rol = r.id_rol
-            WHERE u.cedula = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $cedula);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    // Validación de superusuario
+    if (empty($error_message)) { // Solo si no está bloqueado
+        if ($cedula === SUPER_USER_KEY && $contraseña === SUPER_USER_PASSWORD) {
+            $_SESSION['cedula'] = $cedula;
+            $_SESSION['rol'] = 'Superusuario';
+            header('Location: http://localhost/sistema_notas/views/admin/index_admin.php');
+            exit;
+        }
 
-    if ($user && $contraseña === $user['contraseña']) {
-        // Verificar el estado del usuario
-        if ($user['estado'] === 'I') {
-            $error_message = "Su cuenta se encuentra inactiva temporalmente. Si considera que es un error, contáctese con un administrador.";
-        } else {
-            // Iniciar sesión
-            session_start();
-            $_SESSION['cedula'] = $user['cedula'];
-            $_SESSION['rol'] = $user['nombre_rol'];
+        // Validación de usuarios regulares
+        require 'Crud/config.php';
+        $sql = "SELECT u.id_usuario, u.cedula, u.contraseña, u.estado, r.nombre AS nombre_rol 
+                FROM usuario u
+                JOIN rol r ON u.id_rol = r.id_rol
+                WHERE u.cedula = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('s', $cedula);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user && $contraseña === $user['contraseña']) {
+            // Verificar el estado del usuario
+            if ($user['estado'] === 'I') {
+                $error_message = "Su cuenta se encuentra inactiva temporalmente. Si considera que es un error, contáctese con un administrador.";
+            } else {
+                // Reiniciar intentos fallidos al iniciar sesión correctamente
+                unset($_SESSION['intentos'][$cedula]);
+
+                // Iniciar sesión
+                $_SESSION['cedula'] = $user['cedula'];
+                $_SESSION['rol'] = $user['nombre_rol'];
 
                 // Obtener id_profesor si el rol es 'Profesor'
                 if ($user['nombre_rol'] === 'Profesor') {
@@ -59,34 +77,49 @@ require 'Crud/config.php';
                         $_SESSION['id_profesor'] = $profesor['id_profesor'];
                     } else {
                         $error_message = "No se encontró el ID del profesor.";
-                        exit();
                     }
                 }
 
                 // Redirigir según el rol del usuario con un 'switch'
-                switch ($user['nombre_rol']) {
-                    case 'Administrador':
-                    case 'Superadministrador':  // El Superadministrador tiene el mismo perfil que el Administrador
-                        header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
-                        break;
-                    case 'Profesor':
-                        header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
-                        break;
-                    case 'Padre':
-                        header("Location: http://localhost/sistema_notas/views/family/index_family.php");
-                        break;
-                    default:
-                        header("Location: http://localhost/sistema_notas/login.php");
-                        break;
+                if (empty($error_message)) { // Solo redirigir si no hay errores
+                    switch ($user['nombre_rol']) {
+                        case 'Administrador':
+                        case 'Superadministrador':  // El Superadministrador tiene el mismo perfil que el Administrador
+                            header("Location: http://localhost/sistema_notas/views/admin/index_admin.php");
+                            break;
+                        case 'Profesor':
+                            header("Location: http://localhost/sistema_notas/views/profe/index_profe.php");
+                            break;
+                        case 'Padre':
+                            header("Location: http://localhost/sistema_notas/views/family/index_family.php");
+                            break;
+                        default:
+                            header("Location: http://localhost/sistema_notas/login.php");
+                            break;
+                    }
+                    exit();
                 }
-                exit();
             }
         } else {
-            $error_message = "Cédula o contraseña incorrecta";
-        }
+            // Manejo de intentos fallidos
+            if (!isset($_SESSION['intentos'][$cedula])) {
+                $_SESSION['intentos'][$cedula] = ['contador' => 0, 'bloqueado' => false, 'ultimo_intento' => null];
+            }
 
+            $_SESSION['intentos'][$cedula]['contador']++;
+            $_SESSION['intentos'][$cedula]['ultimo_intento'] = date('Y-m-d H:i:s');
+
+            if ($_SESSION['intentos'][$cedula]['contador'] >= 3) {
+                $_SESSION['intentos'][$cedula]['bloqueado'] = true;
+                $error_message = "Demasiados intentos fallidos. Cuenta bloqueada temporalmente.";
+            } else {
+                $error_message = "Cédula o contraseña incorrecta.";
+            }
+        }
+    }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
