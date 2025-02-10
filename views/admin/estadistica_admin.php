@@ -36,6 +36,25 @@ $total_usuarios = $resultUsuarios->fetch_assoc()['total'];
 $mensaje = [];
 $mensaje_tipo = '';
 
+// Consulta para obtener el año académico activo más reciente
+$sqlActivo = "
+SELECT *
+FROM historial_academico
+WHERE estado = 'A' AND fecha_cierre_programada IS NULL
+ORDER BY fecha_ingreso DESC
+LIMIT 1;
+";
+
+$resultActivo = $conn->query($sqlActivo);
+
+if ($resultActivo && $resultActivo->num_rows > 0) {
+    $year_record = $resultActivo->fetch_assoc();
+    $active_year = $year_record['año']; // Año activo
+} else {
+    // Si no se encuentra un año activo, manejar el caso adecuado
+    echo "No hay año académico activo.";
+    exit;
+}
 // Consulta para obtener los últimos 10 años lectivos
 $queryEstadisticas = "
     SELECT 
@@ -95,7 +114,7 @@ if ($resultEstadisticas && $resultEstadisticas->num_rows > 0) {
     $mensaje_tipo = 'error';
 }
 
-// Consulta para obtener los mejores estudiantes
+// Consulta para obtener los mejores estudiantes del año académico activo
 $sql = "
 WITH mejores_estudiantes AS (
     SELECT 
@@ -115,16 +134,20 @@ WITH mejores_estudiantes AS (
     INNER JOIN curso c ON cal.id_curso = c.id_curso
     INNER JOIN subnivel sn ON c.id_subnivel = sn.id_subnivel
     INNER JOIN nivel n ON c.id_nivel = n.id_nivel
+    INNER JOIN historial_academico ha ON cal.id_his_academico = ha.id_his_academico
     WHERE 
         cal.nota_final BETWEEN 9 AND 10
         AND e.estado = 'A'
         AND cal.estado_calificacion = 'A'
+        AND ha.estado = 'A' -- Solo trabajar con el año lectivo activo
+
 )
 SELECT * 
 FROM mejores_estudiantes
 WHERE posicion <= 2;
 ";
 
+// Ejecutar la consulta
 $result = $conn->query($sql);
 
 // Verificación de errores en la consulta SQL
@@ -133,6 +156,7 @@ if ($result === false) {
     exit;
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -262,9 +286,12 @@ if ($result === false) {
     }
 
     .container {
-        width: 96%;
+        width: 100%;
+        /* Mantener el mismo ancho */
         max-width: 1200px;
+        /* Ajustar el ancho máximo igual al de arriba */
         margin: 20px auto;
+        /* Asegurar que esté centrado */
         background: white;
         padding: 25px;
         border-radius: 12px;
@@ -444,6 +471,8 @@ if ($result === false) {
         /* Sombra sutil */
         transition: transform 0.3s ease, opacity 0.3s ease;
         /* Transición suave */
+        display: none;
+        /* Ocultar el mensaje por defecto */
     }
 
     .alert-success {
@@ -477,6 +506,35 @@ if ($result === false) {
         /* Le da un pequeño levantamiento */
         opacity: 0.9;
         /* Hace que se vea un poco más sutil al pasar el ratón */
+    }
+
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
     }
 
     footer {
@@ -698,19 +756,19 @@ if ($result === false) {
             labels: <?php echo json_encode($labels); ?>,
             datasets: [{
                     label: 'Profesores',
-                    backgroundColor: '#c70e24', // Color rojo llamativo
+                    backgroundColor: '#ec162f', // Color rojo llamativo
                     data: <?php echo json_encode($dataProfesores); ?>,
                     stack: 'Stack 1',
                 },
                 {
                     label: 'Estudiantes',
-                    backgroundColor: '#147c20', // Color verde
+                    backgroundColor: '#86ef91', // Color verde
                     data: <?php echo json_encode($dataEstudiantes); ?>,
                     stack: 'Stack 1',
                 },
                 {
                     label: 'Usuarios',
-                    backgroundColor: '#1137c1', // Color azul oscuro
+                    backgroundColor: '#0e2cae', // Color azul oscuro
                     data: <?php echo json_encode($dataUsuarios); ?>,
                     stack: 'Stack 1',
                 }

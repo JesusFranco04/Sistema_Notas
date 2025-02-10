@@ -319,6 +319,35 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
         /* Hace que se vea un poco más sutil al pasar el ratón */
     }
 
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
+    }
+
     footer {
         background-color: white;
         /* Color de fondo blanco */

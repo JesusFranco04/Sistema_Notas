@@ -192,8 +192,12 @@ $result_relaciones = $conn->query($query_relaciones);
     <!-- Boxicons CSS -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
+    /* Estilo general del cuerpo */
     body {
-        background-color: #f8f9fa;
+        font-family: 'Roboto', sans-serif;
+        background-color:white;
+        margin: 0;
+        padding: 0;
     }
 
     .container {
@@ -350,6 +354,45 @@ $result_relaciones = $conn->query($query_relaciones);
         /* Sombra para profundidad */
     }
 
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        /* Espaciado uniforme debajo de las etiquetas */
+    }
+
+    .form-select {
+        height: auto;
+        /* Ajusta la altura si hay diferencias entre los selectores */
+    }
+
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
+    }
 
     footer {
         background-color: white;
@@ -404,7 +447,7 @@ $result_relaciones = $conn->query($query_relaciones);
                 <form class="mb-4" method="GET" action="">
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <label for="nivel" class="form-label">Nivel:</label>
+                            <label for="nivel" class="form-label mb-2">Nivel:</label>
                             <select id="nivel" name="nivel" class="form-select">
                                 <option value="">Selecciona un nivel</option>
                                 <?php foreach ($niveles as $row): ?>
@@ -416,7 +459,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="paralelo" class="form-label">Paralelo:</label>
+                            <label for="paralelo" class="form-label mb-2">Paralelo:</label>
                             <select id="paralelo" name="paralelo" class="form-select">
                                 <option value="">Selecciona un paralelo</option>
                                 <?php foreach ($paralelos as $row): ?>
@@ -428,7 +471,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="jornada" class="form-label">Jornada:</label>
+                            <label for="jornada" class="form-label mb-2">Jornada:</label>
                             <select id="jornada" name="jornada" class="form-select">
                                 <option value="">Selecciona una jornada</option>
                                 <?php while ($row = $result_jornadas->fetch_assoc()): ?>
@@ -440,7 +483,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="historial_academico" class="form-label">Historial Académico:</label>
+                            <label for="historial_academico" class="form-label mb-2">Historial Académico:</label>
                             <select id="historial_academico" name="historial_academico" class="form-select">
                                 <option value="">Selecciona un año académico</option>
                                 <?php while ($row = $result_historiales->fetch_assoc()): ?>
@@ -452,6 +495,7 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                     </div>
+
                     <div class="d-flex justify-content-start">
                         <!-- Botón para aplicar filtros -->
                         <button type="submit" id="btn-aplicar" class="btn btn-primary mr-2">Aplicar filtros</button>

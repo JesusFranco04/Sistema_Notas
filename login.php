@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .login-image {
         flex: 1;
         /* Ocupa la mitad del contenedor */
-        background: url('/Sistema_Notas/imagenes/profesor.png') no-repeat center center;
+        background: url('/Sistema_Notas/imagenes/profesor1.png') no-repeat center center;
         /* Imagen de fondo centrada */
         background-size: cover;
         /* Escala la imagen para cubrir todo el área */

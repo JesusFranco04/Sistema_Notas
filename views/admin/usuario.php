@@ -2,6 +2,7 @@
 session_start();
 // Incluir el archivo de conexión y verificar la conexión
 include('../../Crud/config.php'); // Ruta absoluta 
+
 // Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
@@ -26,16 +27,29 @@ if (!$resultado_roles) {
 }
 
 // Construir la consulta SQL con filtros si existen
-$sql = "SELECT * FROM usuario WHERE 1=1";
+$sql = "
+    SELECT 
+        u.id_usuario, 
+        u.cedula, 
+        u.contraseña, 
+        r.nombre AS nombre_rol, 
+        u.estado, 
+        u.usuario_ingreso, 
+        u.fecha_ingreso 
+    FROM usuario u
+    INNER JOIN rol r ON u.id_rol = r.id_rol
+    WHERE 1=1
+";
+
 if (!empty($fecha)) {
-    $sql .= " AND DATE(fecha_ingreso) = '$fecha'";
+    $sql .= " AND DATE(u.fecha_ingreso) = '$fecha'";
 }
 if (!empty($estado)) {
     $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
-    $sql .= " AND estado = '$estadoFiltro'";
+    $sql .= " AND u.estado = '$estadoFiltro'";
 }
 if (!empty($rol)) {
-    $sql .= " AND id_rol = '$rol'";
+    $sql .= " AND u.id_rol = '$rol'";
 }
 
 $resultado = $conn->query($sql);
@@ -316,6 +330,34 @@ if (!$resultado) {
         /* Sombra para profundidad */
     }
 
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
+    }
 
     footer {
         background-color: white;
@@ -433,7 +475,7 @@ if (!$resultado) {
                                 <td><?php echo $fila['id_usuario']; ?></td>
                                 <td><?php echo $fila['cedula']; ?></td>
                                 <td><?php echo $fila['contraseña']; ?></td>
-                                <td><?php echo $fila['id_rol']; ?></td>
+                                <td><?php echo $fila['nombre_rol']; ?></td>
                                 <td><?php echo $fila['estado'] == 'A' ? 'Activo' : 'Inactivo'; ?></td>
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
                                 <td><?php echo $fila['fecha_ingreso']; ?></td>

@@ -25,14 +25,14 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Panel de Control</h6>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/index_admin.php">
-                                <i class='bx bx-file' aria-hidden="true"></i> Página de Inicio
+                            <i class='bx bx-file' aria-hidden="true"></i> Página de Inicio
                         </a>
                     </div>
                     <div class="submenu-section">
                         <h6 class="collapse-header">Análisis Numérico</h6>
                         <a class="collapse-item"
                             href="http://localhost/sistema_notas/views/admin/estadistica_admin.php">
-                                <i class='bx bx-stats' aria-hidden="true"></i> Estadísticas
+                            <i class='bx bx-stats' aria-hidden="true"></i> Estadísticas
                         </a>
                     </div>
                 </div>
@@ -57,11 +57,11 @@
                     <div class="submenu-section">
                         <h6 class="collapse-header">Usuarios Registrados</h6>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/usuario.php">
-                                <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
+                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
                             Usuarios
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/administradores.php">
-                                <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
+                            <i class='bx bx-user' style="font-size: 18px; margin-right: 10px;" aria-hidden="true"></i>
                             Administradores
                         </a>
                         <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/profesores.php">
@@ -76,7 +76,8 @@
                             <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
                             Representantes
                         </a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/Crud/admin/padre_x_estudiante/padre_estudiante.php">
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/Crud/admin/padre_x_estudiante/padre_estudiante.php">
                             <i class='bx bx-user-check' style="font-size: 18px; margin-right: 10px;"></i>
                             Asignación de Padre
                         </a>
@@ -118,11 +119,11 @@
                             href="http://localhost/sistema_notas/views/admin/calificacion_admin.php">
                             <i class='bx bx-file'></i> Calificaciones
                         </a>
-                        <a class="collapse-item"
-                            href="http://localhost/sistema_notas/views/admin/curso_admin.php">
+                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/curso_admin.php">
                             <i class='bx bxs-graduation'></i> Cursos
                         </a>
-                        <a class="collapse-item" href="http://localhost/sistema_notas/views/admin/gestionar_academico.php">
+                        <a class="collapse-item"
+                            href="http://localhost/sistema_notas/views/admin/gestionar_academico.php">
                             <i class='bx bxs-calendar'></i> Ciclos Académicos
                         </a>
                         <!--<a class="collapse-item" href="http://localhost/sistema_notas/views/admin/subir_nivel.php">
@@ -191,28 +192,36 @@
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Menú del usuario">
                             <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                 <?php
-                                if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
-                                    echo $_SESSION['cedula'] . " (" . $_SESSION['rol'] . ") ";
-                                    echo "<i class='bx bx-user-circle' aria-hidden='true'></i>";
+                                if (isset($_SESSION['nombres'], $_SESSION['apellidos'], $_SESSION['rol'])) {
+                                    // Mostrar el nombre completo
+                                    echo "<span class='user-name'>" . $_SESSION['nombres'] . " " . $_SESSION['apellidos'] . "</span>";
+                                    // Línea vertical separadora
+                                    echo "<span class='divider mx-2'></span>";
+                                    // Mostrar el rol en un badge
+                                    echo "<span class='badge badge-pill badge-info text-white'>" . $_SESSION['rol'] . "</span>";
+                                    // Icono de usuario
+                                    echo "<i class='bx bx-user-circle ml-2' aria-hidden='true'></i>";
                                 }
                                 ?>
                             </span>
                         </a>
 
-                    <!-- Menú desplegable - Contenido (Barra Superior) -->
+                        <!-- Menú desplegable - Contenido (Barra Superior) -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
                             <a class="dropdown-item" href="http://localhost/sistema_notas/views/admin/perfil.php">
-                                <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;" aria-hidden="true"></i>
+                                <i class="bx bx-user" style="font-size: 14px; margin-right: 10px;"
+                                    aria-hidden="true"></i>
                                 Perfil
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;" aria-hidden="true"></i>
+                                <i class="bx bx-log-out-circle" style="font-size: 14px; margin-right: 10px;"
+                                    aria-hidden="true"></i>
                                 Cerrar Sesión
                             </a>
                         </div>
-                    <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
+                        <!-- Fin del Menú desplegable - Contenido (Barra Superior) -->
 
                     </li>
                     <!-- Fin del Ítem de la Barra de Navegación - Enlace de Uso Libre (Barra Superior) -->
@@ -242,7 +251,8 @@
                             <button class="btn btn-secondary" type="button" data-dismiss="modal" aria-label="Cancelar">
                                 Cancelar
                             </button>
-                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php" title="Cerrar sesión">
+                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php"
+                                title="Cerrar sesión">
                                 Cerrar Sesión
                             </a>
                         </div>

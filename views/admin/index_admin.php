@@ -1,12 +1,51 @@
 <?php
 session_start();
+
 // Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
     exit(); // Asegurarse de que no se ejecute más código después de la redirección
 }
+
+// Incluir el archivo de conexión y verificar la conexión
+include('../../Crud/config.php'); // Ruta absoluta 
+
+// Asegúrate de que la cédula exista en la sesión
+if (!isset($_SESSION['cedula'])) {
+    die("Cédula no encontrada en la sesión.");
+}
+
+$cedula = $_SESSION['cedula'];
+
+// Consulta para obtener los nombres y apellidos del usuario
+$query = "SELECT nombres, apellidos FROM administrador WHERE cedula = ?";
+$stmt = $conn->prepare($query);
+
+if ($stmt) {
+    $stmt->bind_param("s", $cedula);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $usuario = $result->fetch_assoc();
+        $_SESSION['nombres'] = $usuario['nombres'];
+        $_SESSION['apellidos'] = $usuario['apellidos'];
+    } else {
+        // Si no se encuentra el usuario, maneja el error aquí
+        echo "Usuario no encontrado.";
+    }
+
+    $stmt->close();
+} else {
+    // Si la preparación de la consulta falla
+    die("Error al preparar la consulta: " . $conn->error);
+}
+
+// Cerrar la conexión a la base de datos
+$conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -974,6 +1013,35 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
 
     .cuadro:hover .specialty-name {
         opacity: 1;
+    }
+
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
     }
 
     /* === Estilos responsivos === */

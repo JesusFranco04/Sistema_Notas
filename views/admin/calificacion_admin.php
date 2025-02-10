@@ -137,6 +137,7 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
     <link href="http://localhost/sistema_notas/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Boxicons CSS -->
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <style>
     /* Estilos generales */
     body {
@@ -200,6 +201,60 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
 
     .search-bar-container {
         margin-bottom: 20px;
+    }
+
+    .filters-container {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .filters-container .form-group {
+        flex: 1;
+        min-width: 150px;
+        margin-bottom: 0;
+    }
+
+    .filters-container .form-control {
+        width: 100%;
+        border-radius: 6px;
+        /* Aplica borde redondeado similar al resto de los inputs */
+    }
+
+    .filters-container .select2-container .select2-selection {
+        border-radius: 6px !important;
+        /* Mantiene el borde redondeado igual que el estilo de form-control */
+        height: calc(2.25rem + 2px);
+        /* Asegura que el tamaño sea el adecuado */
+        padding: 0.375rem 0.75rem;
+        /* Ajusta el padding para que quede alineado con otros campos */
+    }
+
+    .filters-container .select2-container--default .select2-selection--single {
+        border: 1px solid #acb0b4;
+        /* Asegura que el borde sea consistente con otros campos */
+    }
+
+    .filters-container .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #495057;
+        /* Asegura el mismo color del texto */
+        font-size: 1rem;
+    }
+
+    .filters-container .select2-container--default .select2-selection__arrow {
+        height: 100%;
+        right: 10px;
+    }
+
+    .select2-container .select2-selection--single {
+        border-radius: 6px !important;
+        /* Borde redondeado en la selección */
+    }
+
+    /* Para cuando el input esté deshabilitado */
+    .filters-container .select2-container--disabled .select2-selection {
+        background-color: #acb0b4;
     }
 
     /* Contenedor de la tabla */
@@ -341,6 +396,35 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
         background-color: #31373e;
     }
 
+    .user-name {
+        font-weight: bold;
+        color:  #6d6d6d;
+        /* Color moderno y limpio */
+    }
+
+    .divider {
+        border-left: 2px solid #ddd;
+        /* Línea vertical suave */
+        height: 20px;
+    }
+
+    .badge {
+        font-size: 0.80rem;
+        /* Tamaño ajustado del badge */
+        background-color: #cd0200;
+        /* ´rojo moderno para los roles */
+    }
+
+    .nav-link .bx-user-circle {
+        font-size: 1.3rem;
+        /* Tamaño del ícono */
+        color:  #6d6d6d;
+        /* Coincide con el nombre */
+        position: relative;
+        top: 3px;
+        /* Baja ligeramente el ícono */
+    }
+
     footer {
         background-color: white;
         color: #737373;
@@ -452,7 +536,7 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
                 <div class="form-group">
                     <i class="bx bx-book"></i>
                     <label for="materia">Materia:</label>
-                    <select id="materia" name="materia" class="form-control">
+                    <select id="materia" name="materia" class="form-control select2">
                         <option value="">Selecciona Materia</option>
                         <?php
                 while ($row = $materiasResult->fetch_assoc()) {
@@ -478,13 +562,13 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
                 <div class="form-group">
                     <i class="bx bx-chalkboard"></i>
                     <label for="curso">Curso:</label>
-                    <select id="curso" name="curso" class="form-control">
+                    <select id="curso" name="curso" class="form-control select2">
                         <option value="">Selecciona Curso</option>
                         <?php
-                while ($row = $cursosResult->fetch_assoc()) {
-                    echo "<option value=\"" . htmlspecialchars($row['id_curso']) . "\" " . ($curso == $row['id_curso'] ? 'selected' : '') . ">" . htmlspecialchars($row['id_curso']) . "</option>";
-                }
-                ?>
+                        while ($row = $cursosResult->fetch_assoc()) {
+                            echo "<option value=\"" . htmlspecialchars($row['id_curso']) . "\" " . ($curso == $row['id_curso'] ? 'selected' : '') . ">" . htmlspecialchars($row['id_curso']) . "</option>";
+                        }
+                        ?>
                     </select>
                 </div>
                 <!-- Campo Año Lectivo -->
@@ -553,7 +637,7 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
                     </tr>
                 </thead>
                 <tbody>
-                <?php
+                    <?php
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id_curso']) . "</td>";
@@ -684,8 +768,18 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
     <!-- SB Admin 2 JS -->
     <script src="http://localhost/sistema_notas/js/sb-admin-2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
     <script>
+    $(document).ready(function() {
+        // Activar Select2 en el campo con la clase .select2
+        $('.select2').select2({
+            placeholder: "Selecciona un curso",
+            allowClear: true // Esto permitirá limpiar la selección si es necesario
+        });
+    });
+
     function openModal(modalId) {
         // Ocultar todos los modales abiertos
         $('.modal').modal('hide');
