@@ -213,6 +213,11 @@ verificarConsulta($result_years, $conn, "Error en la consulta de años lectivos"
         font-family: Arial, sans-serif;
     }
 
+    .modal-body {
+        max-height: 400px;  /* Ajusta la altura según lo que necesites */
+        overflow-y: auto;   /* Permite el scroll vertical */
+    }
+
     .modal-header {
         background-color: #DE112D;
         padding: 15px;

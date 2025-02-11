@@ -47,10 +47,40 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
     }
 
     header h1 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: bold;
+        display: flex;
+        /* Alinea los elementos en fila */
+        align-items: center;
+        /* Alineación vertical */
+        font-size: 1.5rem;
+        /* Tamaño del texto */
+        color: #ffffff;
+        /* Todo en blanco */
+        gap: 0.3rem;
+        /* Espacio reducido entre los elementos */
     }
+
+    header h1 .badge {
+        font-size: 1.2rem;
+        /* Tamaño del texto del rol (más grande) */
+        font-weight: bold;
+        /* Texto en negrita */
+        color: #ffffff;
+        /* Texto en blanco */
+        background: none;
+        /* Sin fondo */
+        text-transform: uppercase;
+        /* Texto en mayúsculas */
+        margin-top: 0.2rem; /* Baja el rol ligeramente */
+    }
+
+    header h1 i {
+        font-size: 1.8rem;
+        /* Icono ligeramente grande */
+        color: #ffffff;
+        /* Icono completamente blanco */
+        margin-top: 0.2rem; /* Baja el rol ligeramente */
+    }
+
 
     header p {
         margin: 5px 0;
@@ -1080,10 +1110,11 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
             Bienvenido(a),
             <?php
             // Verifica si las variables de sesión están establecidas
-            if (isset($_SESSION['cedula']) && isset($_SESSION['rol'])) {
-                echo htmlspecialchars($_SESSION['cedula']);  // Escapa caracteres especiales para seguridad
-                echo " | " . htmlspecialchars($_SESSION['rol']) . " ";
-                echo "<i class='bx bx-user-circle'></i>";
+            if (isset($_SESSION['nombres'], $_SESSION['apellidos'], $_SESSION['rol'])) {
+                // Escapa caracteres especiales para seguridad
+                echo htmlspecialchars($_SESSION['nombres']) . " " . htmlspecialchars($_SESSION['apellidos']); // Muestra nombres y apellidos
+                echo " | <span class='badge'>" . htmlspecialchars($_SESSION['rol']) . "</span>"; // Rol sin fondo
+                echo " <i class='bx bx-user-circle'></i>"; // Icono blanco simple
             }
             ?>
         </h1>

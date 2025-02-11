@@ -410,20 +410,20 @@ if (count($calificaciones_finales) > 0) {
 
     /* Colores personalizados para cada tipo de alerta */
     .alert.orange {
-        background-color: #FFAA00;
+        background-color: #fff9ce;
         color: #540e00;
         border-left: 5px solid #E69500;
     }
 
     .alert.green {
-        background-color: #abffb7;
+        background-color: #ecffee;
         color: #002f00;
         border-left: 5px solid #218838;
     }
 
     .alert.red {
-        background-color: #dc3545;
-        color: #FFFFFF;
+        background-color: #fee6e5;
+        color: #99151c;
         border-left: 5px solid #b71c1c;
     }
 
@@ -437,7 +437,7 @@ if (count($calificaciones_finales) > 0) {
     }
 
     .alert.red .alert-icon {
-        color: #fbe8e9;
+        color: #99151c;
     }
 
 

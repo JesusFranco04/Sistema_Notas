@@ -762,7 +762,6 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
 
     <!-- Bootstrap core JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
     <!-- SB Admin 2 JS -->
@@ -770,6 +769,7 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
     $(document).ready(function() {
@@ -781,16 +781,21 @@ if ($materia || $nivel || $anioLectivo || $curso || $cedula) {
     });
 
     function openModal(modalId) {
-        // Ocultar todos los modales abiertos
-        $('.modal').modal('hide');
+    // Cierra todos los modales abiertos antes de abrir el nuevo
+    $('.modal').modal('hide');
 
-        // Mostrar el modal correspondiente
-        if ($(modalId).length) {
-            $(modalId).modal('show');
-        } else {
-            console.error('Modal no encontrado: ' + modalId);
-        }
+    // Abre el modal deseado después de que el anterior se haya cerrado
+    $(modalId).modal('show');
     }
+
+    // Asegurar que al cerrar cualquier modal, se elimine el fondo gris correctamente
+    $(document).on('hidden.bs.modal', function () {
+        // Elimina el fondo gris y el bloqueo del cuerpo solo si no hay modales abiertos
+        if (!$('.modal.show').length) {
+            $('.modal-backdrop').remove(); // Elimina el fondo gris
+            $('body').removeClass('modal-open'); // Restaura el scroll de la página
+        }
+    });
     </script>
 
 </body>
