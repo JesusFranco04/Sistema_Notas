@@ -14,9 +14,75 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador',
 $mensaje = '';
 $mensaje_tipo = '';
 
+// Procesar la vinculación de estudiantes y padres
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id_estudiante = $_POST['id_estudiante'] ?? null;
+    $id_padre = $_POST['id_padre'] ?? null;
+
+    if ($id_estudiante && $id_padre) {
+        // Verificar si el estudiante ya tiene 2 padres
+        $query_padres_count = "SELECT COUNT(*) AS total FROM padre_x_estudiante WHERE id_estudiante = ?";
+        $stmt_padres_count = $conn->prepare($query_padres_count);
+        $stmt_padres_count->bind_param("i", $id_estudiante);
+        $stmt_padres_count->execute();
+        $result_padres_count = $stmt_padres_count->get_result()->fetch_assoc();
+
+        if ($result_padres_count['total'] >= 2) {
+            $mensaje = "El estudiante ya tiene el máximo permitido de 2 padres asociados.";
+            $mensaje_tipo = 'error';
+        } else {
+            // Verificar coincidencia de apellidos
+            $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
+            $stmt_estudiante = $conn->prepare($query_estudiante);
+            $stmt_estudiante->bind_param("i", $id_estudiante);
+            $stmt_estudiante->execute();
+            $apellido_estudiante = $stmt_estudiante->get_result()->fetch_assoc()['apellidos'];
+
+            $query_padre = "SELECT apellidos FROM padre WHERE id_padre = ?";
+            $stmt_padre = $conn->prepare($query_padre);
+            $stmt_padre->bind_param("i", $id_padre);
+            $stmt_padre->execute();
+            $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
+
+            if (stripos($apellido_estudiante, $apellido_padre) === false) {
+                $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
+                $mensaje_tipo = 'error';
+            } else {
+                // Verificar si ya existe la relación
+                $query_verificar = "SELECT * FROM padre_x_estudiante WHERE id_estudiante = ? AND id_padre = ?";
+                $stmt_verificar = $conn->prepare($query_verificar);
+                $stmt_verificar->bind_param("ii", $id_estudiante, $id_padre);
+                $stmt_verificar->execute();
+                $result_verificar = $stmt_verificar->get_result();
+
+                if ($result_verificar->num_rows > 0) {
+                    $mensaje = "Esta relación ya existe.";
+                    $mensaje_tipo = 'error';
+                } else {
+                    // Insertar la relación
+                    $query_insertar = "INSERT INTO padre_x_estudiante (id_estudiante, id_padre) VALUES (?, ?)";
+                    $stmt_insertar = $conn->prepare($query_insertar);
+                    $stmt_insertar->bind_param("ii", $id_estudiante, $id_padre);
+                    if ($stmt_insertar->execute()) {
+                        $mensaje = "Relación creada exitosamente.";
+                        $mensaje_tipo = 'exito';
+                    } else {
+                        $mensaje = "Error al crear la relación: " . $stmt_insertar->error;
+                        $mensaje_tipo = 'error';
+                    }
+                }
+            }
+        }
+    } else {
+        $mensaje = "Debes seleccionar un estudiante y un padre.";
+        $mensaje_tipo = 'error';
+    }
+}
+
 // Obtener los datos necesarios para los filtros
 $query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A' ORDER BY nombre";
 $result_niveles = $conn->query($query_niveles);
+
 
 // Definir el orden basado en palabras clave
 $orden_niveles = [
@@ -134,13 +200,24 @@ $query_estudiantes_sin_padre .= " ORDER BY e.apellidos"; // Ordenar siempre
 $result_estudiantes_sin_padre = $conn->query($query_estudiantes_sin_padre);
 
 // Obtener la lista de padres
-$query_padres = "SELECT id_padre, nombres, apellidos FROM padre ORDER BY apellidos";
+$query_padres = "SELECT p.id_padre, p.nombres, p.apellidos
+FROM padre p
+INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+LEFT JOIN (
+    SELECT id_padre, COUNT(*) AS total_vinculos
+    FROM padre_x_estudiante
+    GROUP BY id_padre
+) px ON p.id_padre = px.id_padre
+WHERE u.estado = 'A' -- El usuario relacionado está activo
+  AND (px.total_vinculos IS NULL OR px.total_vinculos < 2) -- Máximo 1 vínculo
+ORDER BY p.apellidos ASC; -- Orden alfabético de A a Z";
 $result_padres = $conn->query($query_padres);
 
 // Procesar el formulario de enlace
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_estudiante = $_POST['id_estudiante'];
     $id_padre = $_POST['id_padre'];
+    $forzar_registro = isset($_POST['forzar_registro']); // Verifica si el checkbox está marcado
 
     // Verificar si ya existe una relación
     $query_verificar = "SELECT * FROM padre_x_estudiante WHERE id_estudiante = ? AND id_padre = ?";
@@ -153,16 +230,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "Esta relación ya existe.";
         $mensaje_tipo = 'error';
     } else {
-        // Insertar la relación
-        $query_insertar = "INSERT INTO padre_x_estudiante (id_estudiante, id_padre) VALUES (?, ?)";
-        $stmt_insertar = $conn->prepare($query_insertar);
-        $stmt_insertar->bind_param("ii", $id_estudiante, $id_padre);
-        if ($stmt_insertar->execute()) {
-            $mensaje = "Relación creada exitosamente.";
-            $mensaje_tipo = 'exito';
-        } else {
-            $mensaje = "Error al crear la relación: " . $stmt_insertar->error;
+
+        // Obtener apellidos del estudiante
+        $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
+        $stmt_estudiante = $conn->prepare($query_estudiante);
+        $stmt_estudiante->bind_param("i", $id_estudiante);
+        $stmt_estudiante->execute();
+        $apellido_estudiante = $stmt_estudiante->get_result()->fetch_assoc()['apellidos'];
+
+        // Obtener apellidos del padre
+        $query_padre = "SELECT apellidos FROM padre WHERE id_padre = ?";
+        $stmt_padre = $conn->prepare($query_padre);
+        $stmt_padre->bind_param("i", $id_padre);
+        $stmt_padre->execute();
+        $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
+
+        // Verificar si los apellidos coinciden, a menos que el checkbox haya sido marcado
+        if (!$forzar_registro && stripos($apellido_estudiante, $apellido_padre) === false) {
+            $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
             $mensaje_tipo = 'error';
+        } else {
+            // Insertar la relación
+            $query_insertar = "INSERT INTO padre_x_estudiante (id_estudiante, id_padre) VALUES (?, ?)";
+            $stmt_insertar = $conn->prepare($query_insertar);
+            $stmt_insertar->bind_param("ii", $id_estudiante, $id_padre);
+            if ($stmt_insertar->execute()) {
+                $mensaje = "Relación creada exitosamente.";
+                $mensaje_tipo = 'exito';
+            } else {
+                $mensaje = "Error al crear la relación: " . $stmt_insertar->error;
+                $mensaje_tipo = 'error';
+            }
         }
     }
 }
@@ -175,6 +273,8 @@ $query_relaciones = "SELECT pxe.id_padre, pxe.id_estudiante, e.nombres AS nombre
                      ORDER BY e.apellidos, p.apellidos";
 $result_relaciones = $conn->query($query_relaciones);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -195,7 +295,7 @@ $result_relaciones = $conn->query($query_relaciones);
     /* Estilo general del cuerpo */
     body {
         font-family: 'Roboto', sans-serif;
-        background-color:white;
+        background-color: white;
         margin: 0;
         padding: 0;
     }
@@ -367,7 +467,7 @@ $result_relaciones = $conn->query($query_relaciones);
 
     .user-name {
         font-weight: bold;
-        color:  #6d6d6d;
+        color: #6d6d6d;
         /* Color moderno y limpio */
     }
 
@@ -387,7 +487,7 @@ $result_relaciones = $conn->query($query_relaciones);
     .nav-link .bx-user-circle {
         font-size: 1.3rem;
         /* Tamaño del ícono */
-        color:  #6d6d6d;
+        color: #6d6d6d;
         /* Coincide con el nombre */
         position: relative;
         top: 3px;
@@ -543,12 +643,12 @@ $result_relaciones = $conn->query($query_relaciones);
                                 <td><?php echo $row['cedula']; ?></td>
                                 <td>
                                     <?php 
-                        if (!empty($row['nombre_padre']) && !empty($row['apellido_padre'])) {
-                            echo $row['nombre_padre'] . ' ' . $row['apellido_padre'];
-                        } else {
-                            echo "Sin Padre Asociado";
-                        }
-                        ?>
+                            if (!empty($row['nombre_padre']) && !empty($row['apellido_padre'])) {
+                                echo $row['nombre_padre'] . ' ' . $row['apellido_padre'];
+                            } else {
+                                echo "Sin Padre Asociado";
+                            }
+                            ?>
                                 </td>
                                 <td>
                                     <?php echo !empty($row['cedula_padre']) ? $row['cedula_padre'] : "N/A"; ?>
@@ -591,6 +691,13 @@ $result_relaciones = $conn->query($query_relaciones);
                             </select>
                         </div>
                     </div>
+                    <!-- Opcional: Confirmación manual para registros forzados -->
+                    <div class="form-check mb-3">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="forzar_registro" class="form-check-input">
+                            Confirmo que esta relación es válida aunque los apellidos no coincidan.
+                        </label>
+                    </div>
                     <button type="submit" class="btn btn-custom">
                         <i class='bx bx-save icon'></i> Guardar
                     </button>
@@ -598,6 +705,7 @@ $result_relaciones = $conn->query($query_relaciones);
             </div>
         </div>
     </div>
+
 
     <!-- Modal 1 -->
     <div class="modal fade" id="modalInstrucciones1" tabindex="-1" role="dialog"
@@ -703,9 +811,11 @@ $result_relaciones = $conn->query($query_relaciones);
             </div>
         </div>
     </div>
+    </div>
 
     <footer>
-        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano.
+        <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos
+            Zambrano.
             Todos los derechos reservados.</p>
     </footer>
 
