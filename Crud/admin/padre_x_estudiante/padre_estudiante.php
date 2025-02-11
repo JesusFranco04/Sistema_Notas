@@ -521,15 +521,19 @@ $result_relaciones = $conn->query($query_relaciones);
 
     /* Efecto al pasar el cursor */
     .form-select:hover {
-        border-color: #007bff;
-        background-color: #e6f0ff;
+        border-color: #c1f1cb;
+        /* Verde claro */
+        background-color: #d4edda;
+        /* Verde suave */
     }
 
     /* Efecto de foco */
     .form-select:focus {
-        border-color: #0056b3;
+        border-color: #218838;
+        /* Verde más oscuro */
         background-color: #fff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        /* Verde brillante */
         outline: none;
     }
 
