@@ -494,6 +494,58 @@ $result_relaciones = $conn->query($query_relaciones);
         /* Baja ligeramente el ícono */
     }
 
+    /* Estilo general para el contenedor */
+    .col-md-3 {
+        margin-bottom: 20px;
+    }
+
+    /* Estilo del label */
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Estilo del select */
+    .form-select {
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        background-color: #f9f9f9;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Efecto al pasar el cursor */
+    .form-select:hover {
+        border-color: #007bff;
+        background-color: #e6f0ff;
+    }
+
+    /* Efecto de foco */
+    .form-select:focus {
+        border-color: #0056b3;
+        background-color: #fff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+    }
+
+    /* Estilo para las opciones seleccionadas */
+    .form-select option {
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    /* Ajustes de accesibilidad para cuando el select esté deshabilitado */
+    .form-select:disabled {
+        background-color: #f0f0f0;
+        border-color: #ddd;
+        cursor: not-allowed;
+    }
+
     footer {
         background-color: white;
         /* Color de fondo blanco */
@@ -585,7 +637,7 @@ $result_relaciones = $conn->query($query_relaciones);
                         <div class="col-md-3">
                             <label for="historial_academico" class="form-label mb-2">Historial Académico:</label>
                             <select id="historial_academico" name="historial_academico" class="form-select">
-                                <option value="">Selecciona un año académico</option>
+                                <option value="">Selecciona un año lectivo</option>
                                 <?php while ($row = $result_historiales->fetch_assoc()): ?>
                                 <option value="<?php echo $row['id_his_academico']; ?>"
                                     <?php echo (isset($_GET['historial_academico']) && $_GET['historial_academico'] == $row['id_his_academico']) ? 'selected' : ''; ?>>
