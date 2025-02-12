@@ -1,14 +1,31 @@
 <?php 
 session_start();
-// Incluir el archivo de conexión y verificar la conexión
-include("../../config.php");
 
-// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
-if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
+// Establecer el tiempo de expiración de la sesión en segundos (45 minutos)
+$tiempo_expiracion = 2700;
+
+// Verificar si la sesión ha expirado por inactividad
+if (!empty($_SESSION['ultimo_acceso']) && (time() - $_SESSION['ultimo_acceso']) > $tiempo_expiracion) {
+    // Destruir la sesión y redirigir al login
+    session_unset();
+    session_destroy();
+    header("Location: ../../login.php");
+    exit();
+}
+
+// Actualizar el último acceso
+$_SESSION['ultimo_acceso'] = time();
+
+// Incluir el archivo de conexión
+require_once("../../config.php");
+
+// Verificar si el usuario ha iniciado sesión y tiene el rol adecuado
+if (empty($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
-    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+    exit();
 }
+
 
 // Inicializar el mensaje
 $mensaje = '';

@@ -1,11 +1,45 @@
 <?php
 session_start();
 
+// Incluir el archivo de conexión
+include('../../Crud/config.php'); // Ruta absoluta
+
 // Verificar si el usuario ha iniciado sesión y si su rol es "Profesor"
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
     // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
     exit(); // Asegurarse de que no se ejecute más código después de la redirección
+}
+
+if (isset($_SESSION['cedula']) && isset($conn)) { // Verifica que la sesión y la conexión existen
+    $cedula = $_SESSION['cedula'];
+
+    // Consulta segura para obtener el nombre, apellido y rol del profesor
+    $sql = "
+        SELECT p.nombres, p.apellidos, r.nombre AS rol
+        FROM profesor p
+        INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+        INNER JOIN rol r ON u.id_rol = r.id_rol
+        WHERE p.cedula = ?
+    ";
+
+    $stmt = $conn->prepare($sql);
+    
+    if ($stmt) { // Verifica si la consulta se preparó correctamente
+        $stmt->bind_param("s", $cedula);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        
+        if ($resultado->num_rows > 0) {
+            $fila = $resultado->fetch_assoc();
+
+            // Guardar los datos en la sesión correctamente
+            $_SESSION['nombres'] = htmlspecialchars($fila['nombres']);
+            $_SESSION['apellidos'] = htmlspecialchars($fila['apellidos']);
+            $_SESSION['rol'] = htmlspecialchars($fila['rol']);
+        }
+        $stmt->close();
+    }
 }
 ?>
 

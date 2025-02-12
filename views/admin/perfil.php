@@ -6,6 +6,21 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Establecer el tiempo de expiración de la sesión en segundos (por ejemplo, 45 minutos)
+$tiempo_expiracion = 2700; // 2700 segundos = 45 minutos
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['ultimo_acceso']) && (time() - $_SESSION['ultimo_acceso']) > $tiempo_expiracion) {
+    // Si ha pasado más de 45 minutos, destruir la sesión y redirigir al login
+    session_unset();  // Elimina todas las variables de sesión
+    session_destroy();  // Destruye la sesión
+    header("Location: ../../login.php");  // Redirige al login
+    exit();  // Asegura que no se ejecute más código
+}
+
+// Actualizar el último acceso
+$_SESSION['ultimo_acceso'] = time();  // Actualiza el tiempo de acceso
+
 include('../../Crud/config.php'); // Ruta a la configuración de la conexión
 
 // ==========================
