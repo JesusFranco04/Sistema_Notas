@@ -4,6 +4,17 @@ session_start();
 include('../../config.php'); // Incluir el archivo de configuración para conectarte a la base de datos
 date_default_timezone_set('America/Guayaquil');
 
+
+define('ROL_ADMIN', 'Administrador');
+define('ROL_SUPER', 'Superusuario');
+
+if (!isset($_SESSION['cedula']) || !isset($_SESSION['rol']) || 
+    !in_array($_SESSION['rol'], [ROL_ADMIN, ROL_SUPER], true)) {
+    session_destroy();
+    header("Location: http://localhost/sistema_notas/login.php");
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Limpiar y validar los datos del formulario
     $año = $_POST['año'];

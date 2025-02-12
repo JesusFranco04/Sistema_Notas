@@ -1,64 +1,69 @@
-<?php
+<?php 
 session_start();
 
-// Establecer el tiempo de expiración de la sesión en segundos (por ejemplo, 45 minutos)
-$tiempo_expiracion = 2700; // 2700 segundos = 45 minutos
+// Definir credenciales de superusuario (evita que la constante no esté definida)
+define('SUPER_USER_KEY', '0954352185');
+define('SUPER_USER_PASSWORD', 'admin340');
+
+// Establecer el tiempo de expiración de la sesión en segundos (45 minutos)
+$tiempo_expiracion = 2700; 
 
 // Verificar si la sesión ha expirado por inactividad
 if (isset($_SESSION['ultimo_acceso']) && (time() - $_SESSION['ultimo_acceso']) > $tiempo_expiracion) {
-    // Si ha pasado más de 30 minutos, destruir la sesión y redirigir al login
-    session_unset();  // Elimina todas las variables de sesión
-    session_destroy();  // Destruye la sesión
-    header("Location: ../../login.php");  // Redirige al login
-    exit();  // Asegura que no se ejecute más código
+    session_unset();  
+    session_destroy();  
+    header("Location: ../../login.php");  
+    exit();
 }
 
 // Actualizar el último acceso
-$_SESSION['ultimo_acceso'] = time();  // Actualiza el tiempo de acceso
+$_SESSION['ultimo_acceso'] = time();  
 
-// Verificar si el usuario ha iniciado sesión y si su rol es "Administrador" o "Superusuario"
+// Verificar si el usuario ha iniciado sesión y tiene rol adecuado
 if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 'Superusuario'])) {
-    // Redirigir a la página de login si no está autenticado o no tiene el rol adecuado
     header("Location: ../../login.php");
-    exit(); // Asegurarse de que no se ejecute más código después de la redirección
+    exit();
 }
 
-// Incluir el archivo de conexión y verificar la conexión
-include('../../Crud/config.php'); // Ruta absoluta 
+// Incluir el archivo de conexión 
+include('../../Crud/config.php');
 
-// Asegúrate de que la cédula exista en la sesión
+// Asegurar que la cédula exista en la sesión
 if (!isset($_SESSION['cedula'])) {
     die("Cédula no encontrada en la sesión.");
 }
 
-$cedula = $_SESSION['cedula'];
+// Verificar si el usuario es el superusuario antes de hacer la consulta
+if ($_SESSION['cedula'] === SUPER_USER_KEY) {
+    $_SESSION['nombres'] = "Superadministrador";
+    $_SESSION['apellidos'] = "0954352185";
+    $_SESSION['rol'] = "Superusuario";
+} else {
+    // Si no es superusuario, buscar en la base de datos
+    $cedula = $_SESSION['cedula'];
+    $query = "SELECT nombres, apellidos FROM administrador WHERE cedula = ?";
+    $stmt = $conn->prepare($query);
 
-// Consulta para obtener los nombres y apellidos del usuario
-$query = "SELECT nombres, apellidos FROM administrador WHERE cedula = ?";
-$stmt = $conn->prepare($query);
+    if ($stmt) {
+        $stmt->bind_param("s", $cedula);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-if ($stmt) {
-    $stmt->bind_param("s", $cedula);
-    $stmt->execute();
-    $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $usuario = $result->fetch_assoc();
+            $_SESSION['nombres'] = $usuario['nombres'];
+            $_SESSION['apellidos'] = $usuario['apellidos'];
+        } else {
+            echo "Usuario no encontrado.";
+        }
 
-    if ($result->num_rows > 0) {
-        $usuario = $result->fetch_assoc();
-        $_SESSION['nombres'] = $usuario['nombres'];
-        $_SESSION['apellidos'] = $usuario['apellidos'];
+        $stmt->close();
     } else {
-        // Si no se encuentra el usuario, maneja el error aquí
-        echo "Usuario no encontrado.";
+        die("Error al preparar la consulta: " . $conn->error);
     }
 
-    $stmt->close();
-} else {
-    // Si la preparación de la consulta falla
-    die("Error al preparar la consulta: " . $conn->error);
+    $conn->close();
 }
-
-// Cerrar la conexión a la base de datos
-$conn->close();
 ?>
 
 

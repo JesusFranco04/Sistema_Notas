@@ -3,6 +3,17 @@ session_start();
 include('../../config.php');
 date_default_timezone_set('America/Guayaquil'); // Establecer zona horaria a Ecuador
 
+
+define('ROL_ADMIN', 'Administrador');
+define('ROL_SUPER', 'Superusuario');
+
+if (!isset($_SESSION['cedula']) || !isset($_SESSION['rol']) || 
+    !in_array($_SESSION['rol'], [ROL_ADMIN, ROL_SUPER], true)) {
+    session_destroy();
+    header("Location: http://localhost/sistema_notas/login.php");
+    exit();
+}
+
 $mensaje = array(); // Inicializar el array para mensajes
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

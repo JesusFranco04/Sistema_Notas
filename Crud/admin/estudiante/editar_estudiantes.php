@@ -3,6 +3,17 @@ session_start();
 include('../../config.php');
 date_default_timezone_set('America/Guayaquil');
 
+
+define('ROL_ADMIN', 'Administrador');
+define('ROL_SUPER', 'Superusuario');
+
+if (!isset($_SESSION['cedula']) || !isset($_SESSION['rol']) || 
+    !in_array($_SESSION['rol'], [ROL_ADMIN, ROL_SUPER], true)) {
+    session_destroy();
+    header("Location: http://localhost/sistema_notas/login.php");
+    exit();
+}
+
 // Habilitar informes de errores para depuración
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
