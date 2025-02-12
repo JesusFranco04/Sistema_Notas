@@ -520,7 +520,7 @@ if (!$resultado) {
 				                    <!-- Mostrar la contraseña como asteriscos por defecto -->
 				                    <span class="password" id="password-<?php echo $fila['id_usuario']; ?>">******</span>
 				                    <!-- Mostrar la contraseña real solo para administradores -->
-				                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+				                    <?php if ($_SESSION['rol'] == 'Superusuario'): ?>
 				                        <input type="text" id="real-password-<?php echo $fila['id_usuario']; ?>" 
 				                               value="<?php echo $fila['contraseña']; ?>" 
 				                               style="display:none;" disabled>

@@ -345,6 +345,11 @@ if (!$resultado) {
         /* Sombra para profundidad */
     }
 
+    .modal-body {
+        max-height: 400px;  /* Ajusta la altura según lo que necesites */
+        overflow-y: auto;   /* Permite el scroll vertical */
+    }
+
     .user-name {
         font-weight: bold;
         color:  #6d6d6d;

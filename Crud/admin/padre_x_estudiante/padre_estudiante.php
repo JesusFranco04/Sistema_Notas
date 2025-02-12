@@ -471,6 +471,13 @@ $result_relaciones = $conn->query($query_relaciones);
         /* Sombra para profundidad */
     }
 
+    .modal-body {
+        max-height: 400px;
+        /* Ajusta la altura según lo que necesites */
+        overflow-y: auto;
+        /* Permite el scroll vertical */
+    }
+
     .form-label {
         display: block;
         margin-bottom: 0.5rem;
