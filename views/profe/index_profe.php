@@ -1119,7 +1119,7 @@ if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
             ?>
         </h1>
         <p>Gestiona tus actividades y calificaciones de manera sencilla</p>
-        <button class="logout-button" onclick="window.location.href='http://localhost/sistema_notas/login.php'">Cerrar
+        <button class="logout-button" onclick="window.location.href='http://localhost/sistema_notas/logout.php'">Cerrar
             Sesión</button>
         </div>
     </header>

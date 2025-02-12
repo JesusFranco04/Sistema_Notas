@@ -41,23 +41,49 @@ $sql = "
     WHERE 1=1
 ";
 
+$param_types = '';  // Para concatenar los tipos de las variables en la consulta
+$param_values = [];  // Para almacenar los valores que se van a utilizar en la consulta
+
 if (!empty($fecha)) {
-    $sql .= " AND DATE(u.fecha_ingreso) = '$fecha'";
-}
-if (!empty($estado)) {
-    $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
-    $sql .= " AND u.estado = '$estadoFiltro'";
-}
-if (!empty($rol)) {
-    $sql .= " AND u.id_rol = '$rol'";
+    $sql .= " AND DATE(u.fecha_ingreso) = ?";
+    $param_types .= 's';  // Tipo de parámetro string
+    $param_values[] = $fecha;
 }
 
-$resultado = $conn->query($sql);
+if (!empty($estado)) {
+    $estadoFiltro = $estado == 'activo' ? 'A' : 'I';
+    $sql .= " AND u.estado = ?";
+    $param_types .= 's';  // Tipo de parámetro string
+    $param_values[] = $estadoFiltro;
+}
+
+if (!empty($rol)) {
+    $sql .= " AND u.id_rol = ?";
+    $param_types .= 'i';  // Tipo de parámetro integer
+    $param_values[] = $rol;
+}
+
+// Preparar la consulta
+$stmt = $conn->prepare($sql);
+
+if ($stmt === false) {
+    die("Error al preparar la consulta: " . $conn->error);
+}
+
+// Vincular los parámetros a la consulta
+if ($param_types !== '') {
+    $stmt->bind_param($param_types, ...$param_values);
+}
+
+// Ejecutar la consulta
+$stmt->execute();
+$resultado = $stmt->get_result();
 
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -474,7 +500,19 @@ if (!$resultado) {
                             <tr>
                                 <td><?php echo $fila['id_usuario']; ?></td>
                                 <td><?php echo $fila['cedula']; ?></td>
-                                <td><?php echo $fila['contraseña']; ?></td>
+                                <td>
+				                    <!-- Mostrar la contraseña como asteriscos por defecto -->
+				                    <span class="password" id="password-<?php echo $fila['id_usuario']; ?>">******</span>
+				                    <!-- Mostrar la contraseña real solo para administradores -->
+				                    <?php if ($_SESSION['rol'] == 'Administrador'): ?>
+				                        <input type="text" id="real-password-<?php echo $fila['id_usuario']; ?>" 
+				                               value="<?php echo $fila['contraseña']; ?>" 
+				                               style="display:none;" disabled>
+				                        <!-- Ícono del ojo para cambiar la visibilidad -->
+                                        <i class="bx bx-show" id="eye-open-<?php echo $fila['id_usuario']; ?>" onclick="togglePasswordVisibility(<?php echo $fila['id_usuario']; ?>)"></i>
+                                        <i class="bx bx-hide" id="eye-closed-<?php echo $fila['id_usuario']; ?>" onclick="togglePasswordVisibility(<?php echo $fila['id_usuario']; ?>)" style="display:none;"></i>
+				                    <?php endif; ?>
+				                </td>
                                 <td><?php echo $fila['nombre_rol']; ?></td>
                                 <td><?php echo $fila['estado'] == 'A' ? 'Activo' : 'Inactivo'; ?></td>
                                 <td><?php echo $fila['usuario_ingreso']; ?></td>
@@ -637,6 +675,7 @@ if (!$resultado) {
 </html>
 
 <!-- Bootstrap core JavaScript -->
+<link href="https://cdn.jsdelivr.net/npm/boxicons/css/boxicons.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <!-- Core plugin JavaScript -->
@@ -681,6 +720,28 @@ function confirmarCambioEstado() {
     });
 }
 
+function togglePasswordVisibility(userId) {
+        var passwordField = document.getElementById('real-password-' + userId);
+        var passwordText = document.getElementById('password-' + userId);
+        var eyeOpenIcon = document.getElementById('eye-open-' + userId);
+        var eyeClosedIcon = document.getElementById('eye-closed-' + userId);
+
+        // Alternar la visibilidad
+        if (passwordField.style.display === 'none') {
+            // Mostrar la contraseña
+            passwordField.style.display = 'inline';
+            passwordText.style.display = 'none';
+            eyeOpenIcon.style.display = 'none';
+            eyeClosedIcon.style.display = 'inline';
+        } else {
+            // Ocultar la contraseña
+            passwordField.style.display = 'none';
+            passwordText.style.display = 'inline';
+            eyeOpenIcon.style.display = 'inline';
+            eyeClosedIcon.style.display = 'none';
+        }
+}
+
 function openModal(modalId) {
     // Ocultar todos los modales abiertos
     $('.modal').modal('hide');
@@ -704,3 +765,4 @@ $resultado->free();
 // Cerrar conexión
 $conn->close();
 ?>
+

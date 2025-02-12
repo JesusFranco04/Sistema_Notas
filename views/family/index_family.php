@@ -1319,7 +1319,7 @@ if ($id_padre) {
             <i class='bx bx-book'></i>
             <h2>Consultar Calificaciones</h2>
         </div>
-        <div class="card btn-logout" onclick="window.location.href='http://localhost/sistema_notas/login.php'">
+        <div class="card btn-logout" onclick="window.location.href='http://localhost/sistema_notas/logout.php'">
             <i class='bx bx-log-out'></i>
             <h2>Cerrar Sesión</h2>
         </div>

@@ -348,9 +348,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="input-group">
                     <label for="contraseña">Contraseña</label>
+                    <!-- Aquí actualizamos el pattern para permitir caracteres especiales -->
                     <input type="password" id="contraseña" name="contraseña" required
-                        placeholder="Introduzca la contraseña" maxlength="8" pattern="[A-Za-z0-9]*"
-                        title="La contraseña debe contener solamente letras y números">
+                        placeholder="Introduzca la contraseña" maxlength="8"
+                        pattern="[A-Za-z0-9!@#$%^&*()_+[\]{}|;:,.<>?\\/-]*"
+                        title="La contraseña debe contener letras, números y caracteres especiales permitidos">
                     <small id="passwordHelp" class="form-text text-muted" ondblclick="mostrarContrasena()">
                         Haga doble clic para mostrar/ocultar la contraseña.
                     </small>
@@ -369,16 +371,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         const cedula = document.getElementById('cedula').value;
         const contraseña = document.getElementById('contraseña').value;
         const errorMessage = document.getElementById('errorMessage');
+
+        // Validación de la cédula (debe tener 10 dígitos)
         if (cedula.length !== 10) {
             errorMessage.textContent = 'La cédula debe tener 10 dígitos.';
             errorMessage.style.display = 'block';
             return false;
         }
-        if (!/^[A-Za-z0-9]*$/.test(contraseña)) {
-            errorMessage.textContent = 'La contraseña debe contener solamente letras y números.';
+
+        // Validación de la contraseña (debe contener letras, números y caracteres especiales, y tener al menos 8 caracteres)
+        if (contraseña.length < 8) {
+            errorMessage.textContent = 'La contraseña debe tener al menos 8 caracteres.';
             errorMessage.style.display = 'block';
             return false;
         }
+
+        if (!/^[A-Za-z0-9!@#$%^&*()_+[\]{}|;:,.<>?]*$/.test(contraseña)) {
+            errorMessage.textContent =
+                'La contraseña debe contener solo letras, números y caracteres especiales permitidos.';
+            errorMessage.style.display = 'block';
+            return false;
+        }
+
+        // Si todo está bien, ocultar el mensaje de error
         errorMessage.style.display = 'none';
         return true;
     }

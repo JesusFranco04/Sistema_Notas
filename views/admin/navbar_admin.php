@@ -251,7 +251,7 @@
                             <button class="btn btn-secondary" type="button" data-dismiss="modal" aria-label="Cancelar">
                                 Cancelar
                             </button>
-                            <a class="btn btn-primary" href="http://localhost/sistema_notas/login.php"
+                            <a class="btn btn-primary" href="http://localhost/sistema_notas/logout.php"
                                 title="Cerrar sesión">
                                 Cerrar Sesión
                             </a>

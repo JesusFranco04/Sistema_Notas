@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $genero = $_POST['genero'];
             $discapacidad = $_POST['discapacidad'];
             $id_rol = $_POST['id_rol'];
-            $contraseña = $_POST['contraseña']; // No cifrada
+            $contraseña = $_POST['contraseña']; // Contraseña en texto plano
             $estado = 'A';
             $usuario_ingreso = $_SESSION['cedula'];
             $fecha_ingreso = date('Y-m-d H:i:s');
@@ -500,16 +500,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     function generarClave() {
-        const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        // Definir los tipos de caracteres que se pueden usar
+        const mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const minusculas = 'abcdefghijklmnopqrstuvwxyz';
+        const numeros = '0123456789';
+        const especiales = '!@#$%^&*()_+[]{}|;:,.<>?';
+        
+        // Unir todos los tipos de caracteres
+        const caracteres = mayusculas + minusculas + numeros + especiales;
+
+        // Inicializar la contraseña generada
         let clave = '';
-        for (let i = 0; i < 8; i++) {
+
+        // Asegurarse de que la contraseña tenga al menos un carácter de cada tipo
+        clave += mayusculas[Math.floor(Math.random() * mayusculas.length)];
+        clave += minusculas[Math.floor(Math.random() * minusculas.length)];
+        clave += numeros[Math.floor(Math.random() * numeros.length)];
+        clave += especiales[Math.floor(Math.random() * especiales.length)];
+
+        // Generar el resto de la contraseña para completar 8 caracteres
+        for (let i = clave.length; i < 8; i++) {  // Limitar la longitud a 8
             const randomIndex = Math.floor(Math.random() * caracteres.length);
             clave += caracteres[randomIndex];
         }
+
+        // Mezclar la contraseña para evitar que los primeros caracteres estén en un orden predecible
+        clave = clave.split('').sort(() => Math.random() - 0.5).join('');
+
+        // Asignar la contraseña generada al campo de entrada
         const input_contrasena = document.getElementById('contraseña');
         input_contrasena.value = clave;
-        input_contrasena.disabled = false; // Habilitar el campo si estaba deshabilitado
-        document.getElementById('button-generate').disabled = true; // Deshabilitar el botón de generar
+
+        // Habilitar el campo de contraseña si estaba deshabilitado
+        input_contrasena.disabled = false;
+
+        // Deshabilitar el botón de generar para evitar múltiples clics
+        document.getElementById('button-generate').disabled = true;
     }
 
     function mostrarMensajeError(mensaje) {
