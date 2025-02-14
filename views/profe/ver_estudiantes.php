@@ -282,6 +282,20 @@ $stmt_estudiantes->close();
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
+    /* Estilos comunes para ambos botones */
+    .btn {
+        padding: 16px 32px;
+        border-radius: 35px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+
     /* NUEVO: Botón Lista de Asistencia (color rojo, con estado deshabilitado) */
     .btn-asistencia {
         background-color: #ffffff;
@@ -325,6 +339,162 @@ $stmt_estudiantes->close();
         /* Desactiva cualquier interacción con el botón */
         opacity: 0.6;
         /* Añade un efecto visual para que parezca más deshabilitado */
+    }
+
+    /* Estilos para el botón Manual de Uso */
+    .btn-open-modal {
+        background-color: #fee5e9;
+        color: #050274;
+        border: 2px solid #050274;
+        margin-top: 15px;
+        margin-right: 0;
+    }
+
+    .btn-open-modal i {
+        margin-right: 10px;
+    }
+
+    .btn-open-modal:hover {
+        background-color: #050274;
+        color: #fee5e9;
+        transform: translateY(-4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-body {
+        max-height: 400px;
+        /* Ajusta la altura según lo que necesites */
+        overflow-y: auto;
+        /* Permite el scroll vertical */
+    }
+
+    /* Contenedor para los botones */
+    .botones-en-linea {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    /* ---------- MODAL GENERAL ---------- */
+    .modal-content {
+        border-radius: 10px;
+        /* Bordes redondeados */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        /* Sombra elegante */
+        border: none;
+    }
+
+    /* ---------- ENCABEZADO ---------- */
+    .modal-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        /* Azul principal */
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 15px;
+        font-weight: bold;
+    }
+
+    .modal-header .close {
+        color: white;
+        font-size: 22px;
+        opacity: 0.8;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+
+    /* ---------- CUERPO DEL MODAL ---------- */
+    .modal-body {
+        padding: 20px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    /* ---------- LISTAS EN EL MODAL ---------- */
+    .modal-body ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .modal-body ul li::before {
+        content: "✔ ";
+        color: #28a745;
+        /* Verde */
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    /* ---------- PIE DE MODAL ---------- */
+    .modal-footer {
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* ---------- BOTONES ---------- */
+    .btn-modal {
+        padding: 10px 20px;
+        /* Aumenta el espacio interior (más grande) */
+        font-size: 16px;
+        /* Aumenta el tamaño del texto */
+        font-weight: 600;
+        /* Mantén el grosor de la fuente */
+        border-radius: 30px;
+        /* Bordes más redondeados */
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        border: none;
+        min-width: 120px;
+        /* Asegura que los botones tengan un tamaño mínimo mayor */
+        text-align: center;
+        /* Asegura que el texto esté centrado */
+    }
+
+    /* Botón "Atrás" (Verde) */
+    #btnPrev {
+        background: linear-gradient(135deg, #34d058, #28a745);
+        /* Verde más brillante */
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnPrev:hover {
+        background: linear-gradient(135deg, #228b3f, #1e7e34);
+        /* Cambio de degradado más pronunciado */
+    }
+
+    /* Botón "Siguiente" (Azul Principal) */
+    #btnNext {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnNext:hover {
+        background: linear-gradient(135deg, #0056b3, #003366);
+        /* Cambio de degradado en hover */
+    }
+
+    /* Botón "Cerrar" (Rojo) */
+    #btnClose {
+        background: linear-gradient(135deg, #ff4b5c, #c82333);
+        /* Rojo más intenso */
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnClose:hover {
+        background: linear-gradient(135deg, #e02e3e, #ad0f0f);
+        /* Rojo más fuerte en hover */
     }
 
     /* NUEVO: Botón Reporte (color azul) */
@@ -515,11 +685,20 @@ $stmt_estudiantes->close();
                 </div>
             </form>
 
-            <!-- Botón para ver lista de asistencia -->
-            <button id="btn-asistencia" class="btn btn-asistencia"
-                onclick="location.href='asistencia_estudiantes.php?id_curso=<?php echo urlencode($id_curso); ?>'">
-                <i class='bx bx-list-check'></i> Lista de Asistencia
-            </button>
+            <!-- Contenedor para los botones en la misma línea -->
+            <div class="botones-en-linea">
+                <!-- Botón para ver lista de asistencia -->
+                <button id="btn-asistencia" class="btn btn-asistencia"
+                    onclick="location.href='asistencia_estudiantes.php?id_curso=<?php echo urlencode($id_curso); ?>'">
+                    <i class='bx bx-list-check'></i> Lista de Asistencia
+                </button>
+
+                <!-- Botón para abrir el modal de Manual de Uso -->
+                <button type="button" class="btn btn-open-modal" data-bs-toggle="modal"
+                    data-bs-target="#modalInstrucciones">
+                    <i class='bx bx-book'></i> Manual de Uso
+                </button>
+            </div>
 
             <!-- Verificar si hay mensajes de error -->
             <?php
@@ -557,6 +736,105 @@ $stmt_estudiantes->close();
                 <button id="btn-exportar" class="btn btn-exportar-csv btn-custom">
                     <i class='bx bx-export'></i> Exportar a CSV
                 </button>
+            </div>
+            <!-- Modal único - Registro de Calificaciones -->
+            <div class="modal fade" id="modalInstrucciones" tabindex="-1" role="dialog"
+                aria-labelledby="modalInstruccionesLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <!-- Encabezado con franja azul -->
+                        <div class="modal-header" style="background-color: #007bff; color: white;">
+                            <h5 class="modal-title" id="modalInstruccionesLabel">Manual de Uso - Registro de
+                                Calificaciones</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                onclick="cerrarModal()" style="color: white; border: none; background: none;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <!-- Cuerpo del modal -->
+                        <div class="modal-body" id="modalContent">
+
+                            <!-- Paso 1 - Año Lectivo Abierto (Ingreso de Notas) -->
+                            <div id="step1">
+                                <h6><strong>Paso 1: Ingresar las Calificaciones (Año Abierto)</strong></h6>
+                                <p><strong>Ubicación:</strong> Verás una tabla con la lista de estudiantes y campos
+                                    vacíos donde podrás ingresar sus calificaciones.</p>
+                                <p><strong>Formato obligatorio:</strong></p>
+                                <ul>
+                                    <li>Las calificaciones deben estar entre <strong>0 y 10</strong>.</li>
+                                    <li>Usa <strong>un solo decimal</strong> (ejemplo: **7,5** y no 7.55).</li>
+                                    <li>El decimal se escribe con <strong>coma (,)</strong> y no con punto (.).</li>
+                                </ul>
+                                <p><strong>Acción:</strong> Haz clic en el campo vacío junto al nombre del estudiante y
+                                    escribe la calificación siguiendo el formato correcto.</p>
+                                <p><strong>Guardado automático:</strong> Algunas versiones del sistema guardan
+                                    automáticamente la calificación. Si no es así, haz clic en el botón
+                                    <strong>"Guardar"</strong>.
+                                </p>
+                                <p><strong>Nota importante:</strong> El sistema calcula automáticamente la <strong>nota
+                                        final</strong> basándose en las calificaciones de los parciales y otras
+                                    evaluaciones.</p>
+                            </div>
+
+                            <!-- Paso 2 - Corrección de Errores -->
+                            <div id="step2" style="display:none;">
+                                <h6><strong>Paso 2: Revisar y Corregir Errores</strong></h6>
+                                <p><strong>Verificación:</strong> Antes de salir, revisa que todas las notas ingresadas
+                                    sean correctas. Si ingresaste un valor incorrecto, aparecerá un mensaje de error.
+                                </p>
+                                <p><strong>Errores comunes:</strong></p>
+                                <ul>
+                                    <li>Si escribes **<strong>10.0</strong>**, el sistema te pedirá que uses una coma:
+                                        <strong>**10,0**.</strong>
+                                    </li>
+                                    <li>Si dejas un espacio en blanco, el sistema te pedirá que completes todas las
+                                        calificaciones.</li>
+                                    <li>Si escribes más de un decimal (ejemplo: **8,55**), el sistema no lo aceptará.
+                                    </li>
+                                </ul>
+                                <p><strong>Cómo corregir:</strong> Haz clic en la calificación incorrecta y escribe la
+                                    nota en el formato correcto.</p>
+                            </div>
+
+                            <!-- Paso 3 - Guardar y Finalizar -->
+                            <div id="step3" style="display:none;">
+                                <h6><strong>Paso 3: Guardar y Finalizar</strong></h6>
+                                <p><strong>Guardar cambios:</strong> Una vez que ingresaste todas las calificaciones,
+                                    revisa que no haya errores y haz clic en <strong>"Guardar"</strong>.</p>
+                                <p><strong>Finalización:</strong> Si todo está correcto, haz clic en
+                                    <strong>"Finalizar"</strong> o
+                                    simplemente sal de la página.
+                                </p>
+                                <p><strong>Nota:</strong> Si necesitas modificar una calificación después de haber
+                                    guardado, puedes volver al curso y editarla.</p>
+                                <p><strong>¿Tienes dudas?</strong> Si tienes problemas con el registro de notas, pide
+                                    ayuda a un compañero o contacta a un administrador.</p>
+                            </div>
+
+                            <!-- Paso 4 - Año Lectivo Cerrado (Explicación del proceso cuando el año ya está cerrado) -->
+                            <div id="step4" style="display:none;">
+                                <h6><strong>Paso 4: Qué hacer cuando el Año Lectivo Está Cerrado</strong></h6>
+                                <p><strong>Descripción:</strong> Cuando el año lectivo ya está cerrado, ya no podrás
+                                    modificar las calificaciones y solamente se podra visualizar. El sistema ha
+                                    calculado las calificaciones finales y ha determinado si los estudiantes aprobaron o
+                                    no.</p>
+                                <p><strong>Acción:</strong> El año lectivo cerrado significa que no se pueden realizar
+                                    modificaciones a las calificaciones. <strong>Si alguna calificación es incorrecta,
+                                        se
+                                        quedara asi permanentemente.</strong></p>
+                            </div>
+                        </div>
+                        <!-- Pie de página del modal -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn-modal" id="btnPrev" style="display:none;"
+                                onclick="navigateModal(-1)">Atrás</button>
+                            <button type="button" class="btn-modal" id="btnNext"
+                                onclick="navigateModal(1)">Siguiente</button>
+                            <button type="button" class="btn-modal" id="btnClose" style="display:none;"
+                                onclick="cerrarModal()">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -742,6 +1020,56 @@ $(document).ready(function() {
         }
     });
 });
+
+
+let currentStep = 1; // Controla el paso actual
+
+function navigateModal(direction) {
+    const totalSteps = 4; // Total de pasos
+    document.getElementById(`step${currentStep}`).style.display = 'none'; // Oculta el paso actual
+    currentStep += direction; // Cambia el paso
+    document.getElementById(`step${currentStep}`).style.display = 'block'; // Muestra el nuevo paso
+
+    // Actualizar título
+    document.getElementById("modalInstruccionesLabel").innerText =
+        `Manual de Uso - Gestión de Cursos (${currentStep}/4)`;
+
+    // Control de botones
+    document.getElementById("btnPrev").style.display = currentStep > 1 ? "inline-block" : "none";
+    document.getElementById("btnNext").style.display = currentStep < totalSteps ? "inline-block" : "none";
+    document.getElementById("btnClose").style.display = currentStep === totalSteps ? "inline-block" : "none";
+}
+
+function cerrarModal() {
+    let modalElement = document.getElementById('modalInstrucciones');
+    let modal = bootstrap.Modal.getInstance(modalElement);
+
+    if (modal) {
+        modal.hide();
+    }
+
+    // Asegurar que la pantalla gris desaparezca
+    document.body.classList.remove('modal-open');
+    let backdrops = document.getElementsByClassName('modal-backdrop');
+    while (backdrops[0]) {
+        backdrops[0].parentNode.removeChild(backdrops[0]);
+    }
+
+    resetModal();
+}
+
+function resetModal() {
+    currentStep = 1; // Reinicia al paso 1
+    document.getElementById("modalInstruccionesLabel").innerText = "Manual de Uso - Gestión de Cursos (1/4)";
+    document.querySelectorAll('.modal-body > div').forEach(div => div.style.display = 'none');
+    document.getElementById("step1").style.display = 'block';
+    document.getElementById("btnPrev").style.display = "none";
+    document.getElementById("btnNext").style.display = "inline-block";
+    document.getElementById("btnClose").style.display = "none";
+}
+
+// Asegura que el modal se reinicie si se cierra con la "X" o clic afuera
+document.getElementById('modalInstrucciones').addEventListener('hidden.bs.modal', resetModal);
 </script>
 </body>
 

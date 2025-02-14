@@ -257,6 +257,44 @@ $conn->close();
         background-color: #388e3c !important;
     }
 
+    /* Estilo para el contenedor de los botones */
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        /* Distribuye los botones a los extremos */
+        align-items: center;
+        /* Alinea los elementos verticalmente */
+        gap: 20px;
+        /* Espacio entre los botones */
+        margin-top: 20px;
+        /* Espaciado superior para separar de los demás elementos */
+    }
+
+    /* Estilo para el botón independiente (abrir modal) */
+    .btn-open-modal {
+        background-color: #fecdd4;
+        color: #050274;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 2rem;
+        display: inline-block;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Efecto hover para el botón de abrir modal */
+    .btn-open-modal:hover {
+        background-color: #050274;
+        color: #fedfe4;
+        transform: translateY(-5px);
+    }
+
     /* Botón regresar */
     .btn-regresar {
         background-color: #388e3c;
@@ -274,12 +312,27 @@ $conn->close();
         text-decoration: none;
         transition: background-color 0.3s ease, transform 0.3s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        /* Añadimos margen automático para centrar el botón */
+        margin-left: auto;
+        margin-right: auto;
     }
 
+    /* Efecto hover para el botón regresar */
     .btn-regresar:hover {
         background-color: #2e7d32;
         transform: translateY(-5px);
         color: #fff;
+    }
+
+    /* Contenedor específico para el botón "Regresar" centrado y "Abrir Modal" a la derecha */
+    .button-container .btn-regresar {
+        margin-right: auto;
+        /* Asegura que el botón "Regresar" se quede al centro */
+    }
+
+    .button-container .btn-open-modal {
+        margin-left: auto;
+        /* Alinea el botón "Abrir Modal" al extremo derecho */
     }
 
     /* Tarjetas */
@@ -425,6 +478,129 @@ $conn->close();
         /* Mostrar alerta cuando sea necesario */
     }
 
+    /* Estilo general del modal */
+    .modal-content {
+        border-radius: 12px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+        border: none;
+        overflow: hidden;
+    }
+
+    /* Encabezado con un degradado elegante */
+    .modal-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* Cuerpo con fondo suave */
+    .modal-body {
+        background-color: #f9f9f9;
+        padding: 20px;
+        color: #333;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    /* ---------- PIE DE MODAL ---------- */
+    .modal-footer {
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Botón de cerrar (X) */
+    .close {
+        font-size: 22px;
+        color: white;
+        opacity: 0.8;
+        transition: all 0.3s ease-in-out;
+        background: none;
+        border: none;
+    }
+
+    .close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    /* ---------- BOTONES ---------- */
+    .btn-modal {
+        padding: 10px 20px;
+        /* Aumenta el espacio interior (más grande) */
+        font-size: 16px;
+        /* Aumenta el tamaño del texto */
+        font-weight: 600;
+        /* Mantén el grosor de la fuente */
+        border-radius: 30px;
+        /* Bordes más redondeados */
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        border: none;
+        min-width: 120px;
+        /* Asegura que los botones tengan un tamaño mínimo mayor */
+        text-align: center;
+        /* Asegura que el texto esté centrado */
+    }
+
+
+    /* Botón "Atrás" (Verde) */
+    #btnPrev {
+        background: linear-gradient(135deg, #34d058, #28a745);
+        /* Verde más brillante */
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnPrev:hover {
+        background: linear-gradient(135deg, #228b3f, #1e7e34);
+        /* Cambio de degradado más pronunciado */
+    }
+
+    /* Botón "Siguiente" (Azul Principal) */
+    #btnNext {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnNext:hover {
+        background: linear-gradient(135deg, #0056b3, #003366);
+        /* Cambio de degradado en hover */
+    }
+
+    /* Botón "Cerrar" (Rojo) */
+    #btnClose {
+        background: linear-gradient(135deg, #ff4b5c, #c82333);
+        /* Rojo más intenso */
+        color: white;
+        border: none;
+        /* Eliminar el borde gris */
+    }
+
+    #btnClose:hover {
+        background: linear-gradient(135deg, #e02e3e, #ad0f0f);
+        /* Rojo más fuerte en hover */
+    }
+
+
+    .modal-body {
+        max-height: 400px;
+        /* Ajusta la altura según lo que necesites */
+        overflow-y: auto;
+        /* Permite el scroll vertical */
+    }
+
     /* Footer */
     footer {
         border-top: 3px solid #073b73;
@@ -484,9 +660,13 @@ $conn->close();
                     <?php endforeach; ?>
                 </ul>
             </div>
-            <a href="http://localhost/sistema_notas/views/profe/index_profe.php" class="btn btn-regresar">Regresar</a>
-
-
+            <!-- Botones "Regresar" y "Abrir Modal" alineados a la derecha -->
+            <div class="button-container">
+                <a href="http://localhost/sistema_notas/views/profe/index_profe.php" class="btn btn-regresar"> <i
+                        class='bx bx-arrow-back'></i> Regresar</a>
+                <button type="button" class="btn btn-open-modal" data-bs-toggle="modal"
+                    data-bs-target="#modalInstrucciones"> <i class='bx bx-book'></i> Manual de Uso</button>
+            </div>
             <div class="container mt-5">
                 <div class="row g-4">
                     <?php if ($cursos): ?>
@@ -526,6 +706,186 @@ $conn->close();
                 </div>
             </div>
         </div>
+        <!-- Modal único - Manual de Uso detallado -->
+        <div class="modal fade" id="modalInstrucciones" tabindex="-1" role="dialog"
+            aria-labelledby="modalInstruccionesLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <!-- Encabezado con franja azul -->
+                    <div class="modal-header" style="background-color: #007bff; color: white;">
+                        <h5 class="modal-title" id="modalInstruccionesLabel">Manual de Uso - Gestión de Cursos (1/4)
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                            onclick="cerrarModal()" style="color: white; border: none; background: none;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <!-- Cuerpo del modal -->
+                    <div class="modal-body" id="modalContent">
+                        <!-- Paso 1 -->
+                        <div id="step1">
+                            <h6><strong>Paso 1: Cómo seleccionar un Año Académico</strong></h6>
+                            <p><strong>Ubicación:</strong> En la parte superior de la pantalla, encontrarás un botón
+                                que dice "Años Lectivos". Este botón está justo encima de la lista de cursos. Es un
+                                botón grande, de color azul, con una flecha hacia abajo.</p>
+                            <p><strong>Acción:</strong> Haz clic en ese botón. Esto abrirá una lista de todos los
+                                años académicos disponibles, tanto el año actual como los años anteriores.</p>
+                            <p><strong>Qué hacer:</strong> En la lista, encontrarás el "Año Actual", que tiene un
+                                ícono de calendario al lado. Este es el año en el que estamos ahora. Si deseas ver
+                                cursos de años pasados, solo haz clic en el año que prefieras.</p>
+                            <p><strong>¿Qué sucede cuando seleccionas un año?</strong> Después de hacer clic en un
+                                año, la página se actualizará automáticamente, y verás todos los cursos que están
+                                disponibles para ese año específico.</p>
+                        </div>
+                        <!-- Paso 2 - Visualización de Cursos Disponibles -->
+                        <div id="step2" style="display:none;">
+                            <h6><strong>Paso 2: Visualización de Cursos Disponibles</strong></h6>
+                            <p><strong>Ubicación:</strong> Después de seleccionar un año académico, verás una lista
+                                de cursos en forma de tarjetas. Estas tarjetas están ubicadas en el centro de la
+                                pantalla, una al lado de la otra.</p>
+                            <p><strong>Acción:</strong> Cada tarjeta muestra información sobre un curso, y dentro de
+                                cada tarjeta encontrarás los siguientes detalles:</p>
+                            <ul>
+                                <li><strong>Materia:</strong> El nombre de la asignatura, por ejemplo,
+                                    "Matemáticas", "Historia".</li>
+                                <li><strong>Nivel:</strong> El nivel de los estudiantes que toman el curso, como
+                                    "Octavo", "Noveno", etc.</li>
+                                <li><strong>Paralelo:</strong> El grupo de estudiantes que están en ese curso, como
+                                    "A", "B", etc.</li>
+                                <li><strong>Subnivel:</strong> Si aplica, indica un nivel adicional dentro del
+                                    curso, como "Educación Básica General" o "Bachillerato Técnico Industrial".</li>
+                                <li><strong>Especialidad:</strong> Si el curso pertenece a una especialidad, como
+                                    "Educación Básica General", "Electrónica de Consumo", "Mecánica Automotriz", etc.
+                                </li>
+                                <li><strong>Jornada:</strong> El horario en que se imparte el curso, como "Matutina" o
+                                    "Vespertina", etc.</li>
+                                <li><strong>Año Académico:</strong> El año en el que se imparte el curso, como
+                                    "2025 - 2026".</li>
+                            </ul>
+                            <p><strong>Qué hacer:</strong> Si quieres más información sobre un curso, haz clic en el
+                                botón que dice "Ver Estudiantes" dentro de la tarjeta del curso. Esto te llevará a
+                                una página donde podrás ver los estudiantes que están inscritos en ese curso.</p>
+                        </div>
+                        <!-- Paso 3 - Ver Estudiantes -->
+                        <div id="step3" style="display:none;">
+                            <h6><strong>Paso 3: Cómo ver la lista de estudiantes de un curso</strong></h6>
+
+                            <p><strong>Ubicación:</strong> Para ver los estudiantes de un curso, primero debes buscar la
+                                tarjeta que representa el curso en el que estás interesado.
+                                Cada curso tiene su propia tarjeta con información como el nombre del curso y el año
+                                académico.</p>
+
+                            <p><strong>Dónde encontrar el botón:</strong> Dentro de la tarjeta del curso, en la parte
+                                inferior, encontrarás un botón que dice <strong>"Ver Estudiantes"</strong>.
+                                Este botón está justo debajo de los detalles del curso.</p>
+
+                            <p><strong>Acción a realizar:</strong> Para ver la lista de estudiantes, simplemente haz
+                                clic en el botón <strong>"Ver Estudiantes"</strong>.
+                                Esto te llevará automáticamente a una nueva página donde podrás ver toda la información
+                                de los estudiantes inscritos en ese curso.</p>
+
+                            <p><strong>¿Qué puedes hacer en esta página?</strong></p>
+
+                            <ul>
+                                <li><strong>Ver la lista de estudiantes:</strong> La página te mostrará los nombres de
+                                    los estudiantes inscritos en el curso.</li>
+                                <li><strong>Buscar un estudiante:</strong> En la parte superior, encontrarás una barra
+                                    de búsqueda donde puedes escribir el nombre, apellido o cédula de un estudiante para
+                                    encontrarlo rápidamente.</li>
+                                <li><strong>Consultar asistencia:</strong> Puedes hacer clic en el botón <strong>"Lista
+                                        de Asistencia"</strong> descargar el PDF de la lista de los estudiantes de esa
+                                    clase.</li>
+                                <li><strong>Calificar a los estudiantes:</strong> Si necesitas ingresar notas, puedes
+                                    hacer clic en el botón <strong>"Calificar"</strong>, el cual te llevará a la sección
+                                    de calificaciones.</li>
+                                <li><strong>Generar reportes:</strong> Si necesitas un informe con los datos de los
+                                    estudiantes, puedes hacer clic en <strong>"Reporte"</strong> para descargarlo.</li>
+                                <li><strong>Exportar datos:</strong> También tienes la opción de descargar la lista de
+                                    estudiantes en un archivo CSV para trabajarlo en tu computadora.</li>
+                            </ul>
+
+                            <p>Si en algún momento deseas regresar a la página anterior, puedes hacer clic en el botón
+                                <strong>"Regresar"</strong>, ubicado en la parte inferior del lado izquierdo.
+                            </p>
+                        </div>
+
+                        <!-- Paso 4 - Regresar a la Página Principal -->
+                        <div id="step4" style="display:none;">
+                            <h6><strong>Paso 4: Cómo regresar a la página principal</strong></h6>
+
+                            <p><strong>¿Dónde está el botón para regresar?</strong></p>
+                            <p>Si deseas volver a la página principal del sistema, debes buscar un botón que dice
+                                <strong>"Regresar"</strong>.
+                                Este botón está ubicado en la parte superior de la pantalla, cerca del título de la
+                                página.
+                                También tiene un ícono con una flecha que apunta hacia la izquierda.
+                            </p>
+
+                            <p><strong>¿Qué debes hacer?</strong></p>
+                            <p>Para volver a la página principal, simplemente coloca el puntero del mouse sobre el botón
+                                "Regresar" y haz clic una vez con el botón izquierdo del mouse.</p>
+
+                            <p><strong>¿Qué pasará después?</strong></p>
+                            <p>Después de hacer clic, la pantalla cambiará automáticamente y te llevará de vuelta a la
+                                página de inicio del programa.</p>
+
+                            <p><strong>¿Qué encontrarás en la página principal?</strong></p>
+                            <p>La página principal es el primer lugar que ves cuando inicias sesión en el sistema. Aquí
+                                podrás hacer muchas cosas importantes, como:</p>
+
+                            <ul>
+                                <li><strong>Ver tu información personal:</strong> En la parte superior de la pantalla,
+                                    aparecerá tu nombre, apellido y tu rol dentro del sistema (por ejemplo, Profesor).
+                                </li>
+
+                                <li><strong>Leer un mensaje de bienvenida:</strong> Justo debajo de tu nombre, verás un
+                                    mensaje que te da la bienvenida al sistema.</li>
+
+                                <li><strong>Mirar imágenes sobre la institución:</strong> En la parte central de la
+                                    pantalla, habrá una serie de imágenes que representan la Unidad Educativa Benjamín
+                                    Franklin.</li>
+
+                                <li><strong>Acceder a tus cursos:</strong> Habrá un botón que te permitirá ver la lista
+                                    de los cursos que enseñas. Desde ahí, podrás revisar a tus estudiantes y administrar
+                                    sus calificaciones.</li>
+
+                                <li><strong>Conocer la historia de la institución:</strong> También encontrarás una
+                                    sección con información sobre los 55 años de trayectoria de la Unidad Educativa.
+                                </li>
+
+                                <li><strong>Aprender sobre los valores institucionales:</strong> En esta parte, se
+                                    mostrarán los valores más importantes de la institución, como el compromiso, la
+                                    responsabilidad y el trabajo en equipo.</li>
+
+                                <li><strong>Leer la misión y visión:</strong> Aquí se explican los objetivos educativos
+                                    de la institución y su propósito en la formación de los estudiantes.</li>
+
+                                <li><strong>Explorar las especialidades:</strong> Podrás conocer más sobre las
+                                    diferentes carreras técnicas que se enseñan, como Electrónica, Electricidad y
+                                    Mecánica Automotriz.</li>
+
+                                <li><strong>Ver fotos y videos:</strong> En la parte inferior de la pantalla, habrá una
+                                    galería de imágenes y videos que muestran actividades y momentos importantes dentro
+                                    de la institución.</li>
+                            </ul>
+
+                            <p>Recuerda que si en algún momento te pierdes dentro del sistema, siempre puedes hacer clic
+                                en <strong>"Regresar"</strong> para volver hasta la página principal.</p>
+                        </div>
+                    </div>
+                    <!-- Pie de página del modal -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn-modal" id="btnPrev" style="display:none;"
+                            onclick="navigateModal(-1)">Atrás</button>
+                        <button type="button" class="btn-modal" id="btnNext"
+                            onclick="navigateModal(1)">Siguiente</button>
+                        <button type="button" class="btn-modal" id="btnClose" style="display:none;"
+                            onclick="cerrarModal()">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
     <footer>
         <p>&copy; 2024 Instituto Superior Tecnológico Guayaquil. Desarrollado por Giullia Arias y Carlos Zambrano. Todos
@@ -534,6 +894,60 @@ $conn->close();
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    let currentStep = 1; // Controla el paso actual
+
+    function navigateModal(direction) {
+        const totalSteps = 4; // Total de pasos
+        document.getElementById(`step${currentStep}`).style.display = 'none'; // Oculta el paso actual
+        currentStep += direction; // Cambia el paso
+        document.getElementById(`step${currentStep}`).style.display = 'block'; // Muestra el nuevo paso
+
+        // Actualizar título
+        document.getElementById("modalInstruccionesLabel").innerText =
+            `Manual de Uso - Gestión de Cursos (${currentStep}/4)`;
+
+        // Control de botones
+        document.getElementById("btnPrev").style.display = currentStep > 1 ? "inline-block" : "none";
+        document.getElementById("btnNext").style.display = currentStep < totalSteps ? "inline-block" : "none";
+        document.getElementById("btnClose").style.display = currentStep === totalSteps ? "inline-block" : "none";
+    }
+
+    function cerrarModal() {
+        let modalElement = document.getElementById('modalInstrucciones');
+        let modal = bootstrap.Modal.getInstance(modalElement);
+
+        if (modal) {
+            modal.hide();
+        }
+
+        // Asegurar que la pantalla gris desaparezca
+        document.body.classList.remove('modal-open');
+        let backdrops = document.getElementsByClassName('modal-backdrop');
+        while (backdrops[0]) {
+            backdrops[0].parentNode.removeChild(backdrops[0]);
+        }
+
+        resetModal();
+    }
+
+    function resetModal() {
+        currentStep = 1; // Reinicia al paso 1
+        document.getElementById("modalInstruccionesLabel").innerText = "Manual de Uso - Gestión de Cursos (1/4)";
+        document.querySelectorAll('.modal-body > div').forEach(div => div.style.display = 'none');
+        document.getElementById("step1").style.display = 'block';
+        document.getElementById("btnPrev").style.display = "none";
+        document.getElementById("btnNext").style.display = "inline-block";
+        document.getElementById("btnClose").style.display = "none";
+    }
+
+    // Asegura que el modal se reinicie si se cierra con la "X" o clic afuera
+    document.getElementById('modalInstrucciones').addEventListener('hidden.bs.modal', resetModal);
+    </script>
 </body>
 
 </html>

@@ -2,6 +2,13 @@
 // Iniciar sesión
 session_start();
 
+// Verificar si el usuario ha iniciado sesión y si su rol es "Profesor"
+if (!isset($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Profesor'])) {
+    // Si el rol no es adecuado, redirigir al login
+    header("Location: ../../login.php");
+    exit(); // Detener la ejecución del código después de redirigir
+}
+
 // Incluir FPDF
 require('../../fphp/fpdf.php');
 include('../../Crud/config.php'); // Conexión a la base de datos
