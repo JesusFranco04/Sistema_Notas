@@ -1037,7 +1037,7 @@ if ($_SESSION['cedula'] === SUPER_USER_KEY) {
 
     .user-name {
         font-weight: bold;
-        color:  #6d6d6d;
+        color: #6d6d6d;
         /* Color moderno y limpio */
     }
 
@@ -1057,7 +1057,7 @@ if ($_SESSION['cedula'] === SUPER_USER_KEY) {
     .nav-link .bx-user-circle {
         font-size: 1.3rem;
         /* Tamaño del ícono */
-        color:  #6d6d6d;
+        color: #6d6d6d;
         /* Coincide con el nombre */
         position: relative;
         top: 3px;
@@ -1497,6 +1497,31 @@ if ($_SESSION['cedula'] === SUPER_USER_KEY) {
     function closeModal() {
         document.getElementById("modal").style.display = "none";
     }
+
+    // Función para bloquear solo la navegación hacia atrás al login
+    function bloquearNavegacion() {
+        history.pushState(null, '', location.href); // Añadir estado vacío al historial
+
+        window.onpopstate = function(event) {
+            // Si el usuario intenta volver al login, bloqueamos la navegación
+            if (document.referrer.includes("/sistema_notas/views/login.php")) {
+                history.pushState(null, '', location.href); // Evitar retroceso
+            }
+        };
+    }
+
+    // Activar el bloqueo solo si estamos en la página de inicio/admin
+    if (window.location.pathname === "/sistema_notas/views/admin/index_admin.php") {
+        bloquearNavegacion();
+    }
+
+    // Permitir navegación dentro del sistema sin molestos mensajes
+    window.addEventListener('beforeunload', function(e) {
+        if (!document.referrer.includes("/sistema_notas/views/admin/")) {
+            e.preventDefault();
+            e.returnValue = ''; // Muestra advertencia solo si se intenta salir del sistema
+        }
+    });
     </script>
 </body>
 
