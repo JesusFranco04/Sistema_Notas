@@ -322,7 +322,7 @@ $stmt_estudiantes->close();
         background-color: #D32F2F;
         color: white;
         transform: translateY(-4px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
 
     /* Estilos para el botón deshabilitado */
@@ -343,7 +343,7 @@ $stmt_estudiantes->close();
 
     /* Estilos para el botón Manual de Uso */
     .btn-open-modal {
-        background-color: #fee5e9;
+        background-color: white;
         color: #050274;
         border: 2px solid #050274;
         margin-top: 15px;
@@ -356,9 +356,9 @@ $stmt_estudiantes->close();
 
     .btn-open-modal:hover {
         background-color: #050274;
-        color: #fee5e9;
+        color: white;
         transform: translateY(-4px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
 
     .modal-body {

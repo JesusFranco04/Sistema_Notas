@@ -41,6 +41,14 @@ if (isset($_SESSION['cedula']) && isset($conn)) { // Verifica que la sesión y l
         $stmt->close();
     }
 }
+
+// Evita que el navegador almacene esta página en caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Deshabilitar el almacenamiento en caché en navegadores más modernos
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 ?>
 
 
@@ -104,7 +112,8 @@ if (isset($_SESSION['cedula']) && isset($conn)) { // Verifica que la sesión y l
         /* Sin fondo */
         text-transform: uppercase;
         /* Texto en mayúsculas */
-        margin-top: 0.2rem; /* Baja el rol ligeramente */
+        margin-top: 0.2rem;
+        /* Baja el rol ligeramente */
     }
 
     header h1 i {
@@ -112,7 +121,8 @@ if (isset($_SESSION['cedula']) && isset($conn)) { // Verifica que la sesión y l
         /* Icono ligeramente grande */
         color: #ffffff;
         /* Icono completamente blanco */
-        margin-top: 0.2rem; /* Baja el rol ligeramente */
+        margin-top: 0.2rem;
+        /* Baja el rol ligeramente */
     }
 
 
@@ -1487,6 +1497,25 @@ if (isset($_SESSION['cedula']) && isset($conn)) { // Verifica que la sesión y l
             modal.style.display = "none"; // Esconde el modal después de la animación
         }, 500); // Espera que termine la transición de opacidad antes de ocultarlo
     }
+
+    function bloquearRetroceso() {
+        if (window.location.pathname === "/sistema_notas/views/profe/index_profe.php") {
+            // Cambia el hash para evitar que el usuario pueda navegar hacia atrás
+            window.location.hash = 'no-back';
+
+            // Manejo del evento "popstate" para bloquear el botón "Atrás"
+            window.addEventListener('popstate', function(event) {
+                // Evita volver atrás en el historial del navegador
+                history.pushState(null, document.title, window.location.href);
+            });
+
+            // Añade un estado al historial para evitar que se pueda navegar hacia atrás
+            history.pushState(null, document.title, window.location.href);
+        }
+    }
+
+    // Espera a que el DOM esté completamente cargado antes de ejecutar la función
+    document.addEventListener('DOMContentLoaded', bloquearRetroceso);
     </script>
 </body>
 

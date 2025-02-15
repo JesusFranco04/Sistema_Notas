@@ -105,11 +105,14 @@ echo "<tr style='background-color: #f2f2f2; font-weight: bold;'>
             <th>Teléfono</th>
         </tr>";
 
+// Inicializar el contador
+$contador = 1;
+
 // Rellenar la tabla con los datos de los estudiantes
 while ($row = $result_estudiantes->fetch_assoc()) {
     // Usamos el operador null-coalescing (??) para verificar si el índice existe, y en caso contrario mostramos un guion "-"
     echo "<tr>
-            <td>" . (isset($row['id_estudiante']) ? utf8_encode($row['id_estudiante']) : '-') . "</td>
+            <td>" . $contador . "</td> <!-- Usamos el contador en lugar del id_estudiante -->
             <td>" . (isset($row['nombre_estudiante']) ? utf8_encode($row['nombre_estudiante']) : '-') . "</td>
             <td>" . (isset($row['cedula_estudiante']) ? utf8_encode($row['cedula_estudiante']) : '-') . "</td>
             <td>" . (isset($row['edad_estudiante']) ? utf8_encode($row['edad_estudiante']) : '-') . "</td>
@@ -119,6 +122,7 @@ while ($row = $result_estudiantes->fetch_assoc()) {
             <td>" . (isset($row['cedula_padre']) ? utf8_encode($row['cedula_padre']) : '-') . "</td>
             <td>" . (isset($row['telefono']) ? utf8_encode($row['telefono']) : '-') . "</td>
         </tr>";
+    $contador++; // Incrementamos el contador
 }
 
 // Cerrar la tabla

@@ -79,7 +79,8 @@ $sql_estudiantes = "
         e.id_his_academico = c.id_his_academico
     WHERE 
         c.id_curso = ? AND 
-        e.estado = 'A';
+        e.estado = 'A'
+    ORDER BY e.apellidos ASC
 ";
 
 $stmt_estudiantes = $conn->prepare($sql_estudiantes);
@@ -182,7 +183,8 @@ class PDF extends FPDF {
         $this->Cell(40, 8, utf8_decode('Teléfono'), 1, 1, 'C', true);
     }
     
-    function AddRow($row, $isOdd) {
+    // Modificación de la función AddRow
+    function AddRow($row, $isOdd, &$contador) {  // Pasamos $contador por referencia
         // Ancho total de la tabla
         $tableWidth = 280; // Suma de los anchos de las columnas: 20 + 40 + 30 + 20 + 20 + 20 + 50 + 30 + 40
         $pageWidth = $this->GetPageWidth(); // Ancho de la página
@@ -198,9 +200,11 @@ class PDF extends FPDF {
         // Fuente y color del texto
         $this->SetFont('Arial', '', 8); // Fuente más pequeña para los datos
         $this->SetTextColor(0, 0, 0); // Negro para el contenido de la tabla
-    
-        // Mostrar los datos de la fila
-        $this->Cell(20, 8, $row['id_estudiante'], 1, 0, 'C', true);
+
+        // Mostrar el contador en lugar del id_estudiante
+        $this->Cell(20, 8, $contador, 1, 0, 'C', true); // Usamos $contador en lugar de id_estudiante
+        $contador++; // Incrementamos el contador
+
         $this->Cell(50, 8, utf8_decode($row['nombre_estudiante']), 1, 0, 'L', true);
         $this->Cell(30, 8, $row['cedula_estudiante'], 1, 0, 'C', true);
         $this->Cell(20, 8, $row['edad_estudiante'], 1, 0, 'C', true);
@@ -212,7 +216,6 @@ class PDF extends FPDF {
     }
 }
 
-
 // Crear objeto PDF con la información del curso
 $pdf = new PDF($curso_info);
 $pdf->AddPage();
@@ -220,11 +223,14 @@ $pdf->AddPage();
 // Encabezados de la tabla
 $pdf->TableHeader();
 
+// Inicializar el contador
+$contador = 1;
+
 // Mostrar los datos de los estudiantes
 $isOdd = false; // Alternar colores de fila
 while ($row = $result_estudiantes->fetch_assoc()) {
     $isOdd = !$isOdd; // Alternar entre true y false
-    $pdf->AddRow($row, $isOdd);
+    $pdf->AddRow($row, $isOdd, $contador); // Pasar el contador como parámetro
 }
 
 // Salida del PDF

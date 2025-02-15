@@ -32,6 +32,14 @@ if ($id_padre) {
     echo "No se encontró el id_padre para la cédula proporcionada.";
     exit();
 }
+
+// Evita que el navegador almacene esta página en caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Deshabilitar el almacenamiento en caché en navegadores más modernos
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 ?>
 
 <!DOCTYPE html>
@@ -1765,6 +1773,25 @@ if ($id_padre) {
     function cerrarVentanaEspecialidades() {
         document.getElementById("ventana-especialidades").classList.remove("mostrar");
     }
+
+    function bloquearRetroceso() {
+        if (window.location.pathname === "/sistema_notas/views/family/index_family.php") {
+            // Cambia el hash para evitar que el usuario pueda navegar hacia atrás
+            window.location.hash = 'no-back';
+
+            // Manejo del evento "popstate" para bloquear el botón "Atrás"
+            window.addEventListener('popstate', function(event) {
+                // Evita volver atrás en el historial del navegador
+                history.pushState(null, document.title, window.location.href);
+            });
+
+            // Añade un estado al historial para evitar que se pueda navegar hacia atrás
+            history.pushState(null, document.title, window.location.href);
+        }
+    }
+
+    // Espera a que el DOM esté completamente cargado antes de ejecutar la función
+    document.addEventListener('DOMContentLoaded', bloquearRetroceso);
     </script>
 </body>
 

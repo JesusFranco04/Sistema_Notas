@@ -1514,14 +1514,6 @@ if ($_SESSION['cedula'] === SUPER_USER_KEY) {
     if (window.location.pathname === "/sistema_notas/views/admin/index_admin.php") {
         bloquearNavegacion();
     }
-
-    // Permitir navegación dentro del sistema sin molestos mensajes
-    window.addEventListener('beforeunload', function(e) {
-        if (!document.referrer.includes("/sistema_notas/views/admin/")) {
-            e.preventDefault();
-            e.returnValue = ''; // Muestra advertencia solo si se intenta salir del sistema
-        }
-    });
     </script>
 </body>
 

@@ -78,7 +78,7 @@ if ($curso) {
     echo "<style>
             /* Estilo para los títulos y detalles de la lista */
             h3 {
-                color: #083787; /* Color azul para el título */
+                color: #050274; /* Color azul para el título */
                 font-size: 1.5rem;
                 font-weight: bold;
                 margin-bottom: 20px;

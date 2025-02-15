@@ -97,16 +97,30 @@ if ($id_materia) {
 }
 
 // Obtener estudiantes del curso
-$sql_estudiantes = "SELECT id_estudiante, nombres, apellidos FROM estudiante WHERE id_his_academico = ? ORDER BY apellidos ASC";
+$sql_estudiantes = "
+    SELECT e.id_estudiante, e.nombres, e.apellidos 
+    FROM estudiante e
+    JOIN curso c ON 
+        e.id_nivel = c.id_nivel AND 
+        e.id_subnivel = c.id_subnivel AND 
+        e.id_especialidad = c.id_especialidad AND 
+        e.id_paralelo = c.id_paralelo AND 
+        e.id_jornada = c.id_jornada AND 
+        e.id_his_academico = c.id_his_academico
+    WHERE c.id_curso = ? 
+      AND c.id_his_academico = ?
+      AND c.estado = 'A'
+    ORDER BY e.apellidos ASC";
 $estudiantes = [];
 if ($stmt_estudiantes = $conn->prepare($sql_estudiantes)) {
-    $stmt_estudiantes->bind_param("i", $id_his_academico);
+    $stmt_estudiantes->bind_param("ii", $id_curso, $id_his_academico); // Ahora se filtra también por año lectivo
     $stmt_estudiantes->execute();
     $estudiantes = $stmt_estudiantes->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt_estudiantes->close();
 } else {
     mostrar_alerta('Error en la consulta de estudiantes: ' . $conn->error, ALERTA_ERROR);
     exit();
+
 }
 
 // Obtener las calificaciones

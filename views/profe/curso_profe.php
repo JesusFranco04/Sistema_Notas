@@ -162,11 +162,10 @@ $conn->close();
     }
 
     .text-center h2 {
-        color: #ad0f0f;
+        color: #c61e1e;
         /* Rojo vibrante */
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: bold;
-        text-transform: uppercase;
         letter-spacing: 1px;
         position: relative;
         display: inline-block;
@@ -180,15 +179,20 @@ $conn->close();
         left: 0;
         width: 50%;
         height: 3px;
-        background: linear-gradient(90deg, #1976d2, #388e3c);
+        background: linear-gradient(135deg, #34d058, #0056b3);
         /* Línea decorativa más elegante */
         transform: translateX(50%);
         /* Centrado perfecto */
     }
 
     /* Dropdown de Años Lectivos */
+    .dropdown {
+        margin-top: 1.5rem;
+        /* Espaciado entre el título y el botón */
+    }
+
     .dropdown .btn-primary {
-        background: #1976d2;
+        background: #16539e;
         /* Azul para el botón de Año Actual */
         border: none;
         color: #fff;
@@ -257,23 +261,21 @@ $conn->close();
         background-color: #388e3c !important;
     }
 
-    /* Estilo para el contenedor de los botones */
+    /* Reducir espacio entre los botones */
     .button-container {
         display: flex;
         justify-content: space-between;
-        /* Distribuye los botones a los extremos */
         align-items: center;
-        /* Alinea los elementos verticalmente */
-        gap: 20px;
+        gap: 25px;
         /* Espacio entre los botones */
-        margin-top: 20px;
-        /* Espaciado superior para separar de los demás elementos */
+        margin-top: 5px;
+        /* Disminuimos el espacio superior */
     }
 
     /* Estilo para el botón independiente (abrir modal) */
     .btn-open-modal {
-        background-color: #fecdd4;
-        color: #050274;
+        background-color: #1409a9;
+        color: white;
         padding: 1rem 2rem;
         border: none;
         border-radius: 30px;
@@ -286,18 +288,19 @@ $conn->close();
         text-decoration: none;
         transition: background-color 0.3s ease, transform 0.3s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        /* Añadimos margen automático para centrar el botón */
     }
 
     /* Efecto hover para el botón de abrir modal */
     .btn-open-modal:hover {
         background-color: #050274;
-        color: #fedfe4;
+        color: white;
         transform: translateY(-5px);
     }
 
     /* Botón regresar */
     .btn-regresar {
-        background-color: #388e3c;
+        background-color: #2d7c30;
         /* Verde */
         color: #fff;
         padding: 1rem 2rem;
@@ -319,7 +322,7 @@ $conn->close();
 
     /* Efecto hover para el botón regresar */
     .btn-regresar:hover {
-        background-color: #2e7d32;
+        background-color: #2c692f;
         transform: translateY(-5px);
         color: #fff;
     }
@@ -351,7 +354,7 @@ $conn->close();
     }
 
     .card-header {
-        background-color: #e53935;
+        background-color: #D32F2F;
         /* Rojo más profundo */
         color: #fff;
         padding: 1rem;
@@ -369,7 +372,7 @@ $conn->close();
         right: 1rem;
         transform: translateY(-50%);
         background-color: #fff;
-        color: #e53935;
+        color: #D32F2F;
         padding: 0.5rem 1rem;
         border-radius: 50px;
         font-size: 0.9rem;
@@ -380,7 +383,7 @@ $conn->close();
     .card-body {
         padding: 1.5rem;
         font-size: 1rem;
-        color: #666;
+        color: #454545;
     }
 
     .card-body p {
