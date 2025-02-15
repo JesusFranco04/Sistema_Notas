@@ -85,7 +85,7 @@ if ($curso) {
             }
                 
             .total-estudiantes {
-                color: #1565c0; /* Color azul para la línea específica */
+                color: #1156ad; /* Color azul para la línea específica */
             }
 
             strong {

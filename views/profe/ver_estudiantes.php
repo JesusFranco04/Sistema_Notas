@@ -1,6 +1,22 @@
 <?php
 session_start();
 
+// Establecer el tiempo de expiración de la sesión en segundos (por ejemplo, 45 minutos)
+$tiempo_expiracion = 2700; // 2700 segundos = 45 minutos
+
+// Verificar si la sesión ha expirado por inactividad
+if (isset($_SESSION['ultimo_acceso']) && (time() - $_SESSION['ultimo_acceso']) > $tiempo_expiracion) {
+    // Si ha pasado más de 45 minutos, destruir la sesión y redirigir al login
+    session_unset();  // Elimina todas las variables de sesión
+    session_destroy();  // Destruye la sesión
+    header("Location: ../../login.php");  // Redirige al login
+    exit();  // Asegura que no se ejecute más código
+}
+
+// Actualizar el último acceso
+$_SESSION['ultimo_acceso'] = time();  // Actualiza el tiempo de acceso
+
+
 // Incluir el archivo de conexión
 include('../../Crud/config.php'); // Ruta absoluta
 
@@ -77,6 +93,9 @@ $stmt_estudiantes->execute();
 $result_estudiantes = $stmt_estudiantes->get_result();
 $cantidad_estudiantes = $result_estudiantes->fetch_assoc()['total_estudiantes'];
 $stmt_estudiantes->close();
+
+// Variable para deshabilitar botones
+$deshabilitar_botones = ($cantidad_estudiantes == 0) ? 'disabled' : '';
 ?>
 
 <!DOCTYPE html>
@@ -500,9 +519,9 @@ $stmt_estudiantes->close();
     /* NUEVO: Botón Reporte (color azul) */
     .btn-reporte {
         background-color: #ffffff;
-        color: #1565c0;
+        color: #1156ad;
         /* Azul */
-        border: 2px solid #1565c0;
+        border: 2px solid #1156ad;
         /* Azul */
         padding: 16px 32px;
         border-radius: 35px;
@@ -518,11 +537,27 @@ $stmt_estudiantes->close();
     }
 
     .btn-reporte:hover {
-        background-color: #1565c0;
+        background-color: #1156ad;
         /* Azul */
         color: white;
         transform: translateY(-4px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Asegura que los enlaces con la clase 'disabled' parezcan deshabilitados */
+    .btn-reporte.disabled {
+        background-color: #f1f1f1 !important;
+        /* Color de fondo cuando está deshabilitado */
+        color: #ccc !important;
+        /* Color del texto cuando está deshabilitado */
+        border: 2px solid #ccc !important;
+        /* Borde cuando está deshabilitado */
+        cursor: not-allowed !important;
+        /* Cursor en forma de prohibido */
+        pointer-events: none !important;
+        /* Desactiva cualquier interacción */
+        opacity: 0.6 !important;
+        /* Efecto visual de deshabilitado */
     }
 
 
@@ -553,6 +588,22 @@ $stmt_estudiantes->close();
         color: white;
         transform: translateY(-4px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos para el botón deshabilitado */
+    .btn-exportar-csv:disabled {
+        background-color: #f1f1f1;
+        /* Color de fondo cuando está deshabilitado */
+        color: #ccc;
+        /* Color de texto cuando está deshabilitado */
+        border: 2px solid #ccc;
+        /* Color del borde cuando está deshabilitado */
+        cursor: not-allowed;
+        /* Cursor en forma de prohibido */
+        pointer-events: none;
+        /* Desactiva cualquier interacción con el botón */
+        opacity: 0.6;
+        /* Añade un efecto visual para que parezca más deshabilitado */
     }
 
     /* Footer */
@@ -730,10 +781,13 @@ $stmt_estudiantes->close();
                     data-id-curso="<?php echo $id_curso; ?>">
                     <i class='bx bx-pencil'></i> Calificar
                 </button>
-                <a href="nomina_estudiantes.php?id_curso=<?php echo $id_curso; ?>" class="btn btn-reporte btn-custom">
+                <!-- Botón de Reporte -->
+                <a href="nomina_estudiantes.php?id_curso=<?php echo $id_curso; ?>"
+                    class="btn btn-reporte btn-custom <?php echo ($cantidad_estudiantes == 0) ? 'disabled' : ''; ?>">
                     <i class='bx bx-file'></i> Reporte
                 </a>
-                <button id="btn-exportar" class="btn btn-exportar-csv btn-custom">
+                <!-- Botón de Exportar a CSV -->
+                <button id="btn-exportar" class="btn btn-exportar-csv btn-custom" <?php echo $deshabilitar_botones; ?>>
                     <i class='bx bx-export'></i> Exportar a CSV
                 </button>
             </div>
