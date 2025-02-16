@@ -16,7 +16,7 @@ if (!empty($_SESSION['ultimo_acceso']) && (time() - $_SESSION['ultimo_acceso']) 
 // Actualizar el último acceso
 $_SESSION['ultimo_acceso'] = time();
 
-// Incluir el archivo de conexión
+// Incluir el archivo de conexión a la base de datos
 require_once("../../config.php");
 
 // Verificar si el usuario ha iniciado sesión y tiene el rol adecuado
@@ -26,7 +26,7 @@ if (empty($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 
     exit();
 }
 
-// Inicializar el mensaje
+// Inicializar variables para mensajes de respuesta
 $mensaje = '';
 $mensaje_tipo = '';
 
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_padre = $_POST['id_padre'] ?? null;
 
     if ($id_estudiante && $id_padre) {
-        // Verificar coincidencia de apellidos
+        // Verificar coincidencia de apellidos entre estudiante y padre
         $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
         $stmt_estudiante = $conn->prepare($query_estudiante);
         $stmt_estudiante->bind_param("i", $id_estudiante);
@@ -49,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_padre->execute();
         $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
 
+        // Separar apellidos en partes para comparar coincidencias
         $partes_apellido_estudiante = explode(' ', $apellido_estudiante);
         $partes_apellido_padre = explode(' ', $apellido_padre);
 
@@ -60,11 +61,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // Si los apellidos no coinciden, mostrar mensaje de error
         if (!$coinciden) {
             $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
             $mensaje_tipo = 'error';
         } else {
-            // Verificar si ya existe la relación
+            // Verificar si la relación ya existe en la base de datos
             $query_verificar = "SELECT * FROM padre_x_estudiante WHERE id_estudiante = ? AND id_padre = ?";
             $stmt_verificar = $conn->prepare($query_verificar);
             $stmt_verificar->bind_param("ii", $id_estudiante, $id_padre);
@@ -94,10 +96,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Obtener los datos necesarios para los filtros
+// Obtener la lista de niveles académicos activos
 $query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A' ORDER BY nombre";
 $result_niveles = $conn->query($query_niveles);
 
+// Orden personalizado para los niveles académicos
 $orden_niveles = [
     'octavo' => 1,
     'noveno' => 2,
@@ -126,8 +129,10 @@ while ($row = $result_niveles->fetch_assoc()) {
     ];
 }
 
+// Ordenar los niveles según el orden definido
 usort($niveles, fn($a, $b) => $a['orden'] <=> $b['orden']);
 
+// Obtener la lista de paralelos activos
 $query_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A' ORDER BY nombre";
 $result_paralelos = $conn->query($query_paralelos);
 
@@ -137,14 +142,17 @@ while ($row = $result_paralelos->fetch_assoc()) {
     $paralelos[] = $row;
 }
 
+// Ordenar los paralelos alfabéticamente
 usort($paralelos, fn($a, $b) => strcasecmp($a['nombre'], $b['nombre']));
 
+// Obtener la lista de jornadas académicas activas
 $query_jornadas = "SELECT id_jornada, nombre 
                    FROM jornada 
                    WHERE estado = 'A' 
                    ORDER BY fecha_ingreso ASC";
 $result_jornadas = $conn->query($query_jornadas);
 
+// Obtener la lista de historiales académicos activos
 $query_historiales = "SELECT id_his_academico, año 
                       FROM historial_academico 
                       WHERE estado = 'A' 
