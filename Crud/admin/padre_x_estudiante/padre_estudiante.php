@@ -26,7 +26,6 @@ if (empty($_SESSION['cedula']) || !in_array($_SESSION['rol'], ['Administrador', 
     exit();
 }
 
-
 // Inicializar el mensaje
 $mensaje = '';
 $mensaje_tipo = '';
@@ -37,56 +36,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_padre = $_POST['id_padre'] ?? null;
 
     if ($id_estudiante && $id_padre) {
-        // Verificar si el estudiante ya tiene 2 padres
-        $query_padres_count = "SELECT COUNT(*) AS total FROM padre_x_estudiante WHERE id_estudiante = ?";
-        $stmt_padres_count = $conn->prepare($query_padres_count);
-        $stmt_padres_count->bind_param("i", $id_estudiante);
-        $stmt_padres_count->execute();
-        $result_padres_count = $stmt_padres_count->get_result()->fetch_assoc();
+        // Verificar coincidencia de apellidos
+        $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
+        $stmt_estudiante = $conn->prepare($query_estudiante);
+        $stmt_estudiante->bind_param("i", $id_estudiante);
+        $stmt_estudiante->execute();
+        $apellido_estudiante = $stmt_estudiante->get_result()->fetch_assoc()['apellidos'];
 
-        if ($result_padres_count['total'] >= 2) {
-            $mensaje = "El estudiante ya tiene el máximo permitido de 2 padres asociados.";
+        $query_padre = "SELECT apellidos FROM padre WHERE id_padre = ?";
+        $stmt_padre = $conn->prepare($query_padre);
+        $stmt_padre->bind_param("i", $id_padre);
+        $stmt_padre->execute();
+        $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
+
+        $partes_apellido_estudiante = explode(' ', $apellido_estudiante);
+        $partes_apellido_padre = explode(' ', $apellido_padre);
+
+        $coinciden = false;
+        foreach ($partes_apellido_padre as $parte_padre) {
+            if (in_array($parte_padre, $partes_apellido_estudiante)) {
+                $coinciden = true;
+                break;
+            }
+        }
+
+        if (!$coinciden) {
+            $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
             $mensaje_tipo = 'error';
         } else {
-            // Verificar coincidencia de apellidos
-            $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
-            $stmt_estudiante = $conn->prepare($query_estudiante);
-            $stmt_estudiante->bind_param("i", $id_estudiante);
-            $stmt_estudiante->execute();
-            $apellido_estudiante = $stmt_estudiante->get_result()->fetch_assoc()['apellidos'];
+            // Verificar si ya existe la relación
+            $query_verificar = "SELECT * FROM padre_x_estudiante WHERE id_estudiante = ? AND id_padre = ?";
+            $stmt_verificar = $conn->prepare($query_verificar);
+            $stmt_verificar->bind_param("ii", $id_estudiante, $id_padre);
+            $stmt_verificar->execute();
+            $result_verificar = $stmt_verificar->get_result();
 
-            $query_padre = "SELECT apellidos FROM padre WHERE id_padre = ?";
-            $stmt_padre = $conn->prepare($query_padre);
-            $stmt_padre->bind_param("i", $id_padre);
-            $stmt_padre->execute();
-            $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
-
-            if (stripos($apellido_estudiante, $apellido_padre) === false) {
-                $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
+            if ($result_verificar->num_rows > 0) {
+                $mensaje = "Esta relación ya existe.";
                 $mensaje_tipo = 'error';
             } else {
-                // Verificar si ya existe la relación
-                $query_verificar = "SELECT * FROM padre_x_estudiante WHERE id_estudiante = ? AND id_padre = ?";
-                $stmt_verificar = $conn->prepare($query_verificar);
-                $stmt_verificar->bind_param("ii", $id_estudiante, $id_padre);
-                $stmt_verificar->execute();
-                $result_verificar = $stmt_verificar->get_result();
-
-                if ($result_verificar->num_rows > 0) {
-                    $mensaje = "Esta relación ya existe.";
-                    $mensaje_tipo = 'error';
+                // Insertar la relación
+                $query_insertar = "INSERT INTO padre_x_estudiante (id_estudiante, id_padre) VALUES (?, ?)";
+                $stmt_insertar = $conn->prepare($query_insertar);
+                $stmt_insertar->bind_param("ii", $id_estudiante, $id_padre);
+                if ($stmt_insertar->execute()) {
+                    $mensaje = "Relación creada exitosamente.";
+                    $mensaje_tipo = 'exito';
                 } else {
-                    // Insertar la relación
-                    $query_insertar = "INSERT INTO padre_x_estudiante (id_estudiante, id_padre) VALUES (?, ?)";
-                    $stmt_insertar = $conn->prepare($query_insertar);
-                    $stmt_insertar->bind_param("ii", $id_estudiante, $id_padre);
-                    if ($stmt_insertar->execute()) {
-                        $mensaje = "Relación creada exitosamente.";
-                        $mensaje_tipo = 'exito';
-                    } else {
-                        $mensaje = "Error al crear la relación: " . $stmt_insertar->error;
-                        $mensaje_tipo = 'error';
-                    }
+                    $mensaje = "Error al crear la relación: " . $stmt_insertar->error;
+                    $mensaje_tipo = 'error';
                 }
             }
         }
@@ -100,32 +98,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $query_niveles = "SELECT id_nivel, nombre FROM nivel WHERE estado = 'A' ORDER BY nombre";
 $result_niveles = $conn->query($query_niveles);
 
-
-// Definir el orden basado en palabras clave
 $orden_niveles = [
     'octavo' => 1,
     'noveno' => 2,
     'décimo' => 3,
-    'primer' => 4,  // "Primer Bachillerato"
-    'segundo' => 5, // "Segundo Bachillerato"
-    'tercer' => 6   // "Tercer Bachillerato"
+    'primer' => 4,
+    'segundo' => 5,
+    'tercer' => 6
 ];
 
-// Convertir los resultados en un array
 $niveles = [];
 while ($row = $result_niveles->fetch_assoc()) {
-    $nombre = trim(mb_strtolower($row['nombre'])); // Normalizamos el nombre
-    $orden = 999; // Orden por defecto si no se encuentra coincidencia
+    $nombre = trim(mb_strtolower($row['nombre']));
+    $orden = 999;
     
-    // Buscar la palabra clave en el nombre
     foreach ($orden_niveles as $clave => $posicion) {
         if (preg_match("/\b$clave\b/", $nombre)) { 
             $orden = $posicion;
-            break; // Salimos del loop al encontrar coincidencia
+            break;
         }
     }
 
-    // Guardar en el array con la posición asignada
     $niveles[] = [
         'id_nivel' => $row['id_nivel'],
         'nombre' => $row['nombre'],
@@ -133,38 +126,36 @@ while ($row = $result_niveles->fetch_assoc()) {
     ];
 }
 
-// Ordenar los niveles por la clave 'orden'
 usort($niveles, fn($a, $b) => $a['orden'] <=> $b['orden']);
 
-
-// Obtener los datos necesarios para los filtros
 $query_paralelos = "SELECT id_paralelo, nombre FROM paralelo WHERE estado = 'A' ORDER BY nombre";
 $result_paralelos = $conn->query($query_paralelos);
 
-// Convertir los resultados en un array
 $paralelos = [];
 while ($row = $result_paralelos->fetch_assoc()) {
-    $row['nombre'] = trim($row['nombre']); // Eliminar espacios innecesarios
+    $row['nombre'] = trim($row['nombre']);
     $paralelos[] = $row;
 }
 
-// Ordenar alfabéticamente asegurando que no haya problemas con mayúsculas/minúsculas
 usort($paralelos, fn($a, $b) => strcasecmp($a['nombre'], $b['nombre']));
 
-
-$query_jornadas = "SELECT id_jornada, nombre FROM jornada WHERE estado = 'A' ORDER BY nombre";
+$query_jornadas = "SELECT id_jornada, nombre 
+                   FROM jornada 
+                   WHERE estado = 'A' 
+                   ORDER BY fecha_ingreso ASC";
 $result_jornadas = $conn->query($query_jornadas);
 
-
-$query_historiales = "SELECT id_his_academico, año FROM historial_academico WHERE estado = 'A' ORDER BY año DESC";
+$query_historiales = "SELECT id_his_academico, año 
+                      FROM historial_academico 
+                      WHERE estado = 'A' 
+                      AND fecha_cierre_programada IS NULL 
+                      ORDER BY fecha_ingreso DESC 
+                      LIMIT 1";
 $result_historiales = $conn->query($query_historiales);
 
-
-// Procesar el formulario de filtro
 $filters = [];
 $filter_query = '';
 
-// Verificar si se han recibido parámetros de filtro en la URL
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (isset($_GET['nivel']) && $_GET['nivel'] != '') {
         $filters['e.id_nivel'] = $_GET['nivel'];
@@ -175,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     if (isset($_GET['jornada']) && $_GET['jornada'] != '') {
         $filters['e.id_jornada'] = $_GET['jornada'];
     }
-    if (isset($_GET['historial_academico']) && $_GET['historial_academico'] != '') {
+if (isset($_GET['historial_academico']) && $_GET['historial_academico'] != '') {
         $filters['e.id_his_academico'] = $_GET['historial_academico'];
     }
 
@@ -202,22 +193,23 @@ if (!empty($filter_query)) {
 $query_estudiantes .= " ORDER BY e.apellidos"; // Ordenar siempre
 $result_estudiantes = $conn->query($query_estudiantes);
 
-// Nueva consulta para estudiantes sin padre asociado
-$query_estudiantes_sin_padre = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula
+// Nueva consulta para estudiantes sin padre asociado o con solo un padre asociado
+$query_estudiantes_sin_padre = "SELECT e.id_estudiante, e.nombres, e.apellidos, e.cedula, e.id_nivel, e.id_paralelo, e.id_jornada, e.id_his_academico
                                  FROM estudiante e
-                                 LEFT JOIN padre_x_estudiante pxe ON e.id_estudiante = pxe.id_estudiante";
+                                 LEFT JOIN padre_x_estudiante pxe ON e.id_estudiante = pxe.id_estudiante
+                                 GROUP BY e.id_estudiante, e.nombres, e.apellidos, e.cedula, e.id_nivel, e.id_paralelo, e.id_jornada, e.id_his_academico
+                                 HAVING COUNT(pxe.id_padre) < 2";
 
 if (!empty($filter_query)) {
-    $query_estudiantes_sin_padre .= " $filter_query AND pxe.id_padre IS NULL"; // Filtros más condición
-} else {
-    $query_estudiantes_sin_padre .= " WHERE pxe.id_padre IS NULL"; // Solo condición
+    $query_estudiantes_sin_padre .= " AND " . str_replace("WHERE ", "", $filter_query); // Filtros más condición
 }
 
 $query_estudiantes_sin_padre .= " ORDER BY e.apellidos"; // Ordenar siempre
 $result_estudiantes_sin_padre = $conn->query($query_estudiantes_sin_padre);
 
 // Obtener la lista de padres
-$query_padres = "SELECT p.id_padre, p.nombres, p.apellidos
+$query_padres = "SELECT p.id_padre, p.nombres, p.apellidos, COALESCE(px.total_vinculos, 0) AS total_vinculos,
+                 SUBSTRING_INDEX(p.apellidos, ' ', 1) AS primer_apellido
 FROM padre p
 INNER JOIN usuario u ON p.id_usuario = u.id_usuario
 LEFT JOIN (
@@ -226,8 +218,7 @@ LEFT JOIN (
     GROUP BY id_padre
 ) px ON p.id_padre = px.id_padre
 WHERE u.estado = 'A' -- El usuario relacionado está activo
-  AND (px.total_vinculos IS NULL OR px.total_vinculos < 2) -- Máximo 2 vínculo
-ORDER BY p.apellidos ASC";
+ORDER BY px.total_vinculos ASC, primer_apellido ASC, p.apellidos ASC";
 $result_padres = $conn->query($query_padres);
 
 // Procesar el formulario de enlace
@@ -247,7 +238,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "Esta relación ya existe.";
         $mensaje_tipo = 'error';
     } else {
-
         // Obtener apellidos del estudiante
         $query_estudiante = "SELECT apellidos FROM estudiante WHERE id_estudiante = ?";
         $stmt_estudiante = $conn->prepare($query_estudiante);
@@ -274,7 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 break;
             }
         }
-
+        
         // Verificar si los apellidos coinciden, a menos que el checkbox haya sido marcado
         if (!$forzar_registro && !$coinciden) {
             $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
@@ -303,8 +293,6 @@ $query_relaciones = "SELECT pxe.id_padre, pxe.id_estudiante, e.nombres AS nombre
                      ORDER BY e.apellidos, p.apellidos";
 $result_relaciones = $conn->query($query_relaciones);
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="es">
