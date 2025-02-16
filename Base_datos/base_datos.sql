@@ -26,10 +26,12 @@ CREATE TABLE usuario (
     cedula VARCHAR(10) NOT NULL UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     id_rol INT NOT NULL,
+    id_his_academico INT,
     estado CHAR(1) NOT NULL,
     usuario_ingreso VARCHAR(50) NOT NULL,
     fecha_ingreso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
+    FOREIGN KEY (id_rol) REFERENCES rol(id_rol),
+    FOREIGN KEY (id_his_academico) REFERENCES historial_academico(id_his_academico)
 );
 
 
@@ -502,3 +504,15 @@ CREATE INDEX idx_historial_usuario ON historial_academico (usuario_ingreso);
 
 -- Índice para búsquedas por fechas de cierre programadas
 CREATE INDEX idx_historial_fecha_cierre ON historial_academico (fecha_cierre_programada);
+
+-- Agregar índices en la tabla padre
+ALTER TABLE padre 
+ADD INDEX idx_cedula (cedula),
+ADD INDEX idx_genero (genero),
+ADD INDEX idx_discapacidad (discapacidad),
+ADD INDEX idx_parentesco (parentesco);
+
+-- Agregar índices en la tabla estudiante
+ALTER TABLE estudiante 
+ADD INDEX idx_estado (estado),
+ADD INDEX idx_apellidos (apellidos);

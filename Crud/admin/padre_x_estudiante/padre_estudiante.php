@@ -226,8 +226,8 @@ LEFT JOIN (
     GROUP BY id_padre
 ) px ON p.id_padre = px.id_padre
 WHERE u.estado = 'A' -- El usuario relacionado está activo
-  AND (px.total_vinculos IS NULL OR px.total_vinculos < 2) -- Máximo 1 vínculo
-ORDER BY p.apellidos ASC; -- Orden alfabético de A a Z";
+  AND (px.total_vinculos IS NULL OR px.total_vinculos < 2) -- Máximo 2 vínculo
+ORDER BY p.apellidos ASC";
 $result_padres = $conn->query($query_padres);
 
 // Procesar el formulario de enlace
@@ -262,8 +262,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_padre->execute();
         $apellido_padre = $stmt_padre->get_result()->fetch_assoc()['apellidos'];
 
+        // Dividir los apellidos en partes
+        $partes_apellido_estudiante = explode(' ', $apellido_estudiante);
+        $partes_apellido_padre = explode(' ', $apellido_padre);
+
+        // Verificar si al menos una parte del apellido del padre coincide con alguna parte del apellido del estudiante
+        $coinciden = false;
+        foreach ($partes_apellido_padre as $parte_padre) {
+            if (in_array($parte_padre, $partes_apellido_estudiante)) {
+                $coinciden = true;
+                break;
+            }
+        }
+
         // Verificar si los apellidos coinciden, a menos que el checkbox haya sido marcado
-        if (!$forzar_registro && stripos($apellido_estudiante, $apellido_padre) === false) {
+        if (!$forzar_registro && !$coinciden) {
             $mensaje = "Los apellidos del estudiante y el padre no coinciden.";
             $mensaje_tipo = 'error';
         } else {
