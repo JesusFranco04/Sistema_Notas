@@ -224,6 +224,7 @@ $conn->close();
         justify-content: flex-end;
         gap: 15px;
         /* Alinea los botones a la derecha y agrega espacio entre ellos */
+        margin-top: 33px; /* Ajusta el valor según el espacio que necesites */
     }
 
     /* Estilo común para todos los botones */
