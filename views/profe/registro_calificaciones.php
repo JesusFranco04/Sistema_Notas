@@ -308,6 +308,7 @@ $conn->close();
         /* Alinea los botones a la derecha */
         gap: 15px;
         /* Espacio estándar entre los botones */
+        margin-top: 20px; /* Ajusta el valor según el espacio que necesites */
     }
 
     /* Estilo común para todos los botones */
@@ -581,7 +582,7 @@ $conn->close();
     .alert-error {
         color: #d32f2f;
         /* Rojo más moderno */
-        background-color: #fdecea;
+        background-color: #fef7f7;
         /* Fondo rojo claro */
         border-color: #d32f2f;
     }
@@ -675,14 +676,20 @@ $conn->close();
                             <?php endif; ?>
                         </tr>
                     </thead>
+                    <!-- Aquí va el mensaje debajo del encabezado -->
+                    <?php if (empty($estudiantes)): ?>
                     <tbody>
-                        <?php if (empty($estudiantes)): ?>
                         <tr>
-                            <td colspan="19" class="alert alert-error show">Actualmente no existen estudiantes
-                                registrados en este curso para calificar. Por favor, contacte a un administrador para
-                                obtener asistencia.</td>
+                            <td colspan="100%" class="text-center">
+                                <div class="alert alert-error" role="alert">
+                                    No hay estudiantes registrados en este curso aún. Para obtener asistencia, por favor
+                                    contacta a un administrador.
+                                </div>
+                            </td>
                         </tr>
-                        <?php else: ?>
+                    </tbody>
+                    <?php else: ?>
+                    <tbody>
                         <?php $i = 1; foreach ($estudiantes as $estudiante): ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
@@ -760,6 +767,7 @@ $conn->close();
                         <?php endif; ?>
                     </tbody>
                 </table>
+                </div>
 
                 <!-- Botones de acción -->
                 <div class="botones-accion">
@@ -802,6 +810,17 @@ $conn->close();
         window.location.href =
             `http://localhost/sistema_notas/views/profe/registro_calificaciones.php?id_curso=${idCurso}`;
     }
+
+    // Verificar si hay alertas y asegurarse de que sean visibles
+    $(document).ready(function() {
+        const alert = $('.alert');
+        if (alert.length) {
+            console.log('Alerta encontrada:', alert.text());
+            alert.show(); // Asegurarse de que la alerta esté visible
+        } else {
+            console.log('No se encontró ninguna alerta.');
+        }
+    });
     </script>
 </body>
 

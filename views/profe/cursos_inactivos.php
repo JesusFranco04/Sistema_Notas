@@ -426,6 +426,11 @@ $conn->close();
         margin-bottom: 20px;
         font-size: 14px;
         display: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        box-sizing: border-box;
     }
 
     .alert.show {
@@ -442,6 +447,11 @@ $conn->close();
         color: #388e3c;
         background-color: #e8f5e9;
         border-color: #388e3c;
+    }
+
+    .alert-warning {
+        color: #540e00;
+        background-color: #fff9ce;
     }
     </style>
 </head>
@@ -461,6 +471,7 @@ $conn->close();
             <?php echo $_SESSION['mensaje']; ?>
         </div>
         <?php unset($_SESSION['mensaje']); unset($_SESSION['tipo_mensaje']); endif; ?>
+
 
         <!-- Tabla de Calificaciones -->
         <div class="table-container">
@@ -529,6 +540,20 @@ $conn->close();
                         <th>Estado Calificación</th>
                     </tr>
                 </thead>
+
+                <!-- Aquí va el mensaje debajo del encabezado -->
+                <?php if (empty($estudiantes)): ?>
+                <tbody>
+                    <tr>
+                        <td colspan="100%" class="text-center">
+                            <div class="alert alert-warning" role="alert">
+                                Este año lectivo ya finalizó y no se registraron estudiantes inscritos. Por esta razón,
+                                no se muestran calificaciones en este momento.
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <?php else: ?>
                 <tbody>
                     <?php $index = 1; ?>
                     <?php foreach ($estudiantes as $estudiante): ?>
@@ -583,6 +608,7 @@ $conn->close();
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
+                <?php endif; ?>
             </table>
         </div>
 
@@ -617,6 +643,17 @@ $conn->close();
                 row.classList.add('selected');
             }
         });
+    });
+
+    // Verificar si hay alertas y asegurarse de que sean visibles
+    $(document).ready(function() {
+        const alert = $('.alert');
+        if (alert.length) {
+            console.log('Alerta encontrada:', alert.text());
+            alert.show(); // Asegurarse de que la alerta esté visible
+        } else {
+            console.log('No se encontró ninguna alerta.');
+        }
     });
     </script>
 
