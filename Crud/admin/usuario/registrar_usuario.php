@@ -19,7 +19,32 @@ if (!isset($_SESSION['cedula']) || !isset($_SESSION['rol']) ||
 $error_message = '';
 $success_message = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Función para obtener el año lectivo
+function obtenerAnioLectivo($conn) {
+    global $error_message;
+    // Consulta para obtener el año académico activo más reciente
+    $sqlActivo = "
+    SELECT id_his_academico, año 
+    FROM historial_academico 
+    WHERE estado = 'A' AND fecha_cierre_programada IS NULL 
+    ORDER BY fecha_ingreso DESC  
+    LIMIT 1;";
+
+    $resultActivo = $conn->query($sqlActivo);
+
+    if ($resultActivo && $resultActivo->num_rows > 0) {
+        $year_record = $resultActivo->fetch_assoc();
+        return $year_record['año'];
+    } else {
+        $error_message = 'No hay un año académico funcionando. Registre un año lectivo antes de agregar un usuario.';
+        return 'No se detectó ningún año lectivo.';
+    }
+}
+
+// Llamada a la función para obtener el año lectivo
+$active_year = obtenerAnioLectivo($conn);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) { 
     // Validación si ya existe el usuario por cédula
     $cedula = $_POST['cedula'];
     $sql_check_cedula = "SELECT * FROM usuario WHERE cedula = ?";
@@ -38,70 +63,197 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!filter_var($correo_electronico, FILTER_VALIDATE_EMAIL)) {
             $error_message = 'El correo electrónico no tiene un formato válido.';
         } else {
-            // Procede con el proceso de inserción en la base de datos
-            $nombres = $_POST['nombres'];
-            $apellidos = $_POST['apellidos'];
-            $telefono = $_POST['telefono'];
-            $direccion = $_POST['direccion'];
-            $fecha_nacimiento = $_POST['fecha_nacimiento'];
-            $genero = $_POST['genero'];
-            $discapacidad = $_POST['discapacidad'];
-            $id_rol = $_POST['id_rol'];
-            $contraseña = $_POST['contraseña']; // Contraseña en texto plano
-            $estado = 'A';
-            $usuario_ingreso = $_SESSION['cedula'];
-            $fecha_ingreso = date('Y-m-d H:i:s');
-
-            $conn->begin_transaction();
-
-            try {
-                // Insertar en la tabla usuario
-                $sql_usuario = "INSERT INTO usuario (cedula, contraseña, id_rol, estado, usuario_ingreso, fecha_ingreso) 
-                                VALUES (?, ?, ?, ?, ?, ?)";
-                $stmt_usuario = $conn->prepare($sql_usuario);
-                $stmt_usuario->bind_param('ssisss', $cedula, $contraseña, $id_rol, $estado, $usuario_ingreso, $fecha_ingreso);
-                $stmt_usuario->execute();
-                $id_usuario = $conn->insert_id; // Obtener el ID del usuario recién insertado
-
-                // Insertar en la tabla específica del rol
-                if ($id_rol == 1) {
-                    // Insertar administrador
-                    $sql_admin = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, id_usuario) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $stmt_admin = $conn->prepare($sql_admin);
-                    $stmt_admin->bind_param('sssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $id_usuario);
-                    $stmt_admin->execute();
-
-
-                } elseif ($id_rol == 2) {
-                    // Insertar profesor
-                    $sql_prof = "INSERT INTO profesor (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, id_usuario) 
-                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $stmt_prof = $conn->prepare($sql_prof);
-                    $stmt_prof->bind_param('sssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $id_usuario);
-                    $stmt_prof->execute();
-
-
-                } elseif ($id_rol == 3) {
-                    // Insertar padre
-                    $parentesco = $_POST['parentesco'];
-                    $sql_padre = "INSERT INTO padre (nombres, apellidos, cedula, parentesco, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, id_usuario) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    $stmt_padre = $conn->prepare($sql_padre);
-                    $stmt_padre->bind_param('ssssssssssi', $nombres, $apellidos, $cedula, $parentesco, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $id_usuario);
-                    $stmt_padre->execute();
+            // Validar los nuevos campos
+            if (empty($error_message)) {
+                $discapacidad = $_POST['discapacidad'];
+                // Validar y concatenar las discapacidades seleccionadas
+                $valid_disabilities = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
+                $tipo_discapacidad_array = $_POST['tipo_discapacidad'];
+                $tipo_discapacidad = implode(',', array_intersect($valid_disabilities, $tipo_discapacidad_array));
+                $porcentaje_discapacidad = ($discapacidad == 1 && !empty($_POST['porcentaje_discapacidad'])) ? $_POST['porcentaje_discapacidad'] : null;
+                
+                // Validar porcentaje de discapacidad
+                if ($discapacidad == 1 && ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100)) {
+                    $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
                 }
 
-                $conn->commit();
-                $success_message = "Usuario registrado exitosamente.";
-            } catch (Exception $e) {
-                $conn->rollback();
-                $error_message = "Error al registrar el usuario: " . $e->getMessage();
+                // Verificación de los campos tipo_discapacidad y porcentaje_discapacidad si discapacidad es sí
+                if ($discapacidad == 1 && (empty($tipo_discapacidad) || empty($porcentaje_discapacidad))) {
+                    $error_message = 'Debe seleccionar al menos una discapacidad y un porcentaje válido.';
+                }
+
+                if (empty($error_message)) {
+                    // Procede con la inserción en la base de datos
+                    $nombres = $_POST['nombres'];
+                    $apellidos = $_POST['apellidos'];
+                    $telefono = $_POST['telefono'];
+                    $direccion = $_POST['direccion'];
+                    $fecha_nacimiento = $_POST['fecha_nacimiento'];
+                    $genero = $_POST['genero'];
+                    $id_rol = $_POST['id_rol'];
+                    $contraseña = $_POST['contraseña'];
+                    $estado = 'A';
+                    $usuario_ingreso = $_SESSION['cedula'];
+                    $fecha_ingreso = date('Y-m-d H:i:s');
+
+                    // Verifica si el año académico fue obtenido correctamente
+                    if ($active_year == 'No se detectó ningún año lectivo.') {
+                        $error_message = 'No se puede registrar el usuario porque no hay un año académico activo.';
+                    } else {
+                        // Ahora puedes utilizar el año académico activo para la inserción
+                        // Obtén el ID del año académico activo (asumimos que el campo 'año' en la consulta corresponde al año académico)
+                        $sql_his_academico = "SELECT id_his_academico FROM historial_academico WHERE año = ?";
+                        $stmt_his_academico = $conn->prepare($sql_his_academico);
+                        $stmt_his_academico->bind_param('s', $active_year);
+                        $stmt_his_academico->execute();
+                        $result_his_academico = $stmt_his_academico->get_result();
+                        
+                        if ($result_his_academico->num_rows > 0) {
+                            $year_record = $result_his_academico->fetch_assoc();
+                            $id_his_academico = $year_record['id_his_academico']; // Asignar el ID del año académico
+                        } else {
+                            $error_message = 'No se pudo obtener el ID del año académico para el año activo.';
+                        }
+                    }
+
+                    // Si no hay error, continúa con la inserción en la base de datos
+                    if (empty($error_message)) {
+                        $conn->begin_transaction();
+                        try {
+                            // Insertar en la tabla usuario con el año académico activo
+                            $sql_usuario = "INSERT INTO usuario (cedula, contraseña, id_rol, id_his_academico, estado, usuario_ingreso, fecha_ingreso) 
+                                            VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            $stmt_usuario = $conn->prepare($sql_usuario);
+                            $stmt_usuario->bind_param('ssiisss', $cedula, $contraseña, $id_rol, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
+                            $stmt_usuario->execute();
+                            $id_usuario = $conn->insert_id;
+
+                            // Insertar en la tabla específica del rol
+                            if ($id_rol == 1) {
+                                // Insertar administrador
+                                // Si discapacidad es 0, los valores de tipo_discapacidad y porcentaje_discapacidad deben ser NULL
+                                $sql_admin = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                $stmt_admin = $conn->prepare($sql_admin);
+                                $stmt_admin->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
+                                $stmt_admin->execute();
+
+                            // Insertar profesor
+                            } elseif ($id_rol == 2) {
+                                // Validar que los campos de discapacidad sean correctos antes de la inserción
+                                if ($discapacidad == 1) {
+                                    // Verificar si se ha seleccionado al menos un tipo de discapacidad
+                                    if (empty($_POST['tipo_discapacidad']) || !is_array($_POST['tipo_discapacidad'])) {
+                                        $error_message = 'Debe seleccionar al menos un tipo de discapacidad.';
+                                    } else {
+                                        // Validar que cada tipo de discapacidad seleccionado esté en la lista permitida
+                                        $valid_types = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
+                                        foreach ($_POST['tipo_discapacidad'] as $tipo) {
+                                            if (!in_array($tipo, $valid_types)) {
+                                                $error_message = 'El tipo de discapacidad seleccionado no es válido.';
+                                                break;  // Salir del bucle si encontramos un tipo no válido
+                                            }
+                                        }
+                                    }
+
+                                    // Validar porcentaje de discapacidad
+                                    if ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100) {
+                                        $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
+                                    }
+                                } else {
+                                    // Si discapacidad es 0, asegurarse de que tipo_discapacidad sea NULL
+                                    $tipo_discapacidad = NULL;
+                                    $porcentaje_discapacidad = NULL;  // Si no hay discapacidad, el porcentaje también es NULL
+                                }
+
+                                // Si no hay error, proceder con la inserción
+                                if (empty($error_message)) {
+                                    // Convertir el arreglo de tipos de discapacidad en una cadena separada por comas
+                                    if (!empty($_POST['tipo_discapacidad'])) {
+                                        $tipo_discapacidad = implode(',', $_POST['tipo_discapacidad']);
+                                    } else {
+                                        $tipo_discapacidad = NULL;  // Si no se seleccionó ningún tipo, lo dejamos como NULL
+                                    }
+
+                                    // Validar que el id_usuario existe
+                                    $sql_check_usuario = "SELECT COUNT(*) FROM usuario WHERE id_usuario = ?";
+                                    $stmt_check = $conn->prepare($sql_check_usuario);
+                                    $stmt_check->bind_param('i', $id_usuario);
+                                    $stmt_check->execute();
+                                    $stmt_check->bind_result($count);
+                                    $stmt_check->fetch();
+
+                                    if ($count == 0) {
+                                        $error_message = "El id_usuario no existe en la tabla usuario.";
+                                    } else {
+                                        // Proceder con la inserción en la tabla profesor
+                                        $sql_prof = "INSERT INTO profesor (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                        $stmt_prof = $conn->prepare($sql_prof);
+                                        $stmt_prof->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
+
+                                        if ($stmt_prof->execute()) {
+                                            echo "Profesor registrado correctamente.";
+                                        } else {
+                                            $error_message = "Error al insertar en la tabla profesor: " . $stmt_prof->error;
+                                        }
+                                    }
+                                }
+
+                            } elseif ($id_rol == 3) {
+                                // Insertar padre
+                                $parentesco = $_POST['parentesco'];
+                                $parentesco_otro = $parentesco == 'otro' ? $_POST['parentesco_otro'] : null;
+                                $sql_padre = "INSERT INTO padre (nombres, apellidos, cedula, parentesco, parentesco_otro, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                $stmt_padre = $conn->prepare($sql_padre);
+                                $stmt_padre->bind_param('sssssssssssssi', $nombres, $apellidos, $cedula, $parentesco, $parentesco_otro, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
+                                $stmt_padre->execute();
+                            }
+
+                            // Finalizar transacción si todo ha ido bien
+                            $conn->commit();
+                            $success_message = "Usuario registrado exitosamente.";
+                        } catch (Exception $e) {
+                            $conn->rollback();
+                            $error_message = "Error al registrar el usuario: " . $e->getMessage();
+                        }
+                    }
+                }
             }
         }
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
+    $cedula_consulta = $_POST['cedula_consulta'];
+
+    // Validar que la cédula tenga un formato adecuado
+    if (!empty($cedula_consulta) && is_numeric($cedula_consulta)) {
+        // Consulta para verificar si el usuario ya existe
+        $sql_check_user = "SELECT * FROM usuario WHERE cedula = ?";
+        $stmt_check_user = $conn->prepare($sql_check_user);
+        $stmt_check_user->bind_param('s', $cedula_consulta);
+        $stmt_check_user->execute();
+        $result_check_user = $stmt_check_user->get_result();
+
+        if ($result_check_user->num_rows > 0) {
+            // El usuario existe, obtener los datos
+            $user_data = $result_check_user->fetch_assoc();
+
+            // Aquí puedes devolver los datos para autocompletar el formulario
+            // Por ejemplo, pasarlos como un JSON para JS
+            echo json_encode($user_data);
+            exit();  // Termina la ejecución aquí después de enviar la respuesta
+        } else {
+            $error_message = 'El usuario con esa cédula no está registrado.';
+        }
+    } else {
+        $error_message = 'Por favor ingrese una cédula válida.';
+    }
+}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -113,6 +265,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="shortcut icon" href="http://localhost/sistema_notas/imagenes/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"
+        type="text/css">
     <style>
     body {
         font-family: Arial, sans-serif;
@@ -156,6 +310,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         color: red;
         /* Color rojo para los campos obligatorios */
         margin-left: 5px;
+    }
+
+    .error-message {
+        color: red;
+        font-weight: bold;
+        word-wrap: break-word;
+    }
+
+    .success-message {
+        color: green;
+        font-weight: bold;
+        word-wrap: break-word;
     }
 
     .form-group {
@@ -318,6 +484,225 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         background-color: #d4edda;
         color: #155724;
     }
+
+    .consulta-cedula-form {
+        max-width: 450px;
+        margin: 20px auto;
+        /* Centrar horizontalmente */
+        text-align: center;
+        /* Centrar contenido en el contenedor */
+    }
+
+    .consulta-cedula-form label {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #145d8b;
+        display: inline-flex;
+        /* Para que el ícono y el texto queden en línea */
+        align-items: center;
+        margin-bottom: 10px;
+        /* Reducir el espacio vertical debajo del label */
+    }
+
+    .consulta-cedula-form label i {
+        font-size: 1.5rem;
+        margin-right: 12px;
+        color: #145d8b;
+        /* Azul suave */
+    }
+
+    /* Contenedor del input y botón */
+    .input-group-cedula {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        /* Menos separación horizontal entre input y botón */
+        margin-bottom: 10px;
+        /* Reducir espacio vertical debajo del input+botón */
+    }
+
+    /* Campo de texto */
+    .form-control-cedula {
+        font-size: 1.1rem;
+        padding: 12px 15px;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        width: 70%;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control-cedula:focus {
+        outline: none;
+        border-color: #3498db;
+        /* Azul suave */
+        box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+    }
+
+    .form-control-cedula::placeholder {
+        color: #3498db;
+    }
+
+    /* Botón de consultar */
+    .btn-cedula {
+        background-color: #3498db;
+        /* Azul suave */
+        color: #fff;
+        border: none;
+        padding: 12px 15px;
+        /* Mismo padding vertical que el input */
+        border-radius: 6px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        white-space: nowrap;
+        /* Evita que el texto se parta */
+    }
+
+    .btn-cedula:hover {
+        background-color: #2980b9;
+        /* Azul más oscuro */
+    }
+
+    .btn-cedula:active {
+        background-color: #1c5980;
+        /* Azul profundo */
+    }
+
+    /* Mensaje de error */
+    .mensaje-error-cedula {
+        font-size: 0.95rem;
+        margin-top: 15px;
+        color: red;
+        font-weight: 500;
+    }
+
+    /* Estilos para el contenedor de tipos de discapacidad */
+    .discapacidad-container {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .discapacidad-container:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Estilos elegantes para la instrucción */
+    .instruccion-usuario {
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 10px;
+        font-style: italic;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    /* Estilos para las descripciones */
+    .descripcion {
+        color: #777;
+        font-style: italic;
+        margin-left: 8px;
+        font-size: 14px;
+        /* Texto más pequeño */
+        text-align: left;
+        /* Alineación a la izquierda */
+    }
+
+    /* Estilos para los checkboxes */
+    .form-check-input {
+        margin-top: 0.3rem;
+        accent-color: #248ed3;
+    }
+
+    .form-check-label {
+        margin-left: 0.5rem;
+        color: #333;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: color 0.3s ease;
+    }
+
+    .form-check-label:hover {
+        color: #248ed3;
+    }
+
+    /* Estilos para el campo de porcentaje */
+    .porcentaje-container {
+        position: relative;
+        /* Para posicionar el icono */
+    }
+
+    .porcentaje-container label {
+        display: flex;
+        align-items: center;
+    }
+
+    .porcentaje-container label i {
+        margin-right: 8px;
+        /* Espacio entre el icono y el texto */
+    }
+
+    .porcentaje-container .input-group {
+        position: relative;
+    }
+
+    .porcentaje-container .input-group input {
+        padding-right: 35px;
+        /* Espacio para el icono a la derecha */
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .porcentaje-container .input-group-append {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .porcentaje-container .input-group-append .input-group-text {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .porcentaje-container .input-group-append i {
+        font-size: 18px;
+        color: #555;
+    }
+
+    /* Responsivo para pantallas pequeñas */
+    @media screen and (max-width: 480px) {
+        .consulta-cedula-form {
+            padding: 20px;
+            width: 90%;
+        }
+
+        .form-control-cedula {
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .btn-cedula {
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+
+        .input-group-cedula {
+            flex-direction: column;
+            /* Input y botón uno debajo del otro en pantallas pequeñas */
+            gap: 15px;
+        }
+    }
     </style>
 </head>
 
@@ -327,6 +712,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     <div class="container">
         <h2><i class='bx bxs-user-plus'></i> Registro de Usuario</h2>
+
+        <!-- Campo de consulta de cédula -->
+        <div class="consulta-cedula-form">
+            <label for="consulta_cedula"><i class='bx bx-search'></i> Consultar por Cédula:</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="consulta_cedula" name="consulta_cedula" maxlength="10"
+                    pattern="[0-9]{10}" title="Ingrese un número de cédula de 10 dígitos"
+                    placeholder="Ingrese la cédula del usuario" onkeyup="validarCedulaConsulta()">
+                <div class="input-group-append">
+                    <button class="btn btn-info" type="button" id="btn-consultar"
+                        onclick="consultarCedula()">Consultar</button>
+                </div>
+            </div>
+            <small class="form-text text-muted" id="mensaje-error-cédula" style="color: red; display: none;">
+                Usuario no registrado.
+            </small>
+        </div>
+
         <!-- Mostrar mensaje de error o éxito -->
         <?php if ($error_message): ?>
         <div class="error-message"><?php echo $error_message; ?></div>
@@ -335,6 +738,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="" onsubmit="return validarFormulario();">
+            <!-- Fila 1 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -352,6 +756,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
+
+            <!-- Fila 2 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -371,6 +777,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
+
+            <!-- Fila 3 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -388,6 +796,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
+
+            <!-- Fila 4 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -409,15 +819,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
+
+            <!-- Fila 5 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="discapacidad"><i class='bx bx-handicap'></i> Discapacidad:<span
+                        <label for="discapacidad"><i class='bx bx-handicap'></i> ¿Tiene Discapacidad?:<span
                                 class="required">*</span></label>
                         <select class="form-control" id="discapacidad" name="discapacidad" required>
                             <option value="">Seleccionar discapacidad</option>
-                            <option value="si">Sí</option>
-                            <option value="no">No</option>
+                            <option value="1">Sí</option>
+                            <option value="0">No</option>
                         </select>
                     </div>
                 </div>
@@ -434,6 +846,137 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
             </div>
+
+            <!-- Campos ocultos (discapacidad y porcentaje) -->
+            <div class="row" id="discapacidadCampos" style="display: none;">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="tipo_discapacidad"><i class='bx bx-list-check'></i> Tipo de discapacidad:</label>
+                        <!-- Instrucción para el usuario -->
+                        <p class="instruccion-usuario">Seleccione uno o varios tipos de discapacidad según corresponda:
+                        </p>
+                        <div class="discapacidad-container">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="visual" name="tipo_discapacidad[]"
+                                    value="visual">
+                                <label class="form-check-label" for="visual">
+                                    <strong>Visual</strong> <span class="descripcion">(Pérdida de visión)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="auditiva" name="tipo_discapacidad[]"
+                                    value="auditiva">
+                                <label class="form-check-label" for="auditiva">
+                                    <strong>Auditiva</strong> <span class="descripcion">(Pérdida de audición)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="intelectual"
+                                    name="tipo_discapacidad[]" value="intelectual">
+                                <label class="form-check-label" for="intelectual">
+                                    <strong>Intelectual</strong> <span class="descripcion">(Dificultades
+                                        cognitivas)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="motora" name="tipo_discapacidad[]"
+                                    value="motora">
+                                <label class="form-check-label" for="motora">
+                                    <strong>Motora</strong> <span class="descripcion">(Problemas de movimiento)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="psicosocial"
+                                    name="tipo_discapacidad[]" value="psicosocial">
+                                <label class="form-check-label" for="psicosocial">
+                                    <strong>Psicosocial</strong> <span class="descripcion">(Condiciones mentales)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="multiple" name="tipo_discapacidad[]"
+                                    value="multiple">
+                                <label class="form-check-label" for="multiple">
+                                    <strong>Múltiple</strong> <span class="descripcion">(Combinación de
+                                        discapacidades)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="habla_comunicacion"
+                                    name="tipo_discapacidad[]" value="habla_comunicacion">
+                                <label class="form-check-label" for="habla_comunicacion">
+                                    <strong>Habla y Comunicación</strong> <span class="descripcion">(Dificultades para
+                                        expresarse)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="sensorial"
+                                    name="tipo_discapacidad[]" value="sensorial">
+                                <label class="form-check-label" for="sensorial">
+                                    <strong>Sensorial</strong> <span class="descripcion">(Limitación en los
+                                        sentidos)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="enfermedades_cronicas"
+                                    name="tipo_discapacidad[]" value="enfermedades_cronicas">
+                                <label class="form-check-label" for="enfermedades_cronicas">
+                                    <strong>Enfermedades Crónicas</strong> <span class="descripcion">(Condiciones
+                                        prolongadas)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group porcentaje-container">
+                        <label for="porcentaje_discapacidad">
+                            <i class='bx bx-accessibility'></i> Porcentaje de discapacidad:
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="porcentaje_discapacidad"
+                                name="porcentaje_discapacidad" min="1" max="100" oninput="validarPorcentaje(this)"
+                                placeholder="Ingresa un valor entre 1 y 100">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class='fas fa-percent'></i> <!-- Icono de porcentaje de Font Awesome -->
+                                </span>
+                            </div>
+                        </div>
+                        <small id="porcentajeError" class="form-text text-danger" style="display: none;">
+                            Porcentaje no válido.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 6: Parentesco (solo visible si el rol es 3 - Padre) -->
+            <div class="row">
+                <div class="col-md-6" id="parentescoCampos" style="display: none;">
+                    <div class="form-group">
+                        <label for="parentesco"><i class='bx bxs-group'></i> Parentesco:<span
+                                class="required">*</span></label>
+                        <select class="form-control" id="parentesco" name="parentesco">
+                            <option value="">Seleccionar parentesco</option>
+                            <option value="padre">Padre</option>
+                            <option value="madre">Madre</option>
+                            <option value="hermano/a mayor">Hermano/a Mayor</option>
+                            <option value="familiar">Familiar</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Campo adicional de parentesco si selecciona "Otro" -->
+                <div class="col-md-6">
+                    <div class="form-group" id="otroParentescoInput" style="display: none;">
+                        <label for="otro_parentesco"><i class='bx bxs-edit-alt'></i> Especificar Parentesco:</label>
+                        <input type="text" class="form-control" id="otro_parentesco" name="otro_parentesco">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 7 -->
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -453,14 +996,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div id="parentescoDiv" class="form-group" style="display:none;">
-                        <label for="parentesco"><i class='bx bxs-group'></i> Parentesco:<span
+                    <div class="form-group">
+                        <label for="anio_lectivo"><i class='bx bxs-calendar-event'></i> Año Lectivo:<span
                                 class="required">*</span></label>
-                        <input type="text" class="form-control" id="parentesco" name="parentesco"
-                            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Ingrese solo letras y espacios">
+                        <input type="text" class="form-control" id="anio_lectivo" name="anio_lectivo" readonly
+                            value="<?php echo obtenerAnioLectivo($conn); ?>">
                     </div>
                 </div>
             </div>
+
             <div class="button-group mt-4">
                 <button type="button" class="btn btn-regresar"
                     onclick="location.href='http://localhost/sistema_notas/views/admin/usuario.php';">
@@ -510,7 +1054,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         const minusculas = 'abcdefghijklmnopqrstuvwxyz';
         const numeros = '0123456789';
         const especiales = '!@#$%^&*()_+[]{}|;:,.<>?';
-        
+
         // Unir todos los tipos de caracteres
         const caracteres = mayusculas + minusculas + numeros + especiales;
 
@@ -524,7 +1068,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         clave += especiales[Math.floor(Math.random() * especiales.length)];
 
         // Generar el resto de la contraseña para completar 8 caracteres
-        for (let i = clave.length; i < 8; i++) {  // Limitar la longitud a 8
+        for (let i = clave.length; i < 8; i++) { // Limitar la longitud a 8
             const randomIndex = Math.floor(Math.random() * caracteres.length);
             clave += caracteres[randomIndex];
         }
@@ -553,17 +1097,72 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         errorMessageContainer.textContent = mensaje;
     }
 
-    document.getElementById('id_rol').addEventListener('change', function() {
-        var rol = this.value;
-        var parentescoDiv = document.getElementById('parentescoDiv');
-        if (rol == 3) {
-            parentescoDiv.style.display = 'block';
+    // Obtener los elementos del DOM
+    const rolSelect = document.getElementById("id_rol");
+    const parentescoSelect = document.getElementById("parentesco");
+    const parentescoCampos = document.getElementById("parentescoCampos");
+    const otroParentescoInput = document.getElementById("otroParentescoInput");
+
+    // Función para mostrar/ocultar el campo "Parentesco"
+    function mostrarParentesco() {
+        if (rolSelect.value === "3") {
+            parentescoCampos.style.display = "block";
         } else {
-            parentescoDiv.style.display = 'none';
+            parentescoCampos.style.display = "none";
         }
+    }
+
+    // Función para mostrar/ocultar el campo "Especificar Parentesco"
+    function mostrarOtroParentesco() {
+        if (rolSelect.value === "3" && parentescoSelect.value ===
+            "otro") { // Verifica el rol y la selección de parentesco
+            otroParentescoInput.style.display = "block";
+        } else {
+            otroParentescoInput.style.display = "none";
+        }
+    }
+
+    // Agregar eventos a los selects
+    rolSelect.addEventListener("change", mostrarParentesco);
+    rolSelect.addEventListener("change", mostrarOtroParentesco); // También se debe ejecutar al cambiar el rol
+    parentescoSelect.addEventListener("change", mostrarOtroParentesco);
+
+    // Inicializar los campos al cargar la página
+    mostrarParentesco();
+    mostrarOtroParentesco();
 
 
+    // Obtén el elemento select del campo "Discapacidad"
+    const discapacidadSelect = document.getElementById("discapacidad");
+
+    // Obtén el contenedor de los campos ocultos
+    const discapacidadCampos = document.getElementById("discapacidadCampos");
+
+    // Agrega un evento de cambio al select
+    discapacidadSelect.addEventListener("change", () => {
+        // Si el valor seleccionado es "1" (Sí)
+        if (discapacidadSelect.value === "1") {
+            // Muestra los campos ocultos
+            discapacidadCampos.style.display = "block";
+        } else {
+            // Oculta los campos ocultos
+            discapacidadCampos.style.display = "none";
+        }
     });
+
+    function validarYAgregarSimboloPorcentaje(input) {
+        // Obtener el valor ingresado
+        let valor = input.value;
+
+        // Validar que el valor sea un número y esté entre 1 y 100
+        if (isNaN(valor) || valor < 1 || valor > 100) {
+            alert("Por favor, ingrese un porcentaje válido entre 1 y 100.");
+            input.value = ""; // Limpiar el campo si la validación falla
+        } else {
+            // Agregar el símbolo de porcentaje
+            input.value = valor + "%";
+        }
+    }
     </script>
 </body>
 

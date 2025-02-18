@@ -137,7 +137,10 @@ CREATE TABLE administrador (
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
-    discapacidad ENUM('si', 'no') NOT NULL,
+    discapacidad BOOLEAN NOT NULL,  
+    tipo_discapacidad VARCHAR(100) NULL,
+    CHECK (tipo_discapacidad IN ('visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas')),
+    porcentaje_discapacidad TINYINT UNSIGNED NULL,
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
@@ -153,11 +156,13 @@ CREATE TABLE profesor (
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
-    discapacidad ENUM('si', 'no') NOT NULL,
+    discapacidad BOOLEAN NOT NULL,  -- Cambiado a BOOLEAN
+    tipo_discapacidad VARCHAR(100) NULL,  -- Cambiado a VARCHAR con CHECK
+    CHECK (tipo_discapacidad IN ('visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas')),
+    porcentaje_discapacidad TINYINT UNSIGNED NULL,
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
-
 
 
 CREATE TABLE padre (
@@ -165,13 +170,17 @@ CREATE TABLE padre (
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     cedula VARCHAR(10) NOT NULL UNIQUE,
-    parentesco VARCHAR(50) NOT NULL,
+    parentesco ENUM('padre', 'madre', 'hermano/a mayor', 'familiar', 'otro') NOT NULL,  
+    parentesco_otro VARCHAR(50) NULL,  
     telefono VARCHAR(10) NOT NULL,
     correo_electronico VARCHAR(100) NOT NULL,
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
-    discapacidad ENUM('si', 'no') NOT NULL,
+    discapacidad BOOLEAN NOT NULL,  -- Indica si tiene alguna discapacidad
+    tipo_discapacidad VARCHAR(100) NULL,
+    CHECK (tipo_discapacidad IN ('visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas')),
+    porcentaje_discapacidad TINYINT UNSIGNED NULL,
     id_usuario INT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
@@ -187,7 +196,10 @@ CREATE TABLE estudiante (
     direccion VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     genero ENUM('femenino', 'masculino', 'otros') NOT NULL,
-    discapacidad ENUM('si', 'no') NOT NULL,
+    discapacidad BOOLEAN NOT NULL,  -- Indica si tiene alguna discapacidad
+    tipo_discapacidad VARCHAR(100) NULL,
+    CHECK (tipo_discapacidad IN ('visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas')),
+    porcentaje_discapacidad TINYINT UNSIGNED NULL,
     estado_calificacion CHAR(1) NOT NULL DEFAULT 'P', -- P: Pendiente, A: Aprobado, R: Reprobado
     estado CHAR(1) NOT NULL DEFAULT 'A', -- A: Activo, I: Inactivo
     id_nivel INT NOT NULL, -- Nivel en el que está matriculado el estudiante
