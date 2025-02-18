@@ -53,12 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
     $stmt_check_cedula->execute();
     $result_check_cedula = $stmt_check_cedula->get_result();
 
-    if ($result_check_cedula->num_rows > 0) {
-        $error_message = 'El usuario con esa cédula ya está registrado.';
-    } else {
-        // Validación del correo electrónico
-        $correo_electronico = $_POST['correo_electronico'];
-        
+        if ($result_check_cedula->num_rows > 0) {
+            $error_message = 'El usuario con esa cédula ya está registrado.';
+        } else {
+            // Validación del correo electrónico
+            $correo_electronico = $_POST['correo_electronico'];
+            
         // Utilizando una expresión regular para verificar el formato del correo electrónico
         if (!filter_var($correo_electronico, FILTER_VALIDATE_EMAIL)) {
             $error_message = 'El correo electrónico no tiene un formato válido.';
@@ -66,164 +66,148 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
             // Validar los nuevos campos
             if (empty($error_message)) {
                 $discapacidad = $_POST['discapacidad'];
+                
                 // Validar y concatenar las discapacidades seleccionadas
                 $valid_disabilities = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
-                $tipo_discapacidad_array = $_POST['tipo_discapacidad'];
-                $tipo_discapacidad = implode(',', array_intersect($valid_disabilities, $tipo_discapacidad_array));
-                $porcentaje_discapacidad = ($discapacidad == 1 && !empty($_POST['porcentaje_discapacidad'])) ? $_POST['porcentaje_discapacidad'] : null;
-                
-                // Validar porcentaje de discapacidad
-                if ($discapacidad == 1 && ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100)) {
-                    $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
-                }
 
-                // Verificación de los campos tipo_discapacidad y porcentaje_discapacidad si discapacidad es sí
-                if ($discapacidad == 1 && (empty($tipo_discapacidad) || empty($porcentaje_discapacidad))) {
-                    $error_message = 'Debe seleccionar al menos una discapacidad y un porcentaje válido.';
-                }
+                // Asegúrate de que 'tipo_discapacidad' esté definido en POST
+                $tipo_discapacidad_array = isset($_POST['tipo_discapacidad']) ? $_POST['tipo_discapacidad'] : [];
 
-                if (empty($error_message)) {
-                    // Procede con la inserción en la base de datos
-                    $nombres = $_POST['nombres'];
-                    $apellidos = $_POST['apellidos'];
-                    $telefono = $_POST['telefono'];
-                    $direccion = $_POST['direccion'];
-                    $fecha_nacimiento = $_POST['fecha_nacimiento'];
-                    $genero = $_POST['genero'];
-                    $id_rol = $_POST['id_rol'];
-                    $contraseña = $_POST['contraseña'];
-                    $estado = 'A';
-                    $usuario_ingreso = $_SESSION['cedula'];
-                    $fecha_ingreso = date('Y-m-d H:i:s');
-
-                    // Verifica si el año académico fue obtenido correctamente
-                    if ($active_year == 'No se detectó ningún año lectivo.') {
-                        $error_message = 'No se puede registrar el usuario porque no hay un año académico activo.';
-                    } else {
-                        // Ahora puedes utilizar el año académico activo para la inserción
-                        // Obtén el ID del año académico activo (asumimos que el campo 'año' en la consulta corresponde al año académico)
-                        $sql_his_academico = "SELECT id_his_academico FROM historial_academico WHERE año = ?";
-                        $stmt_his_academico = $conn->prepare($sql_his_academico);
-                        $stmt_his_academico->bind_param('s', $active_year);
-                        $stmt_his_academico->execute();
-                        $result_his_academico = $stmt_his_academico->get_result();
-                        
-                        if ($result_his_academico->num_rows > 0) {
-                            $year_record = $result_his_academico->fetch_assoc();
-                            $id_his_academico = $year_record['id_his_academico']; // Asignar el ID del año académico
-                        } else {
-                            $error_message = 'No se pudo obtener el ID del año académico para el año activo.';
-                        }
+                // Validar que solo se seleccione una discapacidad
+                if (count($tipo_discapacidad_array) > 1) {
+                    $error_message = 'Solamente está permitido seleccionar uno de los tipos de discapacidad.';
+                } else {
+                    $tipo_discapacidad = implode(',', array_intersect($valid_disabilities, $tipo_discapacidad_array));
+                    $porcentaje_discapacidad = ($discapacidad == 1 && !empty($_POST['porcentaje_discapacidad'])) ? $_POST['porcentaje_discapacidad'] : null;
+                    
+                    // Validar porcentaje de discapacidad
+                    if ($discapacidad == 1 && ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100)) {
+                        $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
                     }
 
-                    // Si no hay error, continúa con la inserción en la base de datos
+                    // Verificación de los campos tipo_discapacidad y porcentaje_discapacidad si discapacidad es sí
+                    if ($discapacidad == 1 && (empty($tipo_discapacidad) || empty($porcentaje_discapacidad))) {
+                        $error_message = 'Debe seleccionar al menos una discapacidad y un porcentaje válido.';
+                    }
+
                     if (empty($error_message)) {
-                        $conn->begin_transaction();
-                        try {
-                            // Insertar en la tabla usuario con el año académico activo
-                            $sql_usuario = "INSERT INTO usuario (cedula, contraseña, id_rol, id_his_academico, estado, usuario_ingreso, fecha_ingreso) 
-                                            VALUES (?, ?, ?, ?, ?, ?, ?)";
-                            $stmt_usuario = $conn->prepare($sql_usuario);
-                            $stmt_usuario->bind_param('ssiisss', $cedula, $contraseña, $id_rol, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
-                            $stmt_usuario->execute();
-                            $id_usuario = $conn->insert_id;
+                        // Procede con la inserción en la base de datos
+                        $nombres = $_POST['nombres'];
+                        $apellidos = $_POST['apellidos'];
+                        $telefono = $_POST['telefono'];
+                        $direccion = $_POST['direccion'];
+                        $fecha_nacimiento = $_POST['fecha_nacimiento'];
+                        $genero = $_POST['genero'];
+                        $id_rol = $_POST['id_rol'];
+                        $contraseña = $_POST['contraseña'];
+                        $estado = 'A';
+                        $usuario_ingreso = $_SESSION['cedula'];
+                        $fecha_ingreso = date('Y-m-d H:i:s');
 
-                            // Insertar en la tabla específica del rol
-                            if ($id_rol == 1) {
-                                // Insertar administrador
-                                // Si discapacidad es 0, los valores de tipo_discapacidad y porcentaje_discapacidad deben ser NULL
-                                $sql_admin = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
-                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                $stmt_admin = $conn->prepare($sql_admin);
-                                $stmt_admin->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
-                                $stmt_admin->execute();
-
-                            // Insertar profesor
-                            } elseif ($id_rol == 2) {
-                                // Validar que los campos de discapacidad sean correctos antes de la inserción
-                                if ($discapacidad == 1) {
-                                    // Verificar si se ha seleccionado al menos un tipo de discapacidad
-                                    if (empty($_POST['tipo_discapacidad']) || !is_array($_POST['tipo_discapacidad'])) {
-                                        $error_message = 'Debe seleccionar al menos un tipo de discapacidad.';
-                                    } else {
-                                        // Validar que cada tipo de discapacidad seleccionado esté en la lista permitida
-                                        $valid_types = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
-                                        foreach ($_POST['tipo_discapacidad'] as $tipo) {
-                                            if (!in_array($tipo, $valid_types)) {
-                                                $error_message = 'El tipo de discapacidad seleccionado no es válido.';
-                                                break;  // Salir del bucle si encontramos un tipo no válido
-                                            }
-                                        }
-                                    }
-
-                                    // Validar porcentaje de discapacidad
-                                    if ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100) {
-                                        $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
-                                    }
-                                } else {
-                                    // Si discapacidad es 0, asegurarse de que tipo_discapacidad sea NULL
-                                    $tipo_discapacidad = NULL;
-                                    $porcentaje_discapacidad = NULL;  // Si no hay discapacidad, el porcentaje también es NULL
-                                }
-
-                                // Si no hay error, proceder con la inserción
-                                if (empty($error_message)) {
-                                    // Convertir el arreglo de tipos de discapacidad en una cadena separada por comas
-                                    if (!empty($_POST['tipo_discapacidad'])) {
-                                        $tipo_discapacidad = implode(',', $_POST['tipo_discapacidad']);
-                                    } else {
-                                        $tipo_discapacidad = NULL;  // Si no se seleccionó ningún tipo, lo dejamos como NULL
-                                    }
-
-                                    // Validar que el id_usuario existe
-                                    $sql_check_usuario = "SELECT COUNT(*) FROM usuario WHERE id_usuario = ?";
-                                    $stmt_check = $conn->prepare($sql_check_usuario);
-                                    $stmt_check->bind_param('i', $id_usuario);
-                                    $stmt_check->execute();
-                                    $stmt_check->bind_result($count);
-                                    $stmt_check->fetch();
-
-                                    if ($count == 0) {
-                                        $error_message = "El id_usuario no existe en la tabla usuario.";
-                                    } else {
-                                        // Proceder con la inserción en la tabla profesor
-                                        $sql_prof = "INSERT INTO profesor (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
-                                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                        $stmt_prof = $conn->prepare($sql_prof);
-                                        $stmt_prof->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
-
-                                        if ($stmt_prof->execute()) {
-                                            echo "Profesor registrado correctamente.";
-                                        } else {
-                                            $error_message = "Error al insertar en la tabla profesor: " . $stmt_prof->error;
-                                        }
-                                    }
-                                }
-
-                            } elseif ($id_rol == 3) {
-                                // Insertar padre
-                                $parentesco = $_POST['parentesco'];
-                                $parentesco_otro = $parentesco == 'otro' ? $_POST['parentesco_otro'] : null;
-                                $sql_padre = "INSERT INTO padre (nombres, apellidos, cedula, parentesco, parentesco_otro, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
-                                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                $stmt_padre = $conn->prepare($sql_padre);
-                                $stmt_padre->bind_param('sssssssssssssi', $nombres, $apellidos, $cedula, $parentesco, $parentesco_otro, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
-                                $stmt_padre->execute();
+                        // Verifica si el año académico fue obtenido correctamente
+                        if ($active_year == 'No se detectó ningún año lectivo.') {
+                            $error_message = 'No se puede registrar el usuario porque no hay un año académico activo.';
+                        } else {
+                            // Ahora puedes utilizar el año académico activo para la inserción
+                            $sql_his_academico = "SELECT id_his_academico FROM historial_academico WHERE año = ?";
+                            $stmt_his_academico = $conn->prepare($sql_his_academico);
+                            $stmt_his_academico->bind_param('s', $active_year);
+                            $stmt_his_academico->execute();
+                            $result_his_academico = $stmt_his_academico->get_result();
+                            
+                            if ($result_his_academico->num_rows > 0) {
+                                $year_record = $result_his_academico->fetch_assoc();
+                                $id_his_academico = $year_record['id_his_academico']; // Asignar el ID del año académico
+                            } else {
+                                $error_message = 'No se pudo obtener el ID del año académico para el año activo.';
                             }
+                        }
 
-                            // Finalizar transacción si todo ha ido bien
-                            $conn->commit();
-                            $success_message = "Usuario registrado exitosamente.";
-                        } catch (Exception $e) {
-                            $conn->rollback();
-                            $error_message = "Error al registrar el usuario: " . $e->getMessage();
+                        // Si no hay error, continúa con la inserción en la base de datos
+                        if (empty($error_message)) {
+                            $conn->begin_transaction();
+                            try {
+                                // Insertar en la tabla usuario con el año académico activo
+                                $sql_usuario = "INSERT INTO usuario (cedula, contraseña, id_rol, id_his_academico, estado, usuario_ingreso, fecha_ingreso) 
+                                                VALUES (?, ?, ?, ?, ?, ?, ?)";
+                                $stmt_usuario = $conn->prepare($sql_usuario);
+                                $stmt_usuario->bind_param('ssiisss', $cedula, $contraseña, $id_rol, $id_his_academico, $estado, $usuario_ingreso, $fecha_ingreso);
+                                $stmt_usuario->execute();
+                                $id_usuario = $conn->insert_id;
+
+                                // Insertar en la tabla específica del rol
+                                if ($id_rol == 1) {
+                                    // Insertar administrador
+                                    $sql_admin = "INSERT INTO administrador (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                    $stmt_admin = $conn->prepare($sql_admin);
+                                    $stmt_admin->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
+                                    $stmt_admin->execute();
+                                } elseif ($id_rol == 2) {
+                                    // Insertar profesor
+                                    $sql_profesor = "INSERT INTO profesor (nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                    $stmt_profesor = $conn->prepare($sql_profesor);
+                                    $stmt_profesor->bind_param('sssssssssssi', $nombres, $apellidos, $cedula, $telefono, $correo_electronico, $direccion, $fecha_nacimiento, $genero, $discapacidad, $tipo_discapacidad, $porcentaje_discapacidad, $id_usuario);
+                                    $stmt_profesor->execute();
+                                } elseif ($id_rol == 3) {
+                                    // Insertar padre
+                                    // Definir $parentesco correctamente antes de usarlo
+                                    $parentesco = $_POST['parentesco'] ?? ''; // Se obtiene el parentesco
+                                
+                                    // Verificamos si el parentesco es "otro" y si el campo "parentesco_otro" está definido
+                                    $parentesco_otro = ($parentesco == 'otro' && isset($_POST['parentesco_otro'])) ? $_POST['parentesco_otro'] : null;
+                                
+                                    // Si discapacidad es 0, tipo_discapacidad y porcentaje_discapacidad deben ser NULL
+                                    if ($discapacidad == 0) {
+                                        $tipo_discapacidad = null;
+                                        $porcentaje_discapacidad = null;
+                                    }
+                                
+                                    // Consulta SQL asegurando que los valores opcionales sean manejados correctamente
+                                    $sql_padre = "INSERT INTO padre (nombres, apellidos, cedula, parentesco, parentesco_otro, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
+                                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                
+                                    $stmt_padre = $conn->prepare($sql_padre);
+                                
+                                    // Enlace de parámetros asegurando que pasamos los valores correctos
+                                    $stmt_padre->bind_param(
+                                        'ssssssssssissi',
+                                        $nombres,
+                                        $apellidos,
+                                        $cedula,
+                                        $parentesco,
+                                        $parentesco_otro,  
+                                        $telefono,
+                                        $correo_electronico,
+                                        $direccion,
+                                        $fecha_nacimiento,
+                                        $genero,
+                                        $discapacidad, 
+                                        $tipo_discapacidad, 
+                                        $porcentaje_discapacidad, 
+                                        $id_usuario
+                                    );
+                                
+                                    $stmt_padre->execute();
+                                }
+                                
+                                // Finalizar transacción si todo ha ido bien
+                                $conn->commit();
+                                $success_message = "Usuario registrado exitosamente.";
+                            } catch (Exception $e) {
+                                $conn->rollback();
+                                $error_message = "Error al registrar el usuario: " . $e->getMessage();
+                            }
                         }
                     }
                 }
             }
         }
+
     }
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
     $cedula_consulta = $_POST['cedula_consulta'];
@@ -853,7 +837,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                     <div class="form-group">
                         <label for="tipo_discapacidad"><i class='bx bx-list-check'></i> Tipo de discapacidad:</label>
                         <!-- Instrucción para el usuario -->
-                        <p class="instruccion-usuario">Seleccione uno o varios tipos de discapacidad según corresponda:
+                        <p class="instruccion-usuario">Seleccione solo un tipo de discapacidad:
                         </p>
                         <div class="discapacidad-container">
                             <div class="form-check">
@@ -893,9 +877,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="multiple" name="tipo_discapacidad[]"
-                                    value="multiple">
-                                <label class="form-check-label" for="multiple">
+                                <input type="checkbox" class="form-check-input" id="múltiple" name="tipo_discapacidad[]"
+                                    value="múltiple">
+                                <label class="form-check-label" for="múltiple">
                                     <strong>Múltiple</strong> <span class="descripcion">(Combinación de
                                         discapacidades)</span>
                                 </label>
@@ -971,7 +955,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                 <div class="col-md-6">
                     <div class="form-group" id="otroParentescoInput" style="display: none;">
                         <label for="otro_parentesco"><i class='bx bxs-edit-alt'></i> Especificar Parentesco:</label>
-                        <input type="text" class="form-control" id="otro_parentesco" name="otro_parentesco">
+                        <input type="text" class="form-control" id="otro_parentesco" name="parentesco_otro">
                     </div>
                 </div>
             </div>
