@@ -90,6 +90,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
                         $error_message = 'Debe seleccionar al menos una discapacidad y un porcentaje válido.';
                     }
 
+                    // Validación de la dirección
+                    $direccion = $_POST['direccion'];
+                    $regex_direccion = '/^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])(?=.*\d)[A-Za-zÁÉÍÓÚáéíóúÑñ0-9.,#°\-\s]{5,255}$/';
+
+                    if (!preg_match($regex_direccion, $direccion)) {
+                        $error_message = 'La dirección debe contener al menos una palabra y un número, y solo puede incluir letras, números, espacios, puntos, comas, guiones y símbolos como # y °.';
+                    } else {
+
                     if (empty($error_message)) {
                         // Procede con la inserción en la base de datos
                         $nombres = $_POST['nombres'];
@@ -122,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
                                 $error_message = 'No se pudo obtener el ID del año académico para el año activo.';
                             }
                         }
+                    }
 
                         // Si no hay error, continúa con la inserción en la base de datos
                         if (empty($error_message)) {
@@ -776,7 +785,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                     <div class="form-group">
                         <label for="direccion"><i class='bx bxs-map'></i> Dirección:<span
                                 class="required">*</span></label>
-                        <input type="text" class="form-control" id="direccion" name="direccion" required>
+                        <input type="text" class="form-control" id="direccion" name="direccion" required
+                            pattern="^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])(?=.*\d)[A-Za-zÁÉÍÓÚáéíóúÑñ0-9.,#°\-\s]{5,255}$"
+                            title="La dirección debe contener al menos una palabra y un número, y puede incluir caracteres como puntos, comas, guiones y números.">
                     </div>
                 </div>
             </div>
@@ -1119,7 +1130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
             if (!regexSoloLetras.test(input)) {
                 alert(
                     "Solo se permiten letras en el campo 'Especificar Parentesco'. No se permiten caracteres especiales ni números."
-                    );
+                );
                 otroParentescoInput.value = "";
                 return;
             }
@@ -1179,6 +1190,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
             input.value = valor + "%";
         }
     }
+
+    document.getElementById("direccion").addEventListener("input", function() {
+        let valor = this.value;
+        let regex = /^(?=.*[A-Za-zÁÉÍÓÚáéíóúÑñ])(?=.*\d)[A-Za-zÁÉÍÓÚáéíóúÑñ0-9.,#°\-\s]{5,255}$/;
+
+        if (!regex.test(valor)) {
+            this.setCustomValidity(
+                "La dirección debe contener al menos una palabra y un número, y solo puede incluir letras, números, espacios, puntos, comas, guiones y símbolos como # y °."
+                );
+        } else {
+            this.setCustomValidity("");
+        }
+    });
     </script>
 </body>
 
