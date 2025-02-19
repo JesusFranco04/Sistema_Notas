@@ -255,33 +255,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
     }
 }
 
+// Función para consultar la cédula en múltiples tablas
+function consultarCedula($cedula) {
+    global $conn;
+    $usuario = null;
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
-    $cedula_consulta = $_POST['cedula_consulta'];
-
-    // Validar que la cédula tenga un formato adecuado
-    if (!empty($cedula_consulta) && is_numeric($cedula_consulta)) {
-        // Consulta para verificar si el usuario ya existe
-        $sql_check_user = "SELECT * FROM usuario WHERE cedula = ?";
-        $stmt_check_user = $conn->prepare($sql_check_user);
-        $stmt_check_user->bind_param('s', $cedula_consulta);
-        $stmt_check_user->execute();
-        $result_check_user = $stmt_check_user->get_result();
-
-        if ($result_check_user->num_rows > 0) {
-            // El usuario existe, obtener los datos
-            $user_data = $result_check_user->fetch_assoc();
-
-            // Aquí puedes devolver los datos para autocompletar el formulario
-            // Por ejemplo, pasarlos como un JSON para JS
-            echo json_encode($user_data);
-            exit();  // Termina la ejecución aquí después de enviar la respuesta
-        } else {
-            $error_message = 'El usuario con esa cédula no está registrado.';
-        }
-    } else {
-        $error_message = 'Por favor ingrese una cédula válida.';
+    // Consultar en la tabla administrador
+    $stmt = $conn->prepare("SELECT nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, '1' AS id_rol, (SELECT contraseña FROM usuario WHERE usuario.cedula = administrador.cedula) AS contraseña FROM administrador WHERE cedula = ?");
+    $stmt->bind_param("s", $cedula);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $usuario = $result->fetch_assoc();
     }
+
+    // Consultar en la tabla profesor si no se encontró en administrador
+    if (!$usuario) {
+        $stmt = $conn->prepare("SELECT nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, '2' AS id_rol, (SELECT contraseña FROM usuario WHERE usuario.cedula = profesor.cedula) AS contraseña FROM profesor WHERE cedula = ?");
+        $stmt->bind_param("s", $cedula);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $usuario = $result->fetch_assoc();
+        }
+    }
+
+    // Consultar en la tabla padre si no se encontró en administrador ni profesor
+    if (!$usuario) {
+        $stmt = $conn->prepare("SELECT nombres, apellidos, cedula, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, '3' AS id_rol, (SELECT contraseña FROM usuario WHERE usuario.cedula = padre.cedula) AS contraseña, parentesco, parentesco_otro FROM padre WHERE cedula = ?");
+        $stmt->bind_param("s", $cedula);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $usuario = $result->fetch_assoc();
+        }
+    }
+
+    return $usuario;
+}
+
+// Manejo de la solicitud del botón
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
+    $cedula = $_POST["cedula"];
+    $usuario = consultarCedula($cedula);
+
+    if ($usuario) {
+        // Usuario ya registrado
+        $response = ['success' => true] + $usuario;
+    } else {
+        // Usuario no registrado
+        $response = ['success' => false];
+    }
+    echo json_encode($response);
+    exit;
 }
 ?>
 
@@ -746,14 +772,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
 
         <!-- Campo de consulta de cédula -->
         <div class="consulta-cedula-form">
-            <label for="consulta_cedula"><i class='bx bx-search'></i> Consultar por Cédula:</label>
+            <label for="consulta_cedula"><i class="bx bx-search"></i> Consultar por Cédula:</label>
             <div class="input-group">
                 <input type="text" class="form-control" id="consulta_cedula" name="consulta_cedula" maxlength="10"
                     pattern="[0-9]{10}" title="Ingrese un número de cédula de 10 dígitos"
-                    placeholder="Ingrese la cédula del usuario" onkeyup="validarCedulaConsulta()">
+                    placeholder="Ingrese la cédula del usuario">
                 <div class="input-group-append">
-                    <button class="btn btn-info" type="button" id="btn-consultar"
-                        onclick="consultarCedula()">Consultar</button>
+                    <button class="btn btn-info" type="button" id="btn-consultar">Consultar</button>
                 </div>
             </div>
             <small class="form-text text-muted" id="mensaje-error-cédula" style="color: red; display: none;">
@@ -884,7 +909,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
             <div class="row" id="discapacidadCampos" style="display: none;">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="tipo_discapacidad"><i class='bx bx-list-check'></i> Tipo de discapacidad:</label>
+                        <label for="tipo_discapacidad"><i class='bx bx-list-check'></i> Tipo de
+                            discapacidad:</label>
                         <!-- Instrucción para el usuario -->
                         <p class="instruccion-usuario">Seleccione solo un tipo de discapacidad:
                         </p>
@@ -915,14 +941,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                                 <input type="checkbox" class="form-check-input" id="motora" name="tipo_discapacidad[]"
                                     value="motora">
                                 <label class="form-check-label" for="motora">
-                                    <strong>Motora</strong> <span class="descripcion">(Problemas de movimiento)</span>
+                                    <strong>Motora</strong> <span class="descripcion">(Problemas de
+                                        movimiento)</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="psicosocial"
                                     name="tipo_discapacidad[]" value="psicosocial">
                                 <label class="form-check-label" for="psicosocial">
-                                    <strong>Psicosocial</strong> <span class="descripcion">(Condiciones mentales)</span>
+                                    <strong>Psicosocial</strong> <span class="descripcion">(Condiciones
+                                        mentales)</span>
                                 </label>
                             </div>
                             <div class="form-check">
@@ -937,7 +965,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                                 <input type="checkbox" class="form-check-input" id="habla_comunicacion"
                                     name="tipo_discapacidad[]" value="habla_comunicacion">
                                 <label class="form-check-label" for="habla_comunicacion">
-                                    <strong>Habla y Comunicación</strong> <span class="descripcion">(Dificultades para
+                                    <strong>Habla y Comunicación</strong> <span class="descripcion">(Dificultades
+                                        para
                                         expresarse)</span>
                                 </label>
                             </div>
@@ -1127,7 +1156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
         if (!errorMessageContainer) {
             errorMessageContainer = document.createElement('div');
             errorMessageContainer.className = 'error-message';
-            document.querySelector('.container').insertBefore(errorMessageContainer, document.querySelector('form'));
+            document.querySelector('.container').insertBefore(errorMessageContainer, document.querySelector(
+                'form'));
         }
         errorMessageContainer.textContent = mensaje;
     }
@@ -1239,6 +1269,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
             );
         } else {
             this.setCustomValidity("");
+        }
+    });
+
+    document.getElementById('btn-consultar').addEventListener('click', function() {
+        var cedula = document.getElementById('consulta_cedula').value;
+
+        if (cedula.length === 10 && /^[0-9]+$/.test(cedula)) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        alert('Este usuario ya estaba registrado');
+                        document.getElementById('nombres').value = response.nombres;
+                        document.getElementById('apellidos').value = response.apellidos;
+                        document.getElementById('cedula').value = response.cedula;
+                        document.getElementById('telefono').value = response.telefono;
+                        document.getElementById('correo_electronico').value = response.correo_electronico;
+                        document.getElementById('direccion').value = response.direccion;
+                        document.getElementById('fecha_nacimiento').value = response.fecha_nacimiento;
+                        document.getElementById('genero').value = response.genero;
+                        document.getElementById('discapacidad').value = response.discapacidad;
+                        document.getElementById('id_rol').value = response.id_rol;
+                        document.getElementById('contraseña').value = response.contraseña;
+                        document.getElementById('anio_lectivo').value = response.anio_lectivo;
+
+                        // Mostrar campos adicionales si es necesario
+                        if (response.id_rol == '3') { // Si es padre
+                            document.getElementById('parentescoCampos').style.display = 'block';
+                            document.getElementById('parentesco').value = response.parentesco;
+                            if (response.parentesco == 'otro') {
+                                document.getElementById('otroParentescoInput').style.display = 'block';
+                                document.getElementById('otro_parentesco').value = response.parentesco_otro;
+                            }
+                        } else {
+                            document.getElementById('parentescoCampos').style.display = 'none';
+                        }
+
+                        if (response.discapacidad == '1') {
+                            document.getElementById('discapacidadCampos').style.display = 'block';
+                            // Marcar los checkboxes de tipo_discapacidad
+                            var tiposDiscapacidad = response.tipo_discapacidad.split(',');
+                            tiposDiscapacidad.forEach(function(tipo) {
+                                document.getElementById(tipo).checked = true;
+                            });
+                            document.getElementById('porcentaje_discapacidad').value = response
+                                .porcentaje_discapacidad;
+                        } else {
+                            document.getElementById('discapacidadCampos').style.display = 'none';
+                        }
+
+                        // Deshabilitar botones
+                        document.getElementById('btn-consultar').disabled = true;
+                        document.querySelector('.btn-crear-usuario').disabled = true;
+                        document.getElementById('button-generate').disabled = true;
+                    } else {
+                        alert('Este usuario no está registrado, puede proceder a llenar el formulario');
+                    }
+                }
+            };
+            xhr.send('cedula=' + cedula);
+        } else {
+            alert('Por favor, ingrese un número de cédula válido de 10 dígitos.');
         }
     });
     </script>
