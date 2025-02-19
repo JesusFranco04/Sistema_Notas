@@ -1272,6 +1272,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
         }
     });
 
+
     document.getElementById('btn-consultar').addEventListener('click', function() {
         var cedula = document.getElementById('consulta_cedula').value;
 
@@ -1281,57 +1282,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        alert('Este usuario ya estaba registrado');
-                        document.getElementById('nombres').value = response.nombres;
-                        document.getElementById('apellidos').value = response.apellidos;
-                        document.getElementById('cedula').value = response.cedula;
-                        document.getElementById('telefono').value = response.telefono;
-                        document.getElementById('correo_electronico').value = response.correo_electronico;
-                        document.getElementById('direccion').value = response.direccion;
-                        document.getElementById('fecha_nacimiento').value = response.fecha_nacimiento;
-                        document.getElementById('genero').value = response.genero;
-                        document.getElementById('discapacidad').value = response.discapacidad;
-                        document.getElementById('id_rol').value = response.id_rol;
-                        document.getElementById('contraseña').value = response.contraseña;
-                        document.getElementById('anio_lectivo').value = response.anio_lectivo;
+                    try {
+                        var response = JSON.parse(xhr.responseText);
 
-                        // Mostrar campos adicionales si es necesario
-                        if (response.id_rol == '3') { // Si es padre
-                            document.getElementById('parentescoCampos').style.display = 'block';
-                            document.getElementById('parentesco').value = response.parentesco;
-                            if (response.parentesco == 'otro') {
-                                document.getElementById('otroParentescoInput').style.display = 'block';
-                                document.getElementById('otro_parentesco').value = response.parentesco_otro;
+                        if (response.success) {
+                            alert('Este usuario ya estaba registrado');
+                            document.getElementById('nombres').value = response.nombres;
+                            document.getElementById('apellidos').value = response.apellidos;
+                            document.getElementById('cedula').value = response.cedula;
+                            document.getElementById('telefono').value = response.telefono;
+                            document.getElementById('correo_electronico').value = response
+                                .correo_electronico;
+                            document.getElementById('direccion').value = response.direccion;
+                            document.getElementById('fecha_nacimiento').value = response.fecha_nacimiento;
+                            document.getElementById('genero').value = response.genero;
+                            document.getElementById('discapacidad').value = response.discapacidad;
+                            document.getElementById('id_rol').value = response.id_rol;
+                            document.getElementById('contraseña').value = response.contraseña;
+
+                            // Mostrar campos adicionales si es necesario
+                            if (response.id_rol == '3') { // Si es padre
+                                document.getElementById('parentescoCampos').style.display = 'block';
+                                document.getElementById('parentesco').value = response.parentesco;
+                                if (response.parentesco == 'otro') {
+                                    document.getElementById('otroParentescoInput').style.display = 'block';
+                                    document.getElementById('otro_parentesco').value = response
+                                        .parentesco_otro;
+                                }
+                            } else {
+                                document.getElementById('parentescoCampos').style.display = 'none';
                             }
-                        } else {
-                            document.getElementById('parentescoCampos').style.display = 'none';
-                        }
 
-                        if (response.discapacidad == '1') {
-                            document.getElementById('discapacidadCampos').style.display = 'block';
-                            // Marcar los checkboxes de tipo_discapacidad
-                            var tiposDiscapacidad = response.tipo_discapacidad.split(',');
-                            tiposDiscapacidad.forEach(function(tipo) {
-                                document.getElementById(tipo).checked = true;
-                            });
-                            document.getElementById('porcentaje_discapacidad').value = response
-                                .porcentaje_discapacidad;
-                        } else {
-                            document.getElementById('discapacidadCampos').style.display = 'none';
-                        }
+                            if (response.discapacidad == '1') {
+                                document.getElementById('discapacidadCampos').style.display = 'block';
+                                // Marcar los checkboxes de tipo_discapacidad
+                                var tiposDiscapacidad = response.tipo_discapacidad.split(',');
+                                tiposDiscapacidad.forEach(function(tipo) {
+                                    var checkbox = document.getElementById(tipo);
+                                    if (checkbox) checkbox.checked = true;
+                                });
+                                document.getElementById('porcentaje_discapacidad').value = response
+                                    .porcentaje_discapacidad;
+                            } else {
+                                document.getElementById('discapacidadCampos').style.display = 'none';
+                            }
 
-                        // Deshabilitar botones
-                        document.getElementById('btn-consultar').disabled = true;
-                        document.querySelector('.btn-crear-usuario').disabled = true;
-                        document.getElementById('button-generate').disabled = true;
-                    } else {
-                        alert('Este usuario no está registrado, puede proceder a llenar el formulario');
+                            // Deshabilitar botones
+                            document.getElementById('btn-consultar').disabled = true;
+                            document.querySelector('.btn-crear-usuario').disabled = true;
+                            document.getElementById('button-generate').disabled = true;
+
+                        } else {
+                            // Mostrar el mensaje si el usuario no está registrado
+                            alert(response.message ||
+                                'Este usuario no está registrado, puede proceder a llenar el formulario'
+                            );
+                        }
+                    } catch (e) {
+                        console.error("Error en JSON:", e);
+                        alert(
+                        "Hubo un error al procesar.");
                     }
                 }
             };
-            xhr.send('cedula=' + cedula);
+            xhr.send('cedula=' + encodeURIComponent(cedula));
         } else {
             alert('Por favor, ingrese un número de cédula válido de 10 dígitos.');
         }
