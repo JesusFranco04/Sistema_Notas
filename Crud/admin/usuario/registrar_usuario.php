@@ -44,50 +44,93 @@ function obtenerAnioLectivo($conn) {
 // Llamada a la función para obtener el año lectivo
 $active_year = obtenerAnioLectivo($conn);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) { 
-    // Validación si ya existe el usuario por cédula
-    $cedula = $_POST['cedula'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
+    // Validación si ya existe el usuario por cédula en la tabla usuario
+    $cedula = trim($_POST['cedula']);
     $sql_check_cedula = "SELECT * FROM usuario WHERE cedula = ?";
     $stmt_check_cedula = $conn->prepare($sql_check_cedula);
     $stmt_check_cedula->bind_param('s', $cedula);
     $stmt_check_cedula->execute();
     $result_check_cedula = $stmt_check_cedula->get_result();
 
-        if ($result_check_cedula->num_rows > 0) {
-            $error_message = 'El usuario con esa cédula ya está registrado.';
+    if ($result_check_cedula->num_rows > 0) {
+        $error_message = 'Este usuario ya está registrado. Por favor, verifica la información o usa una cédula diferente.';
+    } else {
+        // Validación por cédula y nombres en las tablas administrador, profesor y padre
+        $nombres = trim($_POST['nombres']);
+        $apellidos = trim($_POST['apellidos']);
+
+                // Función para normalizar texto (minúsculas, sin tildes, sin espacios extra)
+                function normalizarTexto($texto) {
+                    $texto = trim($texto);
+                    $texto = strtolower($texto);
+                    $texto = strtr($texto, 'ÁÉÍÓÚÜÑáéíóúüñ', 'AEIOUUNaeiouun'); // Remueve tildes
+                    return $texto;
+                }
+        
+        $nombres_normalizados = normalizarTexto($nombres);
+        $apellidos_normalizados = normalizarTexto($apellidos);
+        
+        // Consulta para verificar duplicados en administrador, profesor y padre
+        $sql_check_roles = "
+        SELECT tipo
+        FROM (
+            SELECT 'administrador' AS tipo, cedula, nombres, apellidos FROM administrador
+            UNION ALL
+            SELECT 'profesor', cedula, nombres, apellidos FROM profesor
+            UNION ALL
+            SELECT 'padre', cedula, nombres, apellidos FROM padre
+        ) AS roles
+        WHERE cedula = ? 
+           OR (LOWER(TRIM(REPLACE(nombres, ' ', ''))) = LOWER(?) 
+                AND LOWER(TRIM(REPLACE(apellidos, ' ', ''))) = LOWER(?));
+        ";
+
+        $stmt_check_roles = $conn->prepare($sql_check_roles);
+        $stmt_check_roles->bind_param('sss', $cedula, $nombres_normalizados, $apellidos_normalizados);
+        $stmt_check_roles->execute();
+        $result_check_roles = $stmt_check_roles->get_result();
+
+        if ($result_check_roles->num_rows > 0) {
+            $row = $result_check_roles->fetch_assoc();
+            $error_message = 'El usuario con esta cédula o nombre ya está registrado como: ' . $row['tipo'];  
+
         } else {
             // Validación del correo electrónico
             $correo_electronico = $_POST['correo_electronico'];
             
-        // Utilizando una expresión regular para verificar el formato del correo electrónico
-        if (!filter_var($correo_electronico, FILTER_VALIDATE_EMAIL)) {
-            $error_message = 'El correo electrónico no tiene un formato válido.';
-        } else {
-            // Validar los nuevos campos
-            if (empty($error_message)) {
-                $discapacidad = $_POST['discapacidad'];
-                
-                // Validar y concatenar las discapacidades seleccionadas
-                $valid_disabilities = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
+            if (!filter_var($correo_electronico, FILTER_VALIDATE_EMAIL)) {
+                $error_message = 'El correo electrónico no tiene un formato válido.';
+            } else {
+                // Validar los nuevos campos
+                if (empty($error_message)) {
+                    $discapacidad = $_POST['discapacidad'];
 
-                // Asegúrate de que 'tipo_discapacidad' esté definido en POST
-                $tipo_discapacidad_array = isset($_POST['tipo_discapacidad']) ? $_POST['tipo_discapacidad'] : [];
+                    // Si discapacidad es 0, tipo_discapacidad y porcentaje_discapacidad deben ser NULL
+                    if ($discapacidad == 0) {
+                        $tipo_discapacidad = null;
+                        $porcentaje_discapacidad = null;
+                    } else {
+                        // Si discapacidad es 1, validar tipo_discapacidad y porcentaje_discapacidad
+                        $valid_disabilities = ['visual', 'auditiva', 'intelectual', 'motora', 'psicosocial', 'múltiple', 'habla_comunicacion', 'sensorial', 'enfermedades_cronicas'];
+                        $tipo_discapacidad_array = isset($_POST['tipo_discapacidad']) ? $_POST['tipo_discapacidad'] : [];
 
-                // Validar que solo se seleccione una discapacidad
-                if (count($tipo_discapacidad_array) > 1) {
-                    $error_message = 'Solamente está permitido seleccionar uno de los tipos de discapacidad.';
-                } else {
-                    $tipo_discapacidad = implode(',', array_intersect($valid_disabilities, $tipo_discapacidad_array));
-                    $porcentaje_discapacidad = ($discapacidad == 1 && !empty($_POST['porcentaje_discapacidad'])) ? $_POST['porcentaje_discapacidad'] : null;
-                    
-                    // Validar porcentaje de discapacidad
-                    if ($discapacidad == 1 && ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100)) {
-                        $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
-                    }
+                        // Validar que solo se seleccione una discapacidad
+                        if (count($tipo_discapacidad_array) > 1) {
+                            $error_message = 'Solamente está permitido seleccionar uno de los tipos de discapacidad.';
+                        } else {
+                            $tipo_discapacidad = implode(',', array_intersect($valid_disabilities, $tipo_discapacidad_array));
+                            $porcentaje_discapacidad = ($_POST['porcentaje_discapacidad']) ? $_POST['porcentaje_discapacidad'] : null;
+                            
+                            // Validar porcentaje de discapacidad
+                            if ($porcentaje_discapacidad < 1 || $porcentaje_discapacidad > 100) {
+                                $error_message = 'El porcentaje de discapacidad debe estar entre 1 y 100.';
+                            }
 
-                    // Verificación de los campos tipo_discapacidad y porcentaje_discapacidad si discapacidad es sí
-                    if ($discapacidad == 1 && (empty($tipo_discapacidad) || empty($porcentaje_discapacidad))) {
-                        $error_message = 'Debe seleccionar al menos una discapacidad y un porcentaje válido.';
+                            if (empty($tipo_discapacidad) || empty($porcentaje_discapacidad)) {
+                                $error_message = 'Debe seleccionar una discapacidad y un porcentaje válido.';
+                            }
+                        }
                     }
 
                     // Validación de la dirección
@@ -167,11 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error_message)) {
                                     // Verificamos si el parentesco es "otro" y si el campo "parentesco_otro" está definido
                                     $parentesco_otro = ($parentesco == 'otro' && isset($_POST['parentesco_otro'])) ? $_POST['parentesco_otro'] : null;
                                 
-                                    // Si discapacidad es 0, tipo_discapacidad y porcentaje_discapacidad deben ser NULL
-                                    if ($discapacidad == 0) {
-                                        $tipo_discapacidad = null;
-                                        $porcentaje_discapacidad = null;
-                                    }
                                 
                                     // Consulta SQL asegurando que los valores opcionales sean manejados correctamente
                                     $sql_padre = "INSERT INTO padre (nombres, apellidos, cedula, parentesco, parentesco_otro, telefono, correo_electronico, direccion, fecha_nacimiento, genero, discapacidad, tipo_discapacidad, porcentaje_discapacidad, id_usuario) 
@@ -1198,7 +1236,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
         if (!regex.test(valor)) {
             this.setCustomValidity(
                 "La dirección debe contener al menos una palabra y un número, y solo puede incluir letras, números, espacios, puntos, comas, guiones y símbolos como # y °."
-                );
+            );
         } else {
             this.setCustomValidity("");
         }
