@@ -955,7 +955,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
                 <div class="col-md-6">
                     <div class="form-group" id="otroParentescoInput" style="display: none;">
                         <label for="otro_parentesco"><i class='bx bxs-edit-alt'></i> Especificar Parentesco:</label>
-                        <input type="text" class="form-control" id="otro_parentesco" name="parentesco_otro">
+                        <input type="text" class="form-control" id="otro_parentesco" name="parentesco_otro"
+                            pattern="^(?!.*\b(padre|papá|madre|mamá|hermano mayor|hermana mayor|familiar|familia)\b)[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"
+                            title="No se permiten números, caracteres especiales ni las palabras prohibidas.">
                     </div>
                 </div>
             </div>
@@ -1081,40 +1083,70 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['consultar'])) {
         errorMessageContainer.textContent = mensaje;
     }
 
-    // Obtener los elementos del DOM
-    const rolSelect = document.getElementById("id_rol");
-    const parentescoSelect = document.getElementById("parentesco");
-    const parentescoCampos = document.getElementById("parentescoCampos");
-    const otroParentescoInput = document.getElementById("otroParentescoInput");
+    document.addEventListener("DOMContentLoaded", function() {
+        const rolSelect = document.getElementById("id_rol");
+        const parentescoSelect = document.getElementById("parentesco");
+        const parentescoCampos = document.getElementById("parentescoCampos");
+        const otroParentescoInputDiv = document.getElementById("otroParentescoInput");
+        const otroParentescoInput = document.getElementById("otro_parentesco");
 
-    // Función para mostrar/ocultar el campo "Parentesco"
-    function mostrarParentesco() {
-        if (rolSelect.value === "3") {
-            parentescoCampos.style.display = "block";
-        } else {
-            parentescoCampos.style.display = "none";
+        const valoresProhibidos = ["padre", "papá", "madre", "mamá", "hermano mayor", "hermana mayor",
+            "familiar", "familia"
+        ];
+
+        // Función para mostrar/ocultar "Parentesco"
+        function mostrarParentesco() {
+            parentescoCampos.style.display = rolSelect.value === "3" ? "block" : "none";
         }
-    }
 
-    // Función para mostrar/ocultar el campo "Especificar Parentesco"
-    function mostrarOtroParentesco() {
-        if (rolSelect.value === "3" && parentescoSelect.value ===
-            "otro") { // Verifica el rol y la selección de parentesco
-            otroParentescoInput.style.display = "block";
-        } else {
-            otroParentescoInput.style.display = "none";
+        // Función para mostrar/ocultar "Especificar Parentesco"
+        function mostrarOtroParentesco() {
+            if (rolSelect.value === "3" && parentescoSelect.value === "otro") {
+                otroParentescoInputDiv.style.display = "block";
+            } else {
+                otroParentescoInputDiv.style.display = "none";
+                otroParentescoInput.value = ""; // Limpiar el campo si se oculta
+            }
         }
-    }
 
-    // Agregar eventos a los selects
-    rolSelect.addEventListener("change", mostrarParentesco);
-    rolSelect.addEventListener("change", mostrarOtroParentesco); // También se debe ejecutar al cambiar el rol
-    parentescoSelect.addEventListener("change", mostrarOtroParentesco);
+        // Función para validar "Especificar Parentesco"
+        function validarOtroParentesco() {
+            let input = otroParentescoInput.value.trim().toLowerCase();
 
-    // Inicializar los campos al cargar la página
-    mostrarParentesco();
-    mostrarOtroParentesco();
+            // Expresión regular: permite solo letras, espacios y tildes
+            let regexSoloLetras = /^[a-záéíóúüñ\s]+$/i;
 
+            if (!regexSoloLetras.test(input)) {
+                alert(
+                    "Solo se permiten letras en el campo 'Especificar Parentesco'. No se permiten caracteres especiales ni números."
+                    );
+                otroParentescoInput.value = "";
+                return;
+            }
+
+            // Eliminar caracteres extraños que puedan haber sido ingresados (guiones, asteriscos, etc.)
+            let inputLimpio = input.replace(/[^a-záéíóúüñ\s]/gi, "");
+
+            // Verificar si el texto limpio sigue conteniendo una palabra prohibida
+            if (valoresProhibidos.some(palabra => inputLimpio.includes(palabra))) {
+                alert("El valor ingresado no es válido. Por favor, ingrese un parentesco diferente.");
+                otroParentescoInput.value = "";
+            }
+        }
+
+        // Agregar eventos
+        rolSelect.addEventListener("change", () => {
+            mostrarParentesco();
+            mostrarOtroParentesco();
+        });
+
+        parentescoSelect.addEventListener("change", mostrarOtroParentesco);
+        otroParentescoInput.addEventListener("input", validarOtroParentesco);
+
+        // Inicializar
+        mostrarParentesco();
+        mostrarOtroParentesco();
+    });
 
     // Obtén el elemento select del campo "Discapacidad"
     const discapacidadSelect = document.getElementById("discapacidad");
