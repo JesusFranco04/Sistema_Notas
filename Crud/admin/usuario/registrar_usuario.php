@@ -763,6 +763,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
     </style>
 </head>
 
+
+
 <body>
     <div class="header-banner">
         <h1>Formulario de Registro de Usuarios | Sistema de Gestión UEBF</h1>
@@ -770,11 +772,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
     <div class="container">
         <h2><i class='bx bxs-user-plus'></i> Registro de Usuario</h2>
 
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script>
+        $(document).ready(function() {
+            $('#btn-consultar').click(function() {
+                var cedula = $('#consulta_cedula').val();
+                $.post('http://localhost/sistema_notas/Crud/admin/usuario/registrar_usuario.php', {
+                    cedula: cedula
+                }, function(response) {
+                    if (response.status === 'success') {
+                        // Mostrar datos del usuario
+                        console.log(response);
+                    } else {
+                        // Mostrar mensaje de error
+                        $('#mensaje-error-cédula').show();
+                    }
+                }, 'json').fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error("Error en la solicitud:", textStatus, errorThrown);
+                    alert("Este usuario no está registrado. Por favor, proceda a llenar el formulario.");
+                });
+            });
+        });
+        </script>
+
         <!-- Campo de consulta de cédula -->
         <div class="consulta-cedula-form">
             <label for="consulta_cedula"><i class="bx bx-search"></i> Consultar por Cédula:</label>
             <div class="input-group">
-                <input type="text" class="form-control" id="consulta_cedula" name="consulta_cedula" maxlength="10"
+                <input type="text" class="form-control" id="consulta_cedula" name="cedula" maxlength="10"
                     pattern="[0-9]{10}" title="Ingrese un número de cédula de 10 dígitos"
                     placeholder="Ingrese la cédula del usuario">
                 <div class="input-group-append">
@@ -782,7 +807,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
                 </div>
             </div>
             <small class="form-text text-muted" id="mensaje-error-cédula" style="color: red; display: none;">
-                Usuario no registrado.
+                Usuario registrado.
             </small>
         </div>
 
@@ -1087,6 +1112,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
     </footer>
 
     <script>
+    function validarPorcentaje() {
+        // Lógica de validación del porcentaje
+        var porcentaje = document.getElementById('porcentaje_discapacidad').value;
+        if (porcentaje < 0 || porcentaje > 100) {
+            alert('El porcentaje de discapacidad debe estar entre 0 y 100.');
+            return false;
+        }
+        return true;
+    }
+
     function validarFormulario() {
         var fechaNacimiento = document.getElementById('fecha_nacimiento').value.trim();
         var hoy = new Date();
@@ -1341,7 +1376,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cedula'])) {
                     } catch (e) {
                         console.error("Error en JSON:", e);
                         alert(
-                        "Hubo un error al procesar.");
+                            "Hubo un error al procesar.");
                     }
                 }
             };
